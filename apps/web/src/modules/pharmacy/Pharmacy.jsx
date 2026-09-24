@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../../api.js";
 import { useApi } from "../../hooks.js";
 import { PatientPage } from "../../layouts.jsx";
@@ -240,6 +241,9 @@ function RxCard({ rx, onChanged }) {
         )}
         {!inProgress && !rx.pending_refill_id && !refilling && (
           <button className="btn dark" onClick={() => { setRefilling(true); setMessage(null); }}>Request a refill</button>
+        )}
+        {rx.status === "active" && (fill?.status === "ready" || (!inProgress && !rx.pending_refill_id && rx.refills_remaining > 0)) && (
+          <Link className="btn" to={`/shop?rx=${rx.id}`}>Order for delivery</Link>
         )}
       </div>
       {refilling && (
