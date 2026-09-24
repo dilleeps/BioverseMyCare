@@ -245,11 +245,16 @@ def test_seeded_pipeline_and_brief_for_jun(client):
 
 
 def test_seed_is_idempotent(client):
+    def counts():
+        with db() as conn:
+            return {t: conn.execute(f"SELECT count(*) AS n FROM {t}").fetchone()["n"]
+                    for t in ("research_studies", "evidence_items", "research_subjects")}
+
+    before = counts()
+    assert before["research_studies"] == 5 and before["research_subjects"] == 1
+    assert before["evidence_items"] >= 16      # other modules add evidence too
     seed(DB)
-    with db() as conn:
-        assert conn.execute("SELECT count(*) AS n FROM research_studies").fetchone()["n"] == 5
-        assert conn.execute("SELECT count(*) AS n FROM evidence_items").fetchone()["n"] == 16
-        assert conn.execute("SELECT count(*) AS n FROM research_subjects").fetchone()["n"] == 1
+    assert counts() == before
 
 
 # --- Explanation and front door --------------------------------------------------------------------
