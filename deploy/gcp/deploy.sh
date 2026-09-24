@@ -11,6 +11,21 @@ source deploy/gcp/config.sh
 
 say() { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
 
+# Refuse to start until setup.sh has finished, instead of failing halfway with a confusing error.
+missing=()
+gcloud artifacts repositories describe "${REPO}" --project "${PROJECT_ID}" --location "${REGION}" >/dev/null 2>&1 \
+  || missing+=("Artifact Registry repository '${REPO}'")
+gcloud sql instances describe "${SQL_INSTANCE}" --project "${PROJECT_ID}" >/dev/null 2>&1 \
+  || missing+=("Cloud SQL instance '${SQL_INSTANCE}'")
+gcloud secrets describe "${SECRET_DB_URL}" --project "${PROJECT_ID}" >/dev/null 2>&1 \
+  || missing+=("secret '${SECRET_DB_URL}'")
+if (( ${#missing[@]} )); then
+  echo "Setup has not finished. Missing:" >&2
+  printf '  - %s\n' "${missing[@]}" >&2
+  echo "Run ./deploy/gcp/setup.sh until it prints 'Done', then run this again." >&2
+  exit 1
+fi
+
 IMAGE_TAG="${IMAGE_TAG:-$(git rev-parse --short HEAD 2>/dev/null || date +%Y%m%d%H%M%S)}"
 IMAGE_REF="${IMAGE}:${IMAGE_TAG}"
 

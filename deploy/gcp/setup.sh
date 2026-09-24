@@ -18,10 +18,44 @@ PROJECT_NUMBER="$(gcloud projects describe "${PROJECT_ID}" --format='value(proje
 # Check Cloud Build > Settings, and export CLOUDBUILD_SA if yours differs.
 CLOUDBUILD_SA="${CLOUDBUILD_SA:-${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com}"
 
+billing_help() {
+  cat >&2 <<EOF
+
+Billing is not enabled for ${PROJECT_ID}. Google requires a billing account before it will
+turn on Cloud Run, Cloud SQL, Cloud Build, Artifact Registry or Secret Manager.
+
+  1. Open https://console.cloud.google.com/billing/linkedaccount?project=${PROJECT_ID}
+  2. Click "Link a billing account" and pick an account, or create one.
+     You need Billing Account User on the billing account and Owner on the project.
+  3. Run this script again.
+
+Or from Cloud Shell:
+  gcloud billing accounts list
+  gcloud billing projects link ${PROJECT_ID} --billing-account=XXXXXX-XXXXXX-XXXXXX
+EOF
+  exit 1
+}
+
+say "Checking billing"
+# `--quiet` so a missing Cloud Billing API is reported instead of prompting. An inconclusive
+# answer is not fatal: the API enable step below reports a billing problem precisely.
+BILLING="$(gcloud billing projects describe "${PROJECT_ID}" --format='value(billingEnabled)' --quiet 2>/dev/null || true)"
+case "${BILLING}" in
+  True) echo "Billing is enabled." ;;
+  False) billing_help ;;
+  *) echo "Could not confirm billing; continuing." ;;
+esac
+
 say "Enabling APIs"
-gcloud services enable \
-  run.googleapis.com sqladmin.googleapis.com artifactregistry.googleapis.com \
-  cloudbuild.googleapis.com secretmanager.googleapis.com iam.googleapis.com
+if ! ENABLE_OUT="$(gcloud services enable \
+    run.googleapis.com sqladmin.googleapis.com artifactregistry.googleapis.com \
+    cloudbuild.googleapis.com secretmanager.googleapis.com iam.googleapis.com 2>&1)"; then
+  if grep -qiE "BILLING_NOT_FOUND|billing-enabled|Billing account .* is not found" <<<"${ENABLE_OUT}"; then
+    billing_help
+  fi
+  echo "${ENABLE_OUT}" >&2
+  exit 1
+fi
 
 say "Artifact Registry repository '${REPO}'"
 exists gcloud artifacts repositories describe "${REPO}" --location "${REGION}" || \

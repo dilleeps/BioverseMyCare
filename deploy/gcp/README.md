@@ -33,18 +33,28 @@ Grant these on the console's IAM page (IAM & Admin > IAM). `setup.sh` grants the
 
 No custom role is needed. Every grant above is a predefined role, scoped as narrowly as the resource allows.
 
-## Steps
+## Before you start
+
+The project needs a **billing account linked**. Without one, Google refuses to turn on Cloud Run, Cloud SQL and the other services, and `setup.sh` stops with instructions. Link one at [Billing > Linked account](https://console.cloud.google.com/billing/linkedaccount?project=bioverseone-509616), or in Cloud Shell:
 
 ```bash
-gcloud auth login
-gcloud config set project bioverseone-509616
-
-# One time. Takes about ten minutes because of Cloud SQL.
-ANTHROPIC_API_KEY=sk-ant-...  ./deploy/gcp/setup.sh     # the key is optional
-
-# Every release. First release: add SEED_DEMO=1 to load the demo tenant.
-SEED_DEMO=1 ./deploy/gcp/deploy.sh
+gcloud billing accounts list
+gcloud billing projects link bioverseone-509616 --billing-account=XXXXXX-XXXXXX-XXXXXX
 ```
+
+Cloud Run scales to zero when idle. Cloud SQL bills for every hour the instance exists, even with no traffic. Set a budget alert under Billing > Budgets & alerts.
+
+## Steps
+
+Easiest from [Cloud Shell](https://shell.cloud.google.com/?project=bioverseone-509616), which is already signed in as you. The `&&` makes each step run only if the previous one succeeded.
+
+```bash
+git clone -b claude/stoic-dirac-cvyp79 https://github.com/dilleeps/BioverseMyCare && cd BioverseMyCare \
+  && ./deploy/gcp/setup.sh \
+  && SEED_DEMO=1 ./deploy/gcp/deploy.sh
+```
+
+`setup.sh` runs once and takes about ten minutes because of Cloud SQL. To use Claude instead of rules mode, run it as `ANTHROPIC_API_KEY=sk-ant-... ./deploy/gcp/setup.sh`. For later releases, run `./deploy/gcp/deploy.sh` on its own. `SEED_DEMO=1` is for the first release only, on an empty database.
 
 Or run the same pipeline on Cloud Build, and connect it to a trigger on `main` later:
 
