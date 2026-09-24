@@ -23,3 +23,6 @@ key.json
 .idea/
 .vscode/
 *.log
+
+# Local agent working copies (git worktrees). Never commit.
+.claude/worktrees/
