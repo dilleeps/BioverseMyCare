@@ -16,7 +16,10 @@ cd "$(dirname "$0")/../.."
 source deploy/gcp/config.sh
 
 say() { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
-G=(--project "${PROJECT_ID}" --region "${MEDGEMMA_REGION}")
+# Bill every call to this project. Model Garden commands sign in with Application Default Credentials,
+# whose quota project may be another project (where Vertex AI is off), which fails with SERVICE_DISABLED.
+export CLOUDSDK_BILLING_QUOTA_PROJECT="${PROJECT_ID}" GOOGLE_CLOUD_QUOTA_PROJECT="${PROJECT_ID}"
+G=(--project "${PROJECT_ID}" --region "${MEDGEMMA_REGION}" --billing-project "${PROJECT_ID}")
 
 endpoint_name() {
   gcloud ai endpoints list "${G[@]}" --filter="displayName=${MEDGEMMA_ENDPOINT_NAME}" \
@@ -44,6 +47,12 @@ esac
 
 say "Vertex AI API"
 gcloud services enable aiplatform.googleapis.com --project "${PROJECT_ID}"
+if gcloud auth application-default print-access-token >/dev/null 2>&1; then
+  gcloud auth application-default set-quota-project "${PROJECT_ID}" >/dev/null 2>&1 \
+    && echo "Application Default Credentials now bill ${PROJECT_ID}" \
+    || echo "Could not set the ADC quota project; continuing with --billing-project ${PROJECT_ID}"
+fi
+echo "Signed in as $(gcloud config get-value account 2>/dev/null)"
 
 say "Runtime account may call the endpoint (Vertex AI User)"
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" --member="serviceAccount:${RUNTIME_SA}" \
@@ -57,7 +66,9 @@ else
   if ! gcloud ai model-garden models deploy --model="${MEDGEMMA_MODEL}" "${G[@]}" \
        --endpoint-display-name="${MEDGEMMA_ENDPOINT_NAME}" --accept-eula; then
     echo >&2
-    echo "Deployment failed. Check the model name and your GPU quota:" >&2
+    echo "Deployment failed. If the error says SERVICE_DISABLED or PERMISSION_DENIED for another project," >&2
+    echo "run: gcloud auth application-default login && gcloud auth application-default set-quota-project ${PROJECT_ID}" >&2
+    echo "Otherwise check the model name and your GPU quota:" >&2
     echo "  gcloud ai model-garden models list --model-filter=medgemma --project ${PROJECT_ID}" >&2
     echo "  gcloud ai model-garden models list-deployment-config --model=${MEDGEMMA_MODEL} --project ${PROJECT_ID}" >&2
     echo "Or deploy from the console, naming the endpoint '${MEDGEMMA_ENDPOINT_NAME}':" >&2

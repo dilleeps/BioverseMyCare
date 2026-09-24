@@ -58,11 +58,11 @@ ENV_VARS="BIOVERSE_AI=auto,BIOVERSE_MODEL=claude-opus-5,BIOVERSE_CLINIC_TZ=Ameri
 
 # MedGemma: when medgemma.sh has deployed the endpoint, the app uses it first and Claude (if a key is set)
 # as the backup. Otherwise Claude alone, or rules mode.
-MG_ENDPOINT="$(gcloud ai endpoints list --project "${PROJECT_ID}" --region "${MEDGEMMA_REGION}" \
+MG_ENDPOINT="$(gcloud ai endpoints list --project "${PROJECT_ID}" --region "${MEDGEMMA_REGION}" --billing-project "${PROJECT_ID}" \
   --filter="displayName=${MEDGEMMA_ENDPOINT_NAME}" --format="value(name)" 2>/dev/null | head -1 || true)"
 if [[ -n "${MG_ENDPOINT}" ]]; then
   MG_ID="${MG_ENDPOINT##*/}"
-  MG_DNS="$(gcloud ai endpoints describe "${MG_ID}" --project "${PROJECT_ID}" --region "${MEDGEMMA_REGION}" \
+  MG_DNS="$(gcloud ai endpoints describe "${MG_ID}" --project "${PROJECT_ID}" --region "${MEDGEMMA_REGION}" --billing-project "${PROJECT_ID}" \
     --format="value(dedicatedEndpointDns)" 2>/dev/null || true)"
   MG_LABEL="${MEDGEMMA_MODEL##*@}"
   MG_MULTI=true; [[ "${MG_LABEL}" == *text* ]] && MG_MULTI=false
