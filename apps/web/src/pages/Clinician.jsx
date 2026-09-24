@@ -6,7 +6,7 @@ import { api } from "../api.js";
 import { useApi } from "../hooks.js";
 import { useSession } from "../session.jsx";
 import { fmtDateTime, fmtShortDate, initials } from "../format.js";
-import { Book, Inbox, Person, Sparkle, Warning } from "../icons.jsx";
+import { Inbox, Person, Sparkle, Warning } from "../icons.jsx";
 
 // Kept for existing imports; the shared layout owns the side navigation now.
 export { WorkspaceNav as ClinicianNav } from "../layouts.jsx";
@@ -100,14 +100,6 @@ function Brief({ patientId }) {
             </article>
           ))}
 
-          <article className="card stack" style={{ gap: 8 }}>
-            <span className="card-title">Evidence</span>
-            <div className="banner info"><Book size={15} /> No evidence source connected.</div>
-            <p className="small muted">
-              Bioverse answers clinical questions only with cited sources. Connect a licensed guideline and drug-label
-              index to enable cited answers here.
-            </p>
-          </article>
         </section>
 
         <section className="span-5 card">
