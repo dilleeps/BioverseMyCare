@@ -74,6 +74,9 @@ p { margin: 0; }
   background: var(--accent-soft); color: var(--accent-strong); font-size: 12px; font-weight: 700;
 }
 .ai-pill.rules { background: #ecebe5; color: var(--ink-2); }
+.brand-name, .ai-pill { white-space: nowrap; }
+@media (max-width: 1240px) { .identity .ai-pill { display: none; } }
+@media (max-width: 520px) { .brand-name { white-space: normal; } }
 
 .page { max-width: 1200px; margin: 0 auto; padding: 28px clamp(16px, 4vw, 40px) 64px; }
 .column { max-width: 560px; margin: 0 auto; padding: 20px 16px 64px; }

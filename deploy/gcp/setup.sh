@@ -63,7 +63,8 @@ esac
 say "Enabling APIs"
 if ! ENABLE_OUT="$(gcloud services enable \
     run.googleapis.com sqladmin.googleapis.com artifactregistry.googleapis.com \
-    cloudbuild.googleapis.com secretmanager.googleapis.com iam.googleapis.com 2>&1)"; then
+    cloudbuild.googleapis.com secretmanager.googleapis.com iam.googleapis.com \
+    cloudscheduler.googleapis.com 2>&1)"; then
   if grep -qiE "BILLING_NOT_FOUND|billing-enabled|Billing account .* is not found" <<<"${ENABLE_OUT}"; then
     billing_help
   fi
@@ -125,6 +126,13 @@ for s in "${SECRET_DB_URL}" "${SECRET_ANTHROPIC}"; do
   fi
 done
 echo "Runtime account can connect to Cloud SQL and read its secrets."
+
+# Cloud Scheduler starts the scheduled-jobs runner (reminders, alerts, deliveries) every five minutes.
+# It uses its own identity, which may only start Cloud Run jobs and services.
+exists gcloud iam service-accounts describe "${SCHEDULER_SA}" || \
+  gcloud iam service-accounts create "${SCHEDULER_SA_NAME}" --display-name="Bioverse scheduler"
+grant gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+  --member="serviceAccount:${SCHEDULER_SA}" --role="roles/run.invoker" --condition=None
 
 # Which account runs builds depends on when the project was created: the legacy Cloud Build
 # account, or the Compute Engine default account. Ask Cloud Build rather than guess.

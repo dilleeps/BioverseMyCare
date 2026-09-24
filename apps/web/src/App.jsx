@@ -11,6 +11,7 @@ import HealthStory from "./pages/HealthStory.jsx";
 import Clinician from "./pages/Clinician.jsx";
 import AgentConfig from "./pages/AgentConfig.jsx";
 import Hub from "./pages/Hub.jsx";
+import Bell from "./modules/notifications/Bell.jsx";
 import { homeFor, moduleRoutes, navFor } from "./modules/registry.js";
 
 const CORE_NAV = {
@@ -66,6 +67,7 @@ function TopBar() {
           </span>
         )}
         {health.error && <span className="ai-pill rules">API offline</span>}
+        <Bell />
         <label htmlFor="identity" className="sr-only">Viewing as</label>
         <select id="identity" value={me?.id || ""} onChange={onSwitch} disabled={!users.length}>
           {users.map((u) => (

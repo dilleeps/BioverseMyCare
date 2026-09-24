@@ -9,11 +9,14 @@ Target project: **`bioverseone-509616`** · default region **`us-central1`** (ch
 | Cloud Run service | `bioverse` | One container serving the React app and the FastAPI API on the same origin |
 | Cloud Run job | `bioverse-migrate` | Applies database migrations before each deploy |
 | Cloud Run job | `bioverse-seed` | Optional. Loads the demo tenant into an empty database |
+| Cloud Run job | `bioverse-jobs` | Scheduled work: reminders, vital-sign alerts, notification delivery |
+| Cloud Scheduler | `bioverse-jobs-tick` | Starts `bioverse-jobs` every five minutes |
 | Cloud SQL | `bioverse-pg` | PostgreSQL 16, encrypted connections only, daily backups, point-in-time recovery, deletion protection |
 | Artifact Registry | `bioverse` | Container images |
 | Secret Manager | `bioverse-database-url` | Connection string with a generated password. Never printed or committed |
 | Secret Manager | `bioverse-anthropic-api-key` | Optional. Without it the app runs its rules-based agents |
 | Service account | `bioverse-run` | Runtime identity for the service and jobs |
+| Service account | `bioverse-scheduler` | Identity Cloud Scheduler uses to start `bioverse-jobs` |
 
 ## IAM roles
 
@@ -23,6 +26,7 @@ Grant these on the console's IAM page (IAM & Admin > IAM). `setup.sh` grants the
 | --- | --- | --- |
 | `bioverse-run` service account | Cloud SQL Client (`roles/cloudsql.client`) | Connect to the database through the Cloud SQL socket |
 | `bioverse-run` service account | Secret Manager Secret Accessor (`roles/secretmanager.secretAccessor`), on the two Bioverse secrets only | Read its own secrets, nothing else |
+| `bioverse-scheduler` service account | Cloud Run Invoker (`roles/run.invoker`) | Start the scheduled-jobs runner |
 | Cloud Build service account | Storage Object Viewer (`roles/storage.objectViewer`) | Read the source that `gcloud builds submit` uploads |
 | Cloud Build service account | Logs Writer (`roles/logging.logWriter`) | Write build logs |
 | Cloud Build service account | Artifact Registry Writer (`roles/artifactregistry.writer`) | Push images |
@@ -77,6 +81,19 @@ Give a colleague access:
 gcloud run services add-iam-policy-binding bioverse --region us-central1 \
   --member=user:colleague@example.com --role=roles/run.invoker
 ```
+
+## Notifications by email and text
+
+Notifications always appear in the app. To also send email or text messages, add these to the service
+(Cloud Run > bioverse > Edit > Variables and secrets, and the same on the `bioverse-jobs` job). Keep the
+passwords in Secret Manager. Emails and texts only say that something is waiting, never health details.
+
+| Variable | Example |
+| --- | --- |
+| `BIOVERSE_PUBLIC_URL` | `https://bioverse-1057658446982.us-central1.run.app` (used for links) |
+| `BIOVERSE_SMTP_URL` | `smtp://user:password@smtp.example.org:587` |
+| `BIOVERSE_EMAIL_FROM` | `care@example.org` |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` | From your Twilio console |
 
 ## Before any real patient data
 

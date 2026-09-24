@@ -40,10 +40,9 @@ if gcloud secrets versions list "${SECRET_ANTHROPIC}" --project "${PROJECT_ID}" 
   SECRETS="${SECRETS},ANTHROPIC_API_KEY=${SECRET_ANTHROPIC}:latest"
 fi
 
-run_job() {
-  local name="$1"; shift
-  local args="$1"
-  say "Job ${name}: python -m ${args}"
+# define_job NAME MODULE: create or update a Cloud Run job that runs `python -m MODULE`.
+define_job() {
+  local name="$1" args="$2"
   local common=(--project "${PROJECT_ID}" --region "${REGION}" --image "${IMAGE_REF}"
     --service-account "${RUNTIME_SA}" --set-cloudsql-instances "${SQL_CONNECTION}"
     --set-secrets "${SECRETS}" --command python --args="-m,${args}" --max-retries 0 --task-timeout 300)
@@ -52,13 +51,33 @@ run_job() {
   else
     gcloud run jobs create "${name}" "${common[@]}"
   fi
-  gcloud run jobs execute "${name}" --project "${PROJECT_ID}" --region "${REGION}" --wait
+}
+
+run_job() {
+  say "Job $1: python -m $2"
+  define_job "$1" "$2"
+  gcloud run jobs execute "$1" --project "${PROJECT_ID}" --region "${REGION}" --wait
 }
 
 # Migrations never use --reset in the cloud. They only apply files not yet recorded.
 run_job "${SERVICE}-migrate" "bioverse.db.migrate"
 if [[ -n "${SEED_DEMO:-}" ]]; then
   run_job "${SERVICE}-seed" "bioverse.db.seed"
+fi
+
+say "Scheduled jobs: ${SERVICE}-jobs every five minutes"
+define_job "${SERVICE}-jobs" "bioverse.jobs"
+RUN_URI="https://run.googleapis.com/v2/projects/${PROJECT_ID}/locations/${REGION}/jobs/${SERVICE}-jobs:run"
+sched=(--project "${PROJECT_ID}" --location "${REGION}" --schedule "${JOBS_SCHEDULE}" --time-zone "Etc/UTC"
+  --uri "${RUN_URI}" --http-method POST --oauth-service-account-email "${SCHEDULER_SA}")
+if gcloud scheduler jobs describe "${SERVICE}-jobs-tick" --project "${PROJECT_ID}" --location "${REGION}" >/dev/null 2>&1; then
+  gcloud scheduler jobs update http "${SERVICE}-jobs-tick" "${sched[@]}" \
+    || echo "Could not update the scheduler (needs Cloud Scheduler Admin). Jobs still run from the admin screen."
+elif gcloud iam service-accounts describe "${SCHEDULER_SA}" --project "${PROJECT_ID}" >/dev/null 2>&1; then
+  gcloud scheduler jobs create http "${SERVICE}-jobs-tick" "${sched[@]}" \
+    || echo "Could not create the scheduler (needs Cloud Scheduler Admin). Jobs still run from the admin screen."
+else
+  echo "Scheduler identity missing: run ./deploy/gcp/setup.sh again to schedule jobs. They still run from the admin screen."
 fi
 
 say "Deploying Cloud Run service ${SERVICE}"

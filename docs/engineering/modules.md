@@ -65,6 +65,44 @@ your screen. The core queue shows them with "Open" and "Acknowledge"; resolve th
 **Front-door intents.** `register(name, description=..., pattern=..., to=..., label=..., reply=..., priority=...)`.
 Keep patterns specific so they don't steal symptom messages. Priorities under 50 are core.
 
+## Shared services
+
+**Notifications.** `from bioverse.notify import notify, cancel, patient_user`. Call
+`notify(conn, user_id=..., kind="medication_reminder", title=..., body=..., link="/your/screen",
+patient_id=..., priority="normal"|"high"|"urgent", channels=["in_app", "email", "sms", "push"],
+due_at=<datetime>, dedupe_key="<stable key>")`. It shows in the bell and `/notifications` once `due_at`
+passes; the `dispatch_notifications` job sends the other channels, honoring each user's preferences and
+quiet hours (only `urgent` breaks through). `dedupe_key` makes it idempotent per user: always set one
+when scheduling from a job. `patient_user(conn, patient_id)` gives a patient's user id. Titles and bodies
+leave the app by email and text, so keep clinical detail out of `title`; put it behind the link.
+
+**Scheduled jobs.** Add `apps/api/bioverse/jobs/<name>.py`:
+
+```python
+from bioverse.jobs import job
+
+@job("medication_reminders", every_minutes=15, description="Create today's medication reminders")
+def run(conn, now):          # now: timezone-aware UTC datetime. Runs in its own transaction.
+    ...
+    return {"created": 3}    # small dict, shown on the admin Scheduled jobs screen
+```
+
+Jobs run from `python -m bioverse.jobs` (Cloud Scheduler, every five minutes), or from Operations >
+Scheduled jobs. They must be idempotent. Tests can call `bioverse.jobs.run_job(conn, "name", now)`.
+
+**Vital signs and patient-generated data** go in `observations` with `category` (`vital-signs`,
+`activity`, `survey`), `source` (`manual`, `device`, `photo`, `import`, `clinic`), optional `device`,
+`panel_id` (groups systolic and diastolic) and `note`, coded from `bioverse.vitals_codes.CODES`
+(LOINC and UCUM units). `vitals_codes.interpret(code, value)` gives `H`, `L`, `N`, `HH` or `LL`.
+Lab results keep `category = 'laboratory'`, so filter on category when you only want one kind.
+
+**Images.** Photos arrive as base64 in JSON (`{"image": "<base64>", "media_type": "image/jpeg"}`), 5 MB
+at most after decoding. Pass them to Claude as a content block
+`{"type": "image", "source": {"type": "base64", "media_type": ..., "data": ...}}` inside
+`llm.parse(messages=[{"role": "user", "content": [image_block, {"type": "text", "text": ...}]}])`.
+The rules-mode fallback asks the person to type what the photo shows. Don't keep photos unless the person
+chooses to save them.
+
 ## Web module object
 
 ```jsx

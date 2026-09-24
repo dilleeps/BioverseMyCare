@@ -17,6 +17,11 @@ SQL_CONNECTION="${PROJECT_ID}:${REGION}:${SQL_INSTANCE}"
 RUNTIME_SA_NAME="${RUNTIME_SA_NAME:-bioverse-run}"
 RUNTIME_SA="${RUNTIME_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 
+# Identity Cloud Scheduler uses to start the scheduled-jobs runner.
+SCHEDULER_SA_NAME="${SCHEDULER_SA_NAME:-bioverse-scheduler}"
+SCHEDULER_SA="${SCHEDULER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
+JOBS_SCHEDULE="${JOBS_SCHEDULE:-*/5 * * * *}"
+
 # Secret Manager names.
 SECRET_DB_URL="bioverse-database-url"
 SECRET_ANTHROPIC="bioverse-anthropic-api-key"
