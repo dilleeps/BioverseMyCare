@@ -11,6 +11,12 @@ apps/web/dist/
 # Secrets and local config
 .env
 *.env.local
+# Google Cloud service-account keys. Never commit these.
+key.json
+*-key.json
+*service-account*.json
+*serviceaccount*.json
+*credentials*.json
 
 # OS / editors
 .DS_Store
