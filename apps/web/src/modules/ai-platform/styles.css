@@ -1,0 +1,88 @@
+/* AI governance console. Prefix: aip- */
+.aip-tabs {
+  display: flex; gap: 4px; flex-wrap: wrap; padding: 4px; border-radius: 14px; background: var(--surface);
+  border: 1px solid var(--line); margin-bottom: 18px; width: fit-content; max-width: 100%;
+}
+.aip-tab {
+  min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: transparent;
+  font-size: 14px; font-weight: 600; color: var(--ink-2);
+}
+.aip-tab[aria-selected="true"] { background: var(--ink); color: #fff; }
+.aip-tab:hover:not([aria-selected="true"]) { background: var(--ground); }
+
+.aip-filter-row { gap: 12px; align-items: flex-end; }
+.aip-filter-row .field { display: flex; flex-direction: column; gap: 4px; }
+.aip-filter-row .field select { min-height: 44px; }
+
+.aip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 12px; }
+.aip-grid > .card + .card { margin-top: 0; }
+.aip-dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; margin: 0; font-size: 13px; }
+.aip-dl dt { color: var(--muted); font-weight: 600; }
+.aip-dl dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.aip-hash { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; overflow-wrap: anywhere; }
+
+.aip-table-wrap { overflow-x: auto; }
+.aip-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.aip-table th, .aip-table td { padding: 10px; border-bottom: 1px solid var(--line-soft); vertical-align: top; text-align: left; }
+.aip-table thead th {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted);
+  background: var(--ground); border-bottom: 1px solid var(--line);
+}
+.aip-table tbody th { font-weight: 600; }
+.aip-table tr.aip-selected td { background: var(--accent-soft); }
+.aip-num { text-align: right !important; font-variant-numeric: tabular-nums; }
+.aip-nowrap { white-space: nowrap; }
+.aip-caption { text-align: left; font-weight: 700; font-size: 14px; padding-bottom: 8px; }
+
+.aip-trace { position: sticky; top: 84px; }
+.aip-answers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.aip-answers p { margin: 2px 0 0 26px; }
+.aip-mark {
+  width: 20px; height: 20px; border-radius: 999px; display: inline-grid; place-items: center; flex-shrink: 0;
+  background: var(--ground); color: var(--muted); font-size: 12px; font-weight: 700;
+}
+.aip-mark.ok { background: var(--accent-soft); color: var(--accent-strong); }
+.aip-quote { margin: 0; padding: 10px 12px; border-left: 3px solid var(--line); background: var(--ground); border-radius: 0 8px 8px 0; }
+
+.aip-seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.aip-seg .btn[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.aip-details > summary { cursor: pointer; min-height: 32px; }
+
+.aip-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+.aip-stat { display: flex; flex-direction: column; gap: 2px; }
+/* Figures stay in the body sans with proportional digits. */
+.aip-stat-n { font-family: var(--body); font-size: 26px; font-weight: 700; line-height: 1.15; }
+.aip-stat.alert .aip-stat-n { color: var(--alert); }
+
+.aip-half { grid-column: span 6; }
+.ws-grid > .aip-half + .aip-half { margin-top: 0; }
+.aip-notes { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; color: var(--ink-2); }
+
+/* Chart chrome: hairline solid grid, muted axis text, ink tooltips. */
+.aip-chart { display: flex; flex-direction: column; gap: 8px; }
+.aip-plot { position: relative; width: 100%; }
+.aip-plot svg { display: block; overflow: visible; }
+.aip-plot svg:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 4px; border-radius: 6px; }
+line.aip-gridline { stroke: var(--line-soft); stroke-width: 1; shape-rendering: crispEdges; }
+line.aip-axis { stroke: var(--line); stroke-width: 1; shape-rendering: crispEdges; }
+line.aip-cross { stroke: var(--faint); stroke-width: 1; shape-rendering: crispEdges; pointer-events: none; }
+.aip-tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.aip-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); }
+.aip-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.aip-swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.aip-tooltip {
+  position: absolute; top: 0; transform: translateX(-50%); pointer-events: none; z-index: 2;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px;
+  box-shadow: 0 6px 20px rgba(23, 31, 29, 0.12); min-width: 150px; font-size: 13px;
+}
+.aip-tip-row { display: flex; align-items: center; gap: 6px; }
+.aip-linekey { width: 12px; height: 3px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+
+@media (max-width: 960px) {
+  .aip-half { grid-column: span 12; }
+  .aip-trace { position: static; }
+  .aip-grid { grid-template-columns: 1fr; }
+}
+@media (forced-colors: active) {
+  .aip-tab[aria-selected="true"] { outline: 2px solid CanvasText; }
+}
