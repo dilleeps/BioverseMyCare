@@ -1,0 +1,134 @@
+/* Charts, KPI tiles and admin tables shared by the operations, analytics, organization and pathways modules.
+   Categorical colours: the validated reference palette (checked on the white card surface). Single-series
+   charts use the brand accent. Text never wears a series colour. */
+.viz-root {
+  --viz-1: #2a78d6; --viz-2: #eb6834; --viz-3: #1baf7a; --viz-4: #eda100;
+  --viz-5: #e87ba4; --viz-6: #008300; --viz-7: #4a3aa7; --viz-8: #e34948;
+  --viz-other: #8a877f;
+  --viz-grid: #eceae3;
+  --viz-axis: #c9c6bc;
+}
+
+.viz { display: flex; flex-direction: column; gap: 10px; min-width: 0; margin: 0; }
+.viz-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.viz-head h2, .viz-head h3 { font-size: 16px; font-weight: 700; font-family: var(--body); }
+.viz-plot { position: relative; width: 100%; }
+.viz-plot svg { display: block; overflow: visible; touch-action: pan-y; }
+.viz-plot svg:focus-visible, .viz-hit:focus-visible { outline: none; }
+.viz-focus-ring { fill: none; stroke: var(--accent); stroke-width: 2; }
+.viz-grid { stroke: var(--viz-grid); stroke-width: 1; shape-rendering: crispEdges; }
+.viz-axis { stroke: var(--viz-axis); stroke-width: 1; shape-rendering: crispEdges; }
+.viz-tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; font-family: var(--body); }
+.viz-label { fill: var(--ink-2); font-size: 12px; font-weight: 700; font-family: var(--body); }
+.viz-crosshair { stroke: var(--viz-axis); stroke-width: 1; }
+.viz-dim { opacity: 0.45; transition: opacity 0.12s; }
+
+.viz-tip {
+  position: absolute; z-index: 5; pointer-events: none; min-width: 150px; max-width: 260px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(23, 31, 29, 0.12); padding: 8px 10px; font-size: 12px; line-height: 1.35;
+}
+.viz-tip .tip-title { color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+.viz-tip .tip-row { display: flex; align-items: center; gap: 8px; }
+.viz-tip .tip-row .v { font-weight: 700; color: var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+.viz-tip .tip-row .l { color: var(--ink-2); }
+.viz-key-line { display: inline-block; width: 12px; height: 2px; border-radius: 1px; flex-shrink: 0; }
+
+.viz-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--ink-2); margin: 0; padding: 0; list-style: none; }
+.viz-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.viz-legend .sw { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+.viz-table-wrap { overflow-x: auto; }
+.viz-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.viz-table caption { text-align: left; font-size: 12px; color: var(--muted); padding-bottom: 6px; }
+.viz-table th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted);
+  padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; background: var(--ground); }
+.viz-table td { padding: 9px 10px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
+.viz-table tr:last-child td { border-bottom: 0; }
+.viz-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* KPI tiles: values in the body sans, proportional figures. */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.kpi .kpi-label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.kpi .kpi-value { font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); }
+.kpi .kpi-sub { font-size: 12px; color: var(--muted); }
+.kpi.alert { background: var(--alert-soft); border-color: var(--alert-line); }
+.kpi.alert .kpi-value { color: var(--alert-strong); }
+
+/* Meter: booked out of capacity. Track is a lighter step of the same hue as the fill. */
+.meter { height: 10px; border-radius: 999px; background: var(--accent-soft); overflow: hidden; min-width: 60px; }
+.meter > span { display: block; height: 100%; border-radius: 999px; background: var(--accent); }
+.meter.high > span { background: var(--accent-strong); }
+
+.hbars { display: flex; flex-direction: column; gap: 2px; }
+.hbar-row { display: grid; grid-template-columns: minmax(120px, 44%) minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 34px; padding: 2px 4px; border-radius: 8px; }
+.hbar-row:hover, .hbar-row:focus-visible { background: var(--ground); }
+.hbar-label { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hbar-label .sub { display: block; font-size: 11px; font-weight: 500; color: var(--muted); }
+.hbar-track { height: 12px; }
+.hbar-fill { height: 12px; border-radius: 0 4px 4px 0; min-width: 2px; }
+.hbar-value { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+.refreshing { opacity: 0.6; transition: opacity 0.2s; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 12px; padding: 3px; background: var(--ground); gap: 2px; }
+.seg button { min-height: 36px; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+
+.ops-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.definitions { font-size: 12px; color: var(--muted); }
+.definitions summary { cursor: pointer; font-weight: 700; color: var(--ink-2); min-height: 32px; display: flex; align-items: center; }
+.definitions dl { margin: 6px 0 0; display: grid; gap: 6px; }
+.definitions dt { font-weight: 700; color: var(--ink-2); }
+.definitions dd { margin: 0; }
+
+/* Forms on admin screens */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.fld { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.fld > label, .fld > .fld-label { font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.fld input[type="text"], .fld input[type="tel"], .fld input[type="number"], .fld input[type="date"], .fld input[type="time"],
+.fld input:not([type]), .fld select, .fld textarea {
+  min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); padding: 0 12px; font-size: 14px; width: 100%;
+}
+.fld textarea { padding: 10px 12px; min-height: 72px; resize: vertical; line-height: 1.45; }
+.fld .hint { font-size: 12px; color: var(--muted); }
+.check { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; }
+.check input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+.tabs button { min-height: 44px; padding: 0 14px; border: 0; background: transparent; font-size: 14px; font-weight: 600; color: var(--ink-2);
+  border-bottom: 3px solid transparent; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; border: 0; padding: 0; margin: 0; }
+.swatch { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px 0 8px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 600; cursor: pointer; }
+.swatch:has(input:checked) { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch:has(input:focus-visible) { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+.swatch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.swatch .chipcolor { width: 26px; height: 26px; border-radius: 8px; }
+.hours-row { display: grid; grid-template-columns: 70px auto minmax(0, 170px) minmax(0, 170px); gap: 8px; align-items: center; }
+.task-edit { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 12px; border-radius: 12px; background: var(--ground); }
+.task-edit .num-badge { width: 28px; height: 28px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; font-size: 12px; font-weight: 700; margin-top: 8px; }
+.task-edit .task-fields { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 8px; }
+.task-edit .task-fields .wide { grid-column: span 2; }
+.task-edit .task-actions { display: flex; flex-direction: column; gap: 4px; }
+.task-edit.done { background: var(--accent-soft); }
+.icon-sq { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); display: inline-grid; place-items: center; }
+.icon-sq:disabled { opacity: 0.4; }
+.pick-list { display: flex; flex-direction: column; gap: 6px; }
+.pick { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); text-align: left; width: 100%; }
+.pick[aria-pressed="true"], .pick[aria-current="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-soft); }
+.qa { display: flex; flex-direction: column; gap: 8px; }
+.qa .q { align-self: flex-end; background: var(--ink); color: #fff; border-radius: 16px 16px 4px 16px; padding: 10px 14px; max-width: 85%; font-size: 15px; }
+.qa .a { background: var(--surface); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+/* The core grid has no half-width span; add one that still collapses on small screens. */
+.span-6 { grid-column: span 6; }
+@media (max-width: 960px) { .span-6 { grid-column: span 12; } }
+.seg button { white-space: nowrap; }
+.viz-table .chip { white-space: nowrap; }
+
+@media (max-width: 720px) {
+  .task-edit .task-fields { grid-template-columns: 1fr; }
+  .task-edit .task-fields .wide { grid-column: span 1; }
+  .hours-row { grid-template-columns: 60px auto 1fr 1fr; }
+  .hbar-row { grid-template-columns: minmax(80px, 38%) minmax(0, 1fr) auto; }
+}
