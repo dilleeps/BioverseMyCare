@@ -11,12 +11,26 @@ source ./config.sh
 say() { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
 exists() { "$@" >/dev/null 2>&1; }
 
+# IAM is eventually consistent: a service account created a moment ago can be reported as
+# "does not exist" when you grant it a role. Retry those errors for up to ~2 minutes.
+grant() {
+  local out delay=5 attempt
+  for attempt in 1 2 3 4 5 6 7 8; do
+    if out="$("$@" 2>&1)"; then return 0; fi
+    if (( attempt < 8 )) && grep -qiE "does not exist|not found|INVALID_ARGUMENT" <<<"${out}"; then
+      echo "  Waiting for IAM to see the new account (attempt ${attempt}, retrying in ${delay}s)..."
+      sleep "${delay}"
+      delay=$(( delay < 20 ? delay + 5 : 20 ))
+    else
+      echo "${out}" >&2
+      return 1
+    fi
+  done
+}
+
 say "Project ${PROJECT_ID}, region ${REGION}"
 gcloud config set project "${PROJECT_ID}" >/dev/null
 PROJECT_NUMBER="$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)')"
-# Projects created since 2024 may run builds as the Compute Engine default account instead.
-# Check Cloud Build > Settings, and export CLOUDBUILD_SA if yours differs.
-CLOUDBUILD_SA="${CLOUDBUILD_SA:-${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com}"
 
 billing_help() {
   cat >&2 <<EOF
@@ -102,30 +116,44 @@ exists gcloud iam service-accounts describe "${RUNTIME_SA}" || \
   gcloud iam service-accounts create "${RUNTIME_SA_NAME}" --display-name="Bioverse runtime"
 
 # Least privilege: the runtime can connect to Cloud SQL and read only its own two secrets.
-gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
-  --member="serviceAccount:${RUNTIME_SA}" --role="roles/cloudsql.client" --condition=None >/dev/null
+grant gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+  --member="serviceAccount:${RUNTIME_SA}" --role="roles/cloudsql.client" --condition=None
 for s in "${SECRET_DB_URL}" "${SECRET_ANTHROPIC}"; do
-  exists gcloud secrets describe "$s" && \
-    gcloud secrets add-iam-policy-binding "$s" \
-      --member="serviceAccount:${RUNTIME_SA}" --role="roles/secretmanager.secretAccessor" >/dev/null
+  if exists gcloud secrets describe "$s"; then
+    grant gcloud secrets add-iam-policy-binding "$s" \
+      --member="serviceAccount:${RUNTIME_SA}" --role="roles/secretmanager.secretAccessor"
+  fi
 done
+echo "Runtime account can connect to Cloud SQL and read its secrets."
 
-say "Cloud Build deployer permissions (${CLOUDBUILD_SA})"
-for role in roles/run.developer roles/artifactregistry.writer; do
-  gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
-    --member="serviceAccount:${CLOUDBUILD_SA}" --role="${role}" --condition=None >/dev/null
+# Which account runs builds depends on when the project was created: the legacy Cloud Build
+# account, or the Compute Engine default account. Ask Cloud Build rather than guess.
+if [[ -z "${CLOUDBUILD_SA:-}" ]]; then
+  CLOUDBUILD_SA="$(gcloud builds get-default-service-account --project "${PROJECT_ID}" \
+    --format='value(serviceAccountEmail)' 2>/dev/null | sed 's#.*/##' || true)"
+  CLOUDBUILD_SA="${CLOUDBUILD_SA:-${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com}"
+fi
+
+say "Cloud Build permissions (${CLOUDBUILD_SA})"
+# To build: read the uploaded source, push the image, write build logs.
+# To run cloudbuild.yaml end to end: deploy to Cloud Run and run the migration job.
+for role in roles/storage.objectViewer roles/logging.logWriter roles/artifactregistry.writer roles/run.developer; do
+  grant gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --member="serviceAccount:${CLOUDBUILD_SA}" --role="${role}" --condition=None
 done
 # Cloud Build may deploy as the runtime account, and nothing else.
-gcloud iam service-accounts add-iam-policy-binding "${RUNTIME_SA}" \
-  --member="serviceAccount:${CLOUDBUILD_SA}" --role="roles/iam.serviceAccountUser" >/dev/null
+grant gcloud iam service-accounts add-iam-policy-binding "${RUNTIME_SA}" \
+  --member="serviceAccount:${CLOUDBUILD_SA}" --role="roles/iam.serviceAccountUser"
 # deploy.sh checks whether the Anthropic key has a version. Metadata only, never the value.
-exists gcloud secrets describe "${SECRET_ANTHROPIC}" && \
-  gcloud secrets add-iam-policy-binding "${SECRET_ANTHROPIC}" \
-    --member="serviceAccount:${CLOUDBUILD_SA}" --role="roles/secretmanager.viewer" >/dev/null
+if exists gcloud secrets describe "${SECRET_ANTHROPIC}"; then
+  grant gcloud secrets add-iam-policy-binding "${SECRET_ANTHROPIC}" \
+    --member="serviceAccount:${CLOUDBUILD_SA}" --role="roles/secretmanager.viewer"
+fi
 # Needed only when ALLOW_PUBLIC=true, to grant allUsers the invoker role on the service.
 if [[ "${ALLOW_PUBLIC}" == "true" ]]; then
-  gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
-    --member="serviceAccount:${CLOUDBUILD_SA}" --role="roles/run.admin" --condition=None >/dev/null
+  grant gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --member="serviceAccount:${CLOUDBUILD_SA}" --role="roles/run.admin" --condition=None
 fi
+echo "Cloud Build can build the image and deploy it."
 
 say "Done. Next: ./deploy/gcp/deploy.sh (or: gcloud builds submit --config cloudbuild.yaml)"

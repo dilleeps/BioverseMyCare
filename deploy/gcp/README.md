@@ -23,8 +23,10 @@ Grant these on the console's IAM page (IAM & Admin > IAM). `setup.sh` grants the
 | --- | --- | --- |
 | `bioverse-run` service account | Cloud SQL Client (`roles/cloudsql.client`) | Connect to the database through the Cloud SQL socket |
 | `bioverse-run` service account | Secret Manager Secret Accessor (`roles/secretmanager.secretAccessor`), on the two Bioverse secrets only | Read its own secrets, nothing else |
-| Cloud Build service account | Cloud Run Developer (`roles/run.developer`) | Deploy the service and run migration jobs |
+| Cloud Build service account | Storage Object Viewer (`roles/storage.objectViewer`) | Read the source that `gcloud builds submit` uploads |
+| Cloud Build service account | Logs Writer (`roles/logging.logWriter`) | Write build logs |
 | Cloud Build service account | Artifact Registry Writer (`roles/artifactregistry.writer`) | Push images |
+| Cloud Build service account | Cloud Run Developer (`roles/run.developer`) | Deploy the service and run migration jobs, when using `cloudbuild.yaml` |
 | Cloud Build service account | Service Account User (`roles/iam.serviceAccountUser`), on `bioverse-run` only | Deploy as the runtime identity, and no other |
 | Cloud Build service account | Secret Manager Viewer (`roles/secretmanager.viewer`), on the Anthropic secret only | See whether a key version exists. Cannot read the value |
 | Cloud Build service account | Cloud Run Admin (`roles/run.admin`) | Only when `ALLOW_PUBLIC=true`, to make the service public |
@@ -86,4 +88,6 @@ The demo identity switcher trusts a request header, so anyone who can reach the 
 4. Move Cloud SQL to a private IP with a Serverless VPC connector.
 5. Review the controls in `docs/04-safety-and-governance.md`.
 
-If your project runs Cloud Build as the Compute Engine default service account, check Cloud Build > Settings and export `CLOUDBUILD_SA` before running `setup.sh`.
+`setup.sh` asks Cloud Build which service account runs your builds. Newer projects use the Compute Engine default account, older ones the legacy Cloud Build account. To force a specific one, export `CLOUDBUILD_SA` before running it.
+
+If `setup.sh` stops partway, fix what it reports and run it again. It keeps everything already created, including the database password.
