@@ -1,0 +1,91 @@
+/* Wellbeing modules (nutrition, weight, mind, challenges). Core tokens only; prefix wb-. */
+
+.wb-head { display: flex; flex-direction: column; gap: 2px; }
+.wb-section { margin-top: 26px; }
+.wb-section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.wb-section-title { font-family: var(--display); font-size: 21px; font-weight: 600; }
+.wb-sub { font-size: 14px; color: var(--muted); }
+
+.wb-chart { position: relative; }
+.wb-chart svg { display: block; overflow: visible; }
+.wb-chart .hit { fill: transparent; outline: none; cursor: default; }
+.wb-chart .hit:focus-visible { stroke: var(--accent); stroke-width: 2; }
+.wb-tip {
+  position: absolute; pointer-events: none; z-index: 2; background: var(--ink); color: #fff; border-radius: 10px;
+  padding: 6px 10px; font-size: 12px; white-space: nowrap;
+}
+.wb-tip strong { display: block; font-size: 14px; }
+.wb-table-wrap summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 13px; min-height: 36px; display: inline-flex; align-items: center; }
+.wb-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+.wb-table th, .wb-table td { text-align: left; padding: 6px 4px; border-top: 1px solid var(--line-soft); font-variant-numeric: tabular-nums; }
+
+.wb-meter { height: 10px; border-radius: 999px; background: var(--accent-soft); overflow: hidden; }
+.wb-meter > div { height: 10px; border-radius: 999px; background: var(--accent); }
+.wb-meter.alert { background: var(--alert-soft); }
+.wb-meter.alert > div { background: var(--alert); }
+
+.wb-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.wb-stat { background: var(--ground); border-radius: 12px; padding: 10px; min-width: 0; }
+.wb-stat .v { font-size: 20px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.wb-stat .l { font-size: 12px; color: var(--muted); }
+
+.wb-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; }
+.wb-row + .wb-row { border-top: 1px solid var(--line-soft); }
+.wb-row .grow { flex: 1 1 0; min-width: 0; }
+.wb-muted-box { background: var(--ground); border-radius: 12px; padding: 10px 12px; }
+
+.wb-form { display: grid; gap: 14px; }
+.wb-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.wb-field > label, .wb-field > legend { font-size: 14px; font-weight: 600; }
+.wb-field input[type="number"], .wb-field input[type="text"], .wb-field input[type="search"], .wb-field input[type="date"],
+.wb-field select, .wb-field textarea {
+  min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+  font-size: 15px; width: 100%; max-width: 100%;
+}
+.wb-field textarea { padding: 10px 12px; min-height: 80px; resize: vertical; }
+fieldset.wb-field { border: 0; padding: 0; margin: 0; }
+.wb-inline { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.wb-inline > .wb-field { flex: 1 1 120px; }
+
+.wb-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.wb-choice {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface); font-size: 14px; cursor: pointer;
+}
+.wb-choice:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; }
+.wb-choice input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
+.wb-seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.wb-seg button {
+  min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface);
+  font-size: 14px; font-weight: 600;
+}
+.wb-seg button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); }
+
+.wb-crisis { background: var(--alert-soft); border: 2px solid var(--alert); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.wb-crisis .title { font-weight: 700; color: var(--alert-strong); display: flex; gap: 8px; align-items: center; }
+.wb-crisis p { color: var(--alert-strong); font-size: 15px; }
+.wb-crisis .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.wb-support-strip {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  padding: 10px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); font-size: 14px;
+}
+
+/* Food log */
+.wb-meal-title { font-weight: 700; text-transform: capitalize; }
+.wb-food { display: flex; align-items: center; gap: 8px; justify-content: space-between; padding: 8px 0; }
+.wb-food + .wb-food { border-top: 1px solid var(--line-soft); }
+.wb-food .name { min-width: 0; overflow-wrap: anywhere; }
+.wb-results { max-height: 320px; overflow-y: auto; border: 1px solid var(--line-soft); border-radius: 12px; }
+.wb-result { width: 100%; text-align: left; display: flex; justify-content: space-between; gap: 10px; align-items: center;
+  min-height: 48px; padding: 8px 12px; background: var(--surface); border: 0; border-bottom: 1px solid var(--line-soft); }
+.wb-result:last-child { border-bottom: 0; }
+.wb-result:hover, .wb-result:focus-visible { background: var(--ground); }
+.wb-target { display: grid; gap: 4px; padding: 8px 0; }
+.wb-target + .wb-target { border-top: 1px solid var(--line-soft); }
+.wb-tip-card { border-left: 3px solid var(--accent); padding: 4px 0 4px 12px; }
+.wb-servings { width: 86px; min-height: 40px; border-radius: 10px; border: 1px solid var(--line); padding: 0 8px; font-size: 15px; }
+
+@media (max-width: 520px) {
+  .wb-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wb-stat .v { font-size: 18px; }
+}

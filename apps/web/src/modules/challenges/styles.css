@@ -1,0 +1,12 @@
+/* Challenges. Shared wellbeing classes (wb-) come from ../nutrition/styles.css. */
+
+.ch-days { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; flex-wrap: wrap; }
+.ch-day { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 34px; }
+.ch-day .dot {
+  width: 30px; height: 30px; border-radius: 999px; display: grid; place-items: center;
+  border: 2px solid var(--line); background: var(--surface); color: #fff;
+}
+.ch-day.met .dot { background: var(--accent); border-color: var(--accent); }
+.ch-day.today .dot { border-color: var(--accent); border-style: dashed; }
+.ch-day.missed .dot { background: var(--ground); }
+.ch-day.future .dot { border-style: dotted; }
