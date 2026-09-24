@@ -3,12 +3,12 @@
 Each module seeds inside its own reserved range to avoid collisions:
 
     1 - 999       core (this file)
-    1000 - 1999   platform (admin user, caregiver identity)
+    1000 - 1999   platform (admin user)
     2000 - 2999   visits and referrals
     3000 - 3999   messaging and the Doctor Agent runtime
     4000 - 4999   hospital operations, organization, analytics
     5000 - 5999   billing, coverage, pharmacy
-    6000 - 6999   wellness, prevention, family and caregivers, personal health AI
+    6000 - 6999   wellness, prevention, family and caregivers (David and Eleanor Thornton), personal health AI
     7000 - 7999   research, clinical trials, evidence
     8000 - 8999   trust and safety, interoperability, AI platform
 """

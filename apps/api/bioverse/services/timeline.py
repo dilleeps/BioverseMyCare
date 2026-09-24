@@ -6,10 +6,11 @@ from datetime import date, datetime
 from typing import Any
 
 from psycopg import Connection
+from bioverse.config import clinic_today
 
 
 def age(birth_date: date) -> int:
-    today = date.today()
+    today = clinic_today()
     return today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
 
 

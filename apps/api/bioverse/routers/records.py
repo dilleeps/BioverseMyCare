@@ -13,6 +13,7 @@ from bioverse import audit
 from bioverse.auth import CurrentUser, assert_patient_access
 from bioverse.db import DbConn
 from bioverse.services import timeline
+from bioverse.config import clinic_today
 
 router = APIRouter(prefix="/api", tags=["records"])
 
@@ -122,7 +123,7 @@ def care_plan(patient_id: str, conn: Conn, user: CurrentUser) -> dict | None:
         """,
         (plan["id"],),
     ).fetchall()
-    today = date.today()
+    today = clinic_today()
     for t in tasks:
         t["overdue"] = t["status"] == "todo" and t["due_on"] is not None and t["due_on"] < today
         t["due_today"] = t["status"] == "todo" and t["due_on"] == today
@@ -178,7 +179,7 @@ def _month(d: datetime) -> str:
 def story(patient_id: str, conn: Conn, user: CurrentUser, year: int | None = None) -> dict:
     """A plain-language year in review, assembled only from the record. Nothing is inferred."""
     assert_patient_access(conn, user, patient_id)
-    year = year or date.today().year
+    year = year or clinic_today().year
     since = datetime(year, 1, 1, tzinfo=timezone.utc)
 
     events = timeline.events(conn, patient_id, since=since)
@@ -223,8 +224,8 @@ def story(patient_id: str, conn: Conn, user: CurrentUser, year: int | None = Non
     for v in vaccines:
         sentences.append(f"Your {v['vaccine'].lower()} is up to date.")
     if gaps:
-        sentences.append(f"One thing is overdue: {gaps[0]['title'].lower()}." if len(gaps) == 1
-                         else f"{len(gaps)} things are overdue.")
+        sentences.append(f"One thing needs attention: {gaps[0]['title'].lower()}." if len(gaps) == 1
+                         else f"{len(gaps)} preventive care items need attention.")
     if not sentences:
         sentences.append("It's been a quiet year in your record so far.")
 

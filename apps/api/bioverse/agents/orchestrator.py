@@ -12,6 +12,7 @@ Urgency only ever ratchets up. Every step is written to the audit trail.
 
 from __future__ import annotations
 
+import hashlib
 from datetime import date
 from typing import Any
 
@@ -21,11 +22,15 @@ from psycopg.types.json import Jsonb
 from bioverse import audit
 from bioverse import consent
 from bioverse.agents import intents, llm
-from bioverse.agents.triage import URGENCY_RANK, TriageResult, claude_triage, rules_triage
+from bioverse.agents.triage import SYSTEM_PROMPT, URGENCY_RANK, TriageResult, claude_triage, rules_triage
 from bioverse.auth import User
 from bioverse.safety import red_flags
+from bioverse.config import clinic_today
 
 MAX_FOLLOW_UP_QUESTIONS = 3
+
+# Recorded on every triage so AI governance can say which prompt version produced a decision.
+PROMPT_SHA256 = hashlib.sha256(SYSTEM_PROMPT.encode()).hexdigest()
 
 TOPIC_PHRASES = {
     "chest": "chest symptoms",
@@ -35,7 +40,7 @@ TOPIC_PHRASES = {
 
 
 def _age(birth_date: date) -> int:
-    today = date.today()
+    today = clinic_today()
     return today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
 
 
@@ -190,8 +195,10 @@ def _run_triage(conn: Connection, patient: dict, history: list[dict[str, str]]) 
             outcome = claude_triage(history, patient)
             label = f"intake-agent/claude{'+fallback' if outcome.fell_back else ''}"
             return outcome.output, label, outcome.model
-        except llm.LLMUnavailable:
-            pass
+        except llm.LLMUnavailable as exc:
+            # Make refusals and outages visible to AI monitoring instead of looking like plain rules triage.
+            audit.record(conn, action="ai_fallback", entity_type="patient", entity_id=patient["id"],
+                         agent="intake-agent", patient_id=patient["id"], detail={"reason": str(exc)})
     return rules_triage(history, patient), "intake-agent/rules", None
 
 
@@ -219,7 +226,8 @@ def _triage_and_route(conn: Connection, user: User, conversation: dict, patient:
         patient_id=conversation["patient_id"],
         agent=produced_by,
         model=model,
-        detail={"intent": result.intent, "urgency": result.urgency, "specialty": result.specialty},
+        detail={"intent": result.intent, "urgency": result.urgency, "specialty": result.specialty,
+                "prompt_sha256": PROMPT_SHA256},
     )
 
     # The model may raise urgency to emergency. It can never lower what the rules decided.

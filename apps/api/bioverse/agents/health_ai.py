@@ -579,8 +579,8 @@ def rules_year_review(conn: Connection, patient_id: str, facts: list[dict[str, A
     ).fetchall()
     if gaps:
         ids = [i for g in gaps for i in cite("care_gap", g["id"])]
-        summary.append({"text": f"One thing is overdue: {gaps[0]['title'].lower()}." if len(gaps) == 1
-                        else f"{len(gaps)} things are overdue.", "fact_ids": ids})
+        summary.append({"text": f"One thing needs attention: {gaps[0]['title'].lower()}." if len(gaps) == 1
+                        else f"{len(gaps)} preventive care items need attention.", "fact_ids": ids})
     if not summary:
         summary.append({"text": "It's been a quiet year in your record so far.", "fact_ids": []})
 

@@ -7,7 +7,14 @@ import { Warning } from "../icons.jsx";
 const LINK_FOR = {
   report: (id) => `/results/${id}`,
   care_plan: () => "/plan",
-  appointment: () => "/plan",
+  appointment: () => "/visits",
+  visit: () => "/visits",
+  referral: () => "/referrals",
+  prescription: () => "/pharmacy",
+  document: () => "/records",
+  goal: () => "/wellness",
+  goal_milestone: () => "/wellness",
+  assessment: () => "/wellness",
 };
 
 export default function HealthStory() {

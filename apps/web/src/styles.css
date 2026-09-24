@@ -237,7 +237,7 @@ p { margin: 0; }
 .ws-main { padding: 24px 28px 48px; min-width: 0; }
 .ws-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 18px; }
 .span-5 { grid-column: span 5; } .span-4 { grid-column: span 4; } .span-3 { grid-column: span 3; }
-.span-7 { grid-column: span 7; } .span-8 { grid-column: span 8; } .span-12 { grid-column: span 12; }
+.span-6 { grid-column: span 6; } .span-7 { grid-column: span 7; } .span-8 { grid-column: span 8; } .span-12 { grid-column: span 12; }
 .queue-item { background: var(--ground); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
 .queue-item.urgent { background: var(--alert-soft); border: 1px solid var(--alert-line); }
 textarea.edit { width: 100%; min-height: 96px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; line-height: 1.5; resize: vertical; }

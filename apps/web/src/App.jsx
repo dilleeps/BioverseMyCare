@@ -27,8 +27,11 @@ const CORE_NAV = {
 };
 
 // Core entries, any module entries placed in the top bar, then "More" for the rest.
+// Roles without core pages (admin, staff) get their module home first.
 function navItems(role) {
-  return [...(CORE_NAV[role] || []), ...navFor(role, "top"), { to: "/hub", label: "More" }];
+  const core = CORE_NAV[role] || [{ to: homeFor(role), label: "Home", end: true }];
+  const items = [...core, ...navFor(role, "top"), { to: "/hub", label: "More" }];
+  return items.filter((n, i) => items.findIndex((m) => m.to === n.to) === i);
 }
 
 const ROLE_NOUN = { patient: "patients", clinician: "clinicians", admin: "administrators", staff: "staff" };

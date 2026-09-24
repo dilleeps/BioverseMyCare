@@ -8,6 +8,13 @@ Known scopes (add yours here when a module introduces one):
                         Denied unless the patient opts in.
     caregiver_access    A named person (grantee = their user id) may act on the patient's behalf.
                         `detail.permissions` lists what they may see or do. Denied unless granted.
+                        Managed from /family.
+    caregiver_results_adolescent
+                        A 13-17 year old's own agreement that a caregiver may see their results
+                        (grantee = caregiver user id). Required in addition to caregiver_access.
+
+The Privacy Center (/privacy) lets patients change ai_processing and research_matching;
+research_matching is also managed from /research, where revoking it pauses study contact.
 """
 
 from __future__ import annotations
@@ -26,6 +33,7 @@ DEFAULTS = {
     "ai_processing": True,
     "research_matching": False,
     "caregiver_access": False,
+    "caregiver_results_adolescent": False,
 }
 
 

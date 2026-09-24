@@ -5,7 +5,9 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from functools import lru_cache
+from datetime import date, datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 
@@ -47,3 +49,12 @@ def get_settings() -> Settings:
         ai_enabled=ai_enabled,
         ai_model=os.getenv("BIOVERSE_MODEL", "claude-opus-5"),
     )
+
+
+def clinic_tz() -> ZoneInfo:
+    """The clinic's time zone. Servers (Cloud Run) run in UTC; "today" for patients means the clinic's day."""
+    return ZoneInfo(os.getenv("BIOVERSE_CLINIC_TZ", "America/New_York"))
+
+
+def clinic_today() -> date:
+    return datetime.now(clinic_tz()).date()

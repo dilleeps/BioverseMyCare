@@ -14,6 +14,7 @@ from bioverse import audit
 from bioverse.auth import Clinician, assert_patient_access
 from bioverse.db import DbConn
 from bioverse.services import timeline
+from bioverse.config import clinic_today
 
 router = APIRouter(prefix="/api/clinician", tags=["clinician"])
 
@@ -86,7 +87,7 @@ def previsit_brief(patient_id: str, conn: Conn, user: Clinician) -> dict:
             "source": {"type": "observation", "loinc": t["loinc_code"]},
         })
 
-    today = date.today()
+    today = clinic_today()
     tasks = conn.execute(
         """
         SELECT t.id::text, t.kind, t.title, t.due_on, t.status, c.id::text AS plan_id
