@@ -36,7 +36,7 @@ function navItems(role) {
   return items.filter((n, i) => items.findIndex((m) => m.to === n.to) === i);
 }
 
-const ROLE_NOUN = { patient: "patients", clinician: "clinicians", admin: "administrators", staff: "staff" };
+const ROLE_NOUN = { patient: "patients", clinician: "clinicians", admin: "administrators", staff: "staff", student: "medical students" };
 
 function TopBar() {
   const { users, me, switchTo } = useSession();

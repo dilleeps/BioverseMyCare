@@ -1,0 +1,59 @@
+/* Public specialist AI agents */
+.sp-page { max-width: 1000px; }
+.sp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; }
+.sp-grid .card + .card { margin-top: 0; }
+.sp-card { height: 100%; }
+.sp-avatar {
+  width: 44px; height: 44px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong);
+  display: grid; place-items: center; font-weight: 700; font-size: 15px; flex-shrink: 0;
+}
+.sp-disclosure {
+  display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border-radius: 12px;
+  background: #ecebe5; color: var(--ink-2); font-size: 13px; font-weight: 600; line-height: 1.4;
+}
+.sp-disclosure svg { flex-shrink: 0; margin-top: 1px; }
+.sp-disclosure.sticky { position: sticky; top: 72px; z-index: 5; box-shadow: 0 1px 0 var(--line); margin-top: 12px; }
+.sp-chat-page { max-width: 720px; }
+.sp-chat-head { gap: 12px; align-items: center; }
+.sp-chat-title { font-family: var(--display); font-size: 24px; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
+.sp-chat { margin-top: 16px; min-height: 40vh; }
+.sp-bubble { display: flex; flex-direction: column; gap: 8px; overflow-wrap: anywhere; }
+.sp-bubble-emergency { align-self: stretch; }
+.sp-meta { white-space: normal; }
+.sp-cites { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.45; white-space: normal; display: flex; flex-direction: column; gap: 4px; }
+.sp-cites a { color: var(--ink); }
+.sp-actions { gap: 8px; white-space: normal; }
+.sp-starter { white-space: normal; text-align: left; min-height: 44px; }
+.sp-remaining { text-align: center; }
+.composer .btn { flex-shrink: 0; }
+
+/* Clinician settings and admin review */
+.pa-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.pa-field { gap: 4px; min-width: 0; }
+.pa-field.wide { grid-column: 1 / -1; }
+.pa-field input, .pa-field select, .pa-add input, .pa-flag select {
+  min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); padding: 0 10px; font-size: 14px;
+  width: 100%; min-width: 0;
+}
+.pa-add { gap: 8px; }
+.pa-add input { flex: 1 1 220px; width: auto; }
+.pa-topic { padding-right: 4px; }
+.pa-x { border: 0; background: transparent; width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center; color: inherit; }
+.pa-x:hover { background: var(--line-soft); }
+.pa-list { margin: 0; padding: 0; list-style: none; }
+.pa-list > li { padding: 12px 0; }
+.pa-body { color: var(--ink-2); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.pa-answer { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.pa-flag { padding: 12px; border-radius: 12px; background: var(--ground); }
+.pa-toggle { padding: 4px 10px; }
+.pa-checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.pa-checks li { display: flex; align-items: center; gap: 8px; color: var(--alert-strong); }
+.pa-checks li.done { color: var(--accent-strong); }
+.pa-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ap-details summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.ap-list { margin: 0; padding: 0; list-style: none; }
+.ap-list > li { padding: 10px 0; }
+.ap-answer { color: var(--ink-2); white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; }
+@media (max-width: 640px) {
+  .pa-fields { grid-template-columns: 1fr; }
+}
