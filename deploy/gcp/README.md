@@ -15,6 +15,7 @@ Target project: **`bioverseone-509616`** · default region **`us-central1`** (ch
 | Artifact Registry | `bioverse` | Container images |
 | Secret Manager | `bioverse-database-url` | Connection string with a generated password. Never printed or committed |
 | Secret Manager | `bioverse-anthropic-api-key` | Optional. Without it the app runs its rules-based agents |
+| Secret Manager | `bioverse-smtp-url`, `bioverse-email-from`, `bioverse-twilio-*`, `bioverse-outbound-allowlist` | Optional. Email and text notifications (see "Keys" below) |
 | Service account | `bioverse-run` | Runtime identity for the service and jobs |
 | Service account | `bioverse-scheduler` | Identity Cloud Scheduler uses to start `bioverse-jobs` |
 
@@ -82,18 +83,31 @@ gcloud run services add-iam-policy-binding bioverse --region us-central1 \
   --member=user:colleague@example.com --role=roles/run.invoker
 ```
 
-## Notifications by email and text
+## Keys: Claude, email and text messages
 
-Notifications always appear in the app. To also send email or text messages, add these to the service
-(Cloud Run > bioverse > Edit > Variables and secrets, and the same on the `bioverse-jobs` job). Keep the
-passwords in Secret Manager. Emails and texts only say that something is waiting, never health details.
+The app runs without any of these; each one turns a feature on.
 
-| Variable | Example |
+**Copy them from AceSales** (Secret Manager in project `acesalesai`). The values go from one Secret Manager
+to the other and are never printed:
+
+```bash
+./deploy/gcp/import-acesales-keys.sh                                   # Claude, Gmail, Twilio
+ALLOWLIST="you@example.org,+15555550123" ./deploy/gcp/import-acesales-keys.sh   # also allow your phone
+ALLOW_PUBLIC=true ./deploy/gcp/deploy.sh
+```
+
+Run it as an account that can read secrets in `acesalesai` (Secret Manager Secret Accessor) and manage
+them here. `deploy.sh` wires every secret below that has a version into the service and the jobs.
+
+| Secret | Turns on |
 | --- | --- |
-| `BIOVERSE_PUBLIC_URL` | `https://bioverse-1057658446982.us-central1.run.app` (used for links) |
-| `BIOVERSE_SMTP_URL` | `smtp://user:password@smtp.example.org:587` |
-| `BIOVERSE_EMAIL_FROM` | `care@example.org` |
-| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` | From your Twilio console |
+| `bioverse-anthropic-api-key` | Claude for triage, explanations, photo reading, check-ins and the rest; otherwise rules mode |
+| `bioverse-smtp-url`, `bioverse-email-from` | Email notifications (Gmail SMTP with an app password) |
+| `bioverse-twilio-account-sid`, `-auth-token`, `-from-number` | Text-message notifications |
+| `bioverse-outbound-allowlist` | Who may receive email and texts (comma-separated). Required while the demo sign-in is public, since anyone can type any address into a demo account |
+
+Emails and texts only say that something is waiting, never health details, and link back to the app
+(`BIOVERSE_PUBLIC_URL`, set by `deploy.sh`).
 
 ## Before any real patient data
 

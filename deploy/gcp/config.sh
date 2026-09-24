@@ -26,6 +26,17 @@ JOBS_SCHEDULE="${JOBS_SCHEDULE:-*/5 * * * *}"
 SECRET_DB_URL="bioverse-database-url"
 SECRET_ANTHROPIC="bioverse-anthropic-api-key"
 
+# Optional secrets, wired into the service and jobs when they have a version (see import-acesales-keys.sh).
+# Format: ENV_VAR=secret-name
+OPTIONAL_SECRETS=(
+  "BIOVERSE_SMTP_URL=bioverse-smtp-url"
+  "BIOVERSE_EMAIL_FROM=bioverse-email-from"
+  "TWILIO_ACCOUNT_SID=bioverse-twilio-account-sid"
+  "TWILIO_AUTH_TOKEN=bioverse-twilio-auth-token"
+  "TWILIO_FROM_NUMBER=bioverse-twilio-from-number"
+  "BIOVERSE_OUTBOUND_ALLOWLIST=bioverse-outbound-allowlist"
+)
+
 # Private by default: only principals with roles/run.invoker can reach the app.
 # The demo sign-in is a header anyone can set, so do not make it public with real patient data.
 ALLOW_PUBLIC="${ALLOW_PUBLIC:-false}"

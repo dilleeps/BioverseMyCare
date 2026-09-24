@@ -10,6 +10,13 @@ returns `skipped` instead of failing, so the app runs the same locally, in tests
 
 Messages sent outside the app never contain clinical detail: only the title and a link back into
 Bioverse One, where the user signs in to read the rest.
+
+    BIOVERSE_OUTBOUND_ALLOWLIST=you@example.org,+15555550123
+
+While the demo sign-in is in place, anyone can type any email address or phone number into a demo
+account's preferences. When this variable is set, email and texts go only to the listed addresses and
+numbers; everything else is recorded as skipped. Set it whenever real email or SMS credentials are
+configured on a public demo.
 """
 
 from __future__ import annotations
@@ -30,6 +37,14 @@ class Result:
     detail: str = ""
 
 
+def _allowed(to: str) -> bool:
+    raw = os.getenv("BIOVERSE_OUTBOUND_ALLOWLIST", "").strip()
+    if not raw:
+        return True
+    allowed = {x.strip().lower().replace(" ", "") for x in raw.split(",") if x.strip()}
+    return to.strip().lower().replace(" ", "") in allowed
+
+
 def public_url(link: str | None) -> str:
     base = os.getenv("BIOVERSE_PUBLIC_URL", "").rstrip("/")
     if not link:
@@ -43,6 +58,8 @@ def send_email(to: str | None, title: str, link: str | None) -> Result:
         return Result("skipped", "email not configured")
     if not to:
         return Result("skipped", "no email address")
+    if not _allowed(to):
+        return Result("skipped", "recipient not on the outbound allowlist")
     parts = urllib.parse.urlparse(url)
     msg = EmailMessage()
     msg["From"] = os.getenv("BIOVERSE_EMAIL_FROM", "no-reply@bioverse.example")
@@ -71,6 +88,8 @@ def send_sms(to: str | None, title: str, link: str | None) -> Result:
         return Result("skipped", "sms not configured")
     if not to:
         return Result("skipped", "no phone number")
+    if not _allowed(to):
+        return Result("skipped", "recipient not on the outbound allowlist")
     body = f"Bioverse One: {title}. {public_url(link)}".strip()
     req = urllib.request.Request(
         f"https://api.twilio.com/2010-04-01/Accounts/{sid}/Messages.json",

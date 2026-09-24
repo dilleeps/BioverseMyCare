@@ -134,3 +134,29 @@ def test_observation_accepts_vital_signs(client):
             """,
             (P_MAYA,),
         )
+
+
+def test_outbound_allowlist(monkeypatch):
+    from bioverse import channels
+
+    sent = []
+
+    class FakeSMTP:
+        def __init__(self, *a, **k): pass
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def starttls(self): pass
+        def login(self, *a): pass
+        def send_message(self, msg): sent.append(msg["To"])
+
+    monkeypatch.setattr(channels.smtplib, "SMTP", FakeSMTP)
+    monkeypatch.setenv("BIOVERSE_SMTP_URL", "smtp://user:pw@smtp.example.org:587")
+    monkeypatch.setenv("BIOVERSE_OUTBOUND_ALLOWLIST", "Me@Example.org, +1 555 555 0123")
+    assert channels.send_email("me@example.org", "Hi", "/app").status == "sent"
+    blocked = channels.send_email("stranger@example.org", "Hi", "/app")
+    assert blocked.status == "skipped" and "allowlist" in blocked.detail
+    assert sent == ["me@example.org"]
+    monkeypatch.setenv("TWILIO_ACCOUNT_SID", "AC0")
+    monkeypatch.setenv("TWILIO_AUTH_TOKEN", "t")
+    monkeypatch.setenv("TWILIO_FROM_NUMBER", "+15550000000")
+    assert channels.send_sms("+15550009999", "Hi", "/app").status == "skipped"

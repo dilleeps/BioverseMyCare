@@ -34,18 +34,34 @@ if [[ -z "${SKIP_BUILD:-}" ]]; then
   gcloud builds submit --project "${PROJECT_ID}" --region "${REGION}" --tag "${IMAGE_REF}" .
 fi
 
+has_version() {
+  gcloud secrets versions list "$1" --project "${PROJECT_ID}" --filter="state=ENABLED" \
+    --format="value(name)" 2>/dev/null | grep -q .
+}
+
 SECRETS="DATABASE_URL=${SECRET_DB_URL}:latest"
-if gcloud secrets versions list "${SECRET_ANTHROPIC}" --project "${PROJECT_ID}" --filter="state=ENABLED" \
-     --format="value(name)" 2>/dev/null | grep -q .; then
+if has_version "${SECRET_ANTHROPIC}"; then
   SECRETS="${SECRETS},ANTHROPIC_API_KEY=${SECRET_ANTHROPIC}:latest"
 fi
+for pair in "${OPTIONAL_SECRETS[@]}"; do
+  if has_version "${pair#*=}"; then
+    SECRETS="${SECRETS},${pair}:latest"
+    echo "Using secret ${pair#*=} for ${pair%%=*}"
+  fi
+done
+
+# Links in emails and texts point here. Known once the service exists; override with PUBLIC_URL.
+PUBLIC_URL="${PUBLIC_URL:-$(gcloud run services describe "${SERVICE}" --project "${PROJECT_ID}" --region "${REGION}" \
+  --format='value(status.url)' 2>/dev/null || true)}"
+ENV_VARS="BIOVERSE_AI=auto,BIOVERSE_MODEL=claude-opus-5,BIOVERSE_CLINIC_TZ=America/New_York"
+[[ -n "${PUBLIC_URL}" ]] && ENV_VARS="${ENV_VARS},BIOVERSE_PUBLIC_URL=${PUBLIC_URL}"
 
 # define_job NAME MODULE: create or update a Cloud Run job that runs `python -m MODULE`.
 define_job() {
   local name="$1" args="$2"
   local common=(--project "${PROJECT_ID}" --region "${REGION}" --image "${IMAGE_REF}"
     --service-account "${RUNTIME_SA}" --set-cloudsql-instances "${SQL_CONNECTION}"
-    --set-secrets "${SECRETS}" --command python --args="-m,${args}" --max-retries 0 --task-timeout 300)
+    --set-secrets "${SECRETS}" --set-env-vars "${ENV_VARS}" --command python --args="-m,${args}" --max-retries 0 --task-timeout 300)
   if gcloud run jobs describe "${name}" --project "${PROJECT_ID}" --region "${REGION}" >/dev/null 2>&1; then
     gcloud run jobs update "${name}" "${common[@]}"
   else
@@ -89,7 +105,7 @@ gcloud run deploy "${SERVICE}" \
   --service-account "${RUNTIME_SA}" \
   --set-cloudsql-instances "${SQL_CONNECTION}" \
   --set-secrets "${SECRETS}" \
-  --set-env-vars "BIOVERSE_AI=auto,BIOVERSE_MODEL=claude-opus-5,BIOVERSE_CLINIC_TZ=America/New_York" \
+  --set-env-vars "${ENV_VARS}" \
   --cpu 1 --memory 512Mi --concurrency 40 --min-instances 0 --max-instances 3 \
   --ingress all "${AUTH_FLAG}"
 
