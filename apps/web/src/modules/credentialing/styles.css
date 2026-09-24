@@ -1,0 +1,20 @@
+/* Credentialing. Scoped class names; tokens from src/styles.css. */
+
+.cred-page h2 { margin: 0; }
+.cred-page .card + .card { margin-top: 0; }
+.cred-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.cred-facts > div { background: var(--ground); border-radius: 12px; padding: 8px 10px; min-width: 0; }
+.cred-facts dt { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.cred-facts dd { margin: 0; font-size: 13px; overflow-wrap: anywhere; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cred-checks { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.cred-page .field label { display: block; margin-bottom: 4px; }
+.cred-page .field input, .cred-page .field select {
+  width: 100%; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+  padding: 0 12px; font-size: 15px;
+}
+.cred-page details summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; }
+.cred-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.cred-page .alert-text { color: var(--alert); font-weight: 700; }
+@media (max-width: 520px) {
+  .cred-facts { grid-template-columns: minmax(0, 1fr); }
+}
