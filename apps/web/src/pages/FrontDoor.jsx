@@ -1,7 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { Arrow, Check, Phone, Shield, Warning } from "../icons.jsx";
+// Voice, read-aloud, photo questions and senior mode (components/frontdoor, modules/accessibility).
+import MicButton from "../components/frontdoor/MicButton.jsx";
+import PhotoButton from "../components/frontdoor/PhotoButton.jsx";
+import { ReadAloudToggle, useReadAloud } from "../components/frontdoor/ReadAloud.jsx";
+import { SeniorHome, SeniorToggle } from "../components/frontdoor/Senior.jsx";
+import PhotoCard from "../modules/photo-questions/PhotoCard.jsx";
+import { useDisplayPrefs } from "../modules/accessibility/prefs.js";
 
 const GREETING = "Hi, I'm Bioverse One. Tell me what's going on, or what you need help with, and I'll guide you to the right next step.";
 
@@ -110,6 +117,9 @@ export default function FrontDoor() {
   const [error, setError] = useState(null);
   const endRef = useRef(null);
   const started = useRef(false);
+  const inputRef = useRef(null);
+  const [photos, setPhotos] = useState([]); // photo answers, each shown after the message count it arrived at
+  const { senior_mode: senior } = useDisplayPrefs();
 
   async function send(body, convo = conversation) {
     setBusy(true);
@@ -154,10 +164,12 @@ export default function FrontDoor() {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [conversation?.messages?.length, busy]);
+  }, [conversation?.messages?.length, busy, photos.length]);
 
   const messages = conversation?.messages || [];
   const escalated = conversation?.status === "escalated";
+  useReadAloud(messages);
+  const photosAt = (n) => photos.filter((p) => p.at === n).map((p) => <PhotoCard key={p.id} entry={p} />);
 
   return (
     <main className="column">
@@ -165,18 +177,23 @@ export default function FrontDoor() {
         <span className="page-title" style={{ fontSize: 22 }}>Ask Bioverse</span>
         <span className="chip ok"><Shield size={13} /> Private</span>
       </div>
+      <div className="fd-toolbar"><SeniorToggle /><ReadAloudToggle /></div>
+      {senior && <SeniorHome onAsk={() => inputRef.current?.focus()} />}
 
       <div className="chat" aria-live="polite">
         <div className="bubble assistant">{GREETING}</div>
+        {photosAt(0)}
         {messages.map((m, i) => (
-          <Message
-            key={m.id}
-            m={m}
-            isLast={i === messages.length - 1}
-            busy={busy}
-            navigate={navigate}
-            onAnswer={(answer) => send({ safety_answer: answer })}
-          />
+          <Fragment key={m.id}>
+            <Message
+              m={m}
+              isLast={i === messages.length - 1}
+              busy={busy}
+              navigate={navigate}
+              onAnswer={(answer) => send({ safety_answer: answer })}
+            />
+            {photosAt(i + 1)}
+          </Fragment>
         ))}
         {busy && (
           <div className="bubble assistant" aria-label="Bioverse is thinking">
@@ -203,12 +220,15 @@ export default function FrontDoor() {
         <label htmlFor="msg" className="sr-only">Message Bioverse</label>
         <input
           id="msg"
+          ref={inputRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={escalated ? "Please call for help first" : "Tell me more…"}
           autoComplete="off"
           disabled={!conversation}
         />
+        <MicButton value={text} onChange={setText} disabled={!conversation} />
+        <PhotoButton disabled={!conversation} onResult={(p) => setPhotos((ps) => [...ps, { ...p, at: messages.length }])} />
         <button type="submit" className="btn dark" disabled={!text.trim() || busy || !conversation} aria-label="Send">
           <Arrow size={18} />
         </button>

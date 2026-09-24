@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSession } from "../session.jsx";
+import HubSearch from "../components/frontdoor/HubSearch.jsx";
 import { navFor } from "../modules/registry.js";
 import { Chevron } from "../icons.jsx";
 
@@ -19,6 +21,7 @@ const CORE = {
 // Everything the signed-in role can open, grouped. Every module appears here automatically.
 export default function Hub() {
   const { me } = useSession();
+  const [query, setQuery] = useState("");
   if (!me) return null;
   const items = [...(CORE[me.role] || []), ...navFor(me.role)];
   const unique = items.filter((n, i) => items.findIndex((m) => m.to === n.to) === i);
@@ -32,8 +35,9 @@ export default function Hub() {
           <div className="page-sub">Or just ask. Bioverse One will take you to the right place.</div>
         </div>
       </div>
+      <HubSearch items={unique} query={query} onQuery={setQuery} />
       {unique.length === 0 && <div className="card empty">Nothing here yet for this role.</div>}
-      {groups.map((g) => (
+      {!query.trim() && groups.map((g) => (
         <section key={g} className="stack" style={{ marginBottom: 24 }}>
           <div className="eyebrow">{g}</div>
           <div className="hub-grid">

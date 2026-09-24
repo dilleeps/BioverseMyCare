@@ -305,3 +305,79 @@ textarea.edit { width: 100%; min-height: 96px; padding: 10px 12px; border-radius
   background: var(--surface); border: 1px solid var(--line); color: var(--ink); text-decoration: none;
 }
 .hub-card:hover { color: var(--ink); border-color: var(--faint); }
+
+/* ---------- Senior mode & accessibility ---------- */
+/* Set on <html> by src/modules/accessibility/prefs.js from the person's saved preferences:
+   data-a11y-scale (text larger than standard, --a11y-scale = text_scale x 1.25 in senior mode),
+   data-senior, data-high-contrast, data-reduce-motion. */
+:root { --a11y-scale: 1; }
+:root[data-a11y-scale] body { font-size: calc(16px * var(--a11y-scale)); }
+:root[data-a11y-scale] .page-title { font-size: calc(28px * min(var(--a11y-scale), 1.4)); }
+:root[data-a11y-scale] .page-sub, :root[data-a11y-scale] .topnav a, :root[data-a11y-scale] .error-box,
+:root[data-a11y-scale] .toggle-row label, :root[data-a11y-scale] .suggestion { font-size: calc(14px * var(--a11y-scale)); }
+:root[data-a11y-scale] .card-title, :root[data-a11y-scale] .bubble, :root[data-a11y-scale] .task-title,
+:root[data-a11y-scale] .composer input, :root[data-a11y-scale] .ask input { font-size: calc(16px * var(--a11y-scale)); }
+:root[data-a11y-scale] .btn, :root[data-a11y-scale] .safety-option { font-size: calc(15px * var(--a11y-scale)); }
+:root[data-a11y-scale] .small, :root[data-a11y-scale] .banner, :root[data-a11y-scale] .btn.sm { font-size: calc(13px * var(--a11y-scale)); }
+:root[data-a11y-scale] .tiny, :root[data-a11y-scale] .chip, :root[data-a11y-scale] .eyebrow { font-size: calc(12px * var(--a11y-scale)); }
+/* The phone tab bar holds five labels in one row: it grows a little, never enough to clip them. */
+:root[data-a11y-scale] .tabbar a { font-size: calc(12px * min(var(--a11y-scale), 1.1)); padding: 0 2px; }
+:root[data-a11y-scale] .value { font-size: calc(18px * var(--a11y-scale)); }
+:root[data-a11y-scale] .btn { white-space: normal; text-align: center; }
+
+/* Senior mode: big touch targets, calmer spacing, stronger contrast, no small-caps labels. */
+:root[data-senior] {
+  --muted: #3b4643;
+  --ink-2: #171f1d;
+  --line: #b9b6ac;
+  --line-soft: #d6d3c9;
+}
+:root[data-senior] body { line-height: 1.5; }
+:root[data-senior] .btn, :root[data-senior] .btn.sm, :root[data-senior] .safety-option,
+:root[data-senior] .composer input, :root[data-senior] .identity select, :root[data-senior] .topnav a,
+:root[data-senior] .hub-card, :root[data-senior] .fd-pill, :root[data-senior] .toggle-row,
+:root[data-senior] .emergency .call, :root[data-senior] .tabbar a { min-height: 56px; }
+:root[data-senior] .btn.sm { padding: 0 16px; border-radius: 12px; }
+:root[data-senior] .icon-btn, :root[data-senior] .fd-icon-btn { width: 56px; height: 56px; }
+:root[data-senior] .topnav a { display: inline-flex; align-items: center; }
+:root[data-senior] .toggle-row input[type="checkbox"], :root[data-senior] .task input[type="checkbox"] { width: 28px; height: 28px; }
+:root[data-senior] .eyebrow { text-transform: none; letter-spacing: 0; font-weight: 700; color: var(--ink); }
+:root[data-senior] .bubble { max-width: 100%; line-height: 1.5; }
+:root[data-senior] .card { padding: 20px; }
+:root[data-senior] .stack { gap: 16px; }
+:root[data-senior] .chat { gap: 16px; }
+:root[data-senior] .composer { gap: 6px; }
+:root[data-senior] a:not(.btn):not(.hub-card):not(.senior-tile):not(.call) { text-decoration-thickness: 2px; }
+:root[data-senior] .typing i { width: 10px; height: 10px; }
+
+/* High contrast: darker text, stronger outlines, no soft greys. */
+:root[data-high-contrast] {
+  --ground: #ffffff;
+  --ink: #000000;
+  --ink-2: #000000;
+  --muted: #1f2826;
+  --line: #4a5451;
+  --line-soft: #6b7471;
+  --faint: #4a5451;
+  --accent: #064d45;
+  --accent-strong: #03352f;
+  --accent-soft: #d3ebe4;
+  --alert: #8a3313;
+  --alert-strong: #5c1f08;
+}
+:root[data-high-contrast] .card, :root[data-high-contrast] .hub-card, :root[data-high-contrast] .btn,
+:root[data-high-contrast] .bubble.assistant, :root[data-high-contrast] .composer input { border-width: 2px; }
+:root[data-high-contrast] :focus-visible { outline: 3px solid #000; outline-offset: 3px; box-shadow: 0 0 0 6px #ffd84d; }
+:root[data-high-contrast] .topbar { background: #fff; backdrop-filter: none; }
+
+/* Reduced motion: from the person's setting, or from the operating system. */
+:root[data-reduce-motion] *, :root[data-reduce-motion] *::before, :root[data-reduce-motion] *::after {
+  animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important; scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important; scroll-behavior: auto !important;
+  }
+}
