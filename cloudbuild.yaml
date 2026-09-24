@@ -1,0 +1,38 @@
+# CI/CD on Google Cloud Build for project bioverseone-509616.
+#   gcloud builds submit --config cloudbuild.yaml --region us-central1
+# or connect a trigger to the repository's main branch.
+substitutions:
+  _REGION: us-central1
+  _SERVICE: bioverse
+  _REPO: bioverse
+
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$BUILD_ID
+      - .
+
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: [push, "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$BUILD_ID"]
+
+  - id: migrate-and-deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args: [deploy/gcp/deploy.sh]
+    env:
+      - PROJECT_ID=$PROJECT_ID
+      - REGION=${_REGION}
+      - SERVICE=${_SERVICE}
+      - REPO=${_REPO}
+      - IMAGE_TAG=$BUILD_ID
+      - SKIP_BUILD=1
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$BUILD_ID
+
+options:
+  logging: CLOUD_LOGGING_ONLY

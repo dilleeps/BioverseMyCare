@@ -8,7 +8,58 @@ The patient says what they need. Bioverse helps them understand, decide, connect
 
 ## What this repository holds
 
-This repository is the platform blueprint for Bioverse. It defines the product vision, the six-layer architecture, the module catalog, the agent model, the safety and governance foundation, the interoperability plan and a phased delivery roadmap. Implementation will build on these documents.
+The platform blueprint, and a working first slice of it: a React web app, a Python (FastAPI) API, and a PostgreSQL database.
+
+| Path | What it is |
+| --- | --- |
+| [apps/web](apps/web) | React app (Vite, plain JavaScript). Patient front door, care navigator, care plan, results, My Health Story, clinician workspace, Doctor Agent settings |
+| [apps/api](apps/api) | FastAPI service. Orchestrator, red-flag rules, triage agent (Claude or rules), scheduling, records, review queue, audit trail |
+| [apps/api/bioverse/db/migrations](apps/api/bioverse/db/migrations) | Postgres schema, one table per FHIR-aligned resource |
+| [deploy/gcp](deploy/gcp) | Google Cloud deployment for project `bioverseone-509616`: Cloud Run, Cloud SQL, Secret Manager |
+| [docs](docs) | The blueprint documents below |
+
+## Run it locally
+
+You need Node 20+, Python 3.11+, and PostgreSQL 16 (or Docker for the included Compose file).
+
+```bash
+# 1. Database
+docker compose up -d postgres
+
+# 2. API on :8000
+cd apps/api
+python -m venv .venv && . .venv/bin/activate
+pip install -r requirements-dev.txt
+cp .env.example .env                  # add ANTHROPIC_API_KEY to use Claude; without it, rules mode
+python -m bioverse.db.migrate
+python -m bioverse.db.seed            # demo tenant: Northside Health
+uvicorn bioverse.main:app --reload --port 8000
+
+# 3. Web app on :5173, in a second terminal
+cd apps/web
+npm install
+npm run dev
+```
+
+Open http://localhost:5173. The Vite dev server forwards every `/api` request to the API on port 8000, so the browser sees one origin. Use the selector in the top right to switch between the demo patient, Maya Thornton, and the demo clinician, Dr. Adaeze Okafor.
+
+Things to try:
+
+- Type "I've had chest discomfort since yesterday". Bioverse runs a safety check first. Answer "None of these" to get cardiology options and book one. Pick a symptom instead to see the emergency path, then switch to Dr. Okafor to find the red flag at the top of her review queue.
+- Type "I have an itchy rash". Dermatology options come back ranked by language match, coverage, then earliest time.
+- As Dr. Okafor, edit and approve Jun Park's HbA1c explanation. Patients never see an AI draft before a clinician approves it.
+
+Run the API tests (they reset the `bioverse_test` database):
+
+```bash
+cd apps/api && python -m pytest
+```
+
+To serve everything from one process like production, run `npm run build` in `apps/web`, then start the API. It serves the built app at `/`.
+
+**The sign-in is a demo.** The identity selector sends a header the API trusts. Replace it with real authentication before any real patient data goes near this. See [deploy/gcp/README.md](deploy/gcp/README.md#before-any-real-patient-data).
+
+## The blueprint
 
 | Document | Purpose |
 | --- | --- |
@@ -43,4 +94,6 @@ LAYER 6  FOUNDATION     AI → Data → FHIR → Identity → Security → Conse
 
 ## Status
 
-Blueprint stage. See the [roadmap](docs/06-roadmap.md) for the delivery sequence.
+Phase 1 vertical slice in code: front door with red-flag screening and safety checks, intake and routing, care navigation and booking, care plan, results with clinician-reviewed explanations, My Health Story, clinician workspace with pre-visit brief and review queue, and Doctor Agent configuration with organization-locked rules. Every action is written to an append-only audit trail.
+
+Not built yet: real authentication, EHR integration, the Evidence Assistant's licensed sources, messaging, referrals, pharmacy and billing. See the [roadmap](docs/06-roadmap.md) for the sequence.

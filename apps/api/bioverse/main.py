@@ -1,0 +1,61 @@
+"""Bioverse API.
+
+Run locally:
+    uvicorn bioverse.main:app --reload --port 8000
+"""
+
+from __future__ import annotations
+
+import logging
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+from bioverse.config import get_settings
+from bioverse.db import close_pool, open_pool
+from bioverse.routers import care, clinician, conversations, records, session
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    open_pool()
+    yield
+    close_pool()
+
+
+app = FastAPI(
+    title="Bioverse API",
+    version="0.1.0",
+    description="AI-powered healthcare companion and orchestration platform.",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=list(get_settings().cors_origins),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+for r in (session.router, conversations.router, care.router, records.router, clinician.router):
+    app.include_router(r)
+
+# Serve the built React app when it exists (single-process deployment).
+WEB_DIST = Path(__file__).resolve().parents[2] / "web" / "dist"
+if WEB_DIST.is_dir():
+    app.mount("/assets", StaticFiles(directory=WEB_DIST / "assets"), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str) -> FileResponse:
+        if path == "api" or path.startswith("api/"):
+            raise HTTPException(404, "Not found")
+        candidate = (WEB_DIST / path).resolve()
+        if path and candidate.is_file() and WEB_DIST in candidate.parents:
+            return FileResponse(candidate)
+        return FileResponse(WEB_DIST / "index.html")
