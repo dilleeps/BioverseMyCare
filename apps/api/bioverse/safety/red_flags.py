@@ -15,7 +15,7 @@ import os
 import re
 from dataclasses import dataclass, field
 
-RULESET_VERSION = "2026.09-demo"
+RULESET_VERSION = "2026.09.2-demo"
 
 EMERGENCY_NUMBER = os.getenv("BIOVERSE_EMERGENCY_NUMBER", "911")
 CRISIS_LINE = os.getenv("BIOVERSE_CRISIS_LINE", "988")
@@ -35,10 +35,14 @@ EMERGENCY_RULES: dict[str, re.Pattern[str]] = {
         r"face (?:is )?droop", r"drooping face", r"slurred speech", r"can'?t speak",
         r"(?:one|left|right) side (?:of my body )?(?:is )?(?:weak|numb)",
         r"sudden(?:ly)? (?:weak|numb|confus)", r"worst headache",
+        r"speech (?:is |sounds |seems |has gone |went )?(?:slurred|weird|strange|garbled|funny|wrong)",
+        r"(?:trouble|difficulty) (?:speaking|talking|finding (?:my )?words)",
+        r"(?:arm|leg|hand|face) (?:is |went |has gone |feels )?(?:suddenly )?numb[^.]{0,60}(?:speech|speak|talk|words|vision)",
     ),
     "breathing emergency": _pattern(
         r"can'?t breathe", r"cannot breathe", r"struggling to breathe", r"choking",
         r"lips (?:are |turning )?blue", r"gasping",
+        r"(?:hard|difficult) to breathe", r"difficulty breathing", r"can'?t catch my breath",
     ),
     "possible anaphylaxis": _pattern(
         r"throat (?:is )?(?:closing|swelling|swollen|tight)", r"tongue (?:is )?swell",
@@ -46,7 +50,18 @@ EMERGENCY_RULES: dict[str, re.Pattern[str]] = {
     ),
     "severe bleeding": _pattern(
         r"bleeding (?:that )?(?:won'?t|will not|doesn'?t) stop", r"vomiting blood",
-        r"coughing (?:up )?blood", r"heavy bleeding",
+        r"coughing (?:up )?blood", r"heavy bleeding", r"bleeding (?:very )?heavily",
+    ),
+    "bleeding in pregnancy": _pattern(
+        r"pregnan[^.]{0,60}bleed", r"bleed[^.]{0,60}pregnan",
+    ),
+    "possible meningitis or sepsis": _pattern(
+        r"stiff neck[^.]{0,80}fever", r"fever[^.]{0,80}stiff neck",
+        r"rash (?:that )?(?:doesn'?t|does not|won'?t|will not) fade", r"non-?blanching",
+    ),
+    "unwell child or baby": _pattern(
+        r"(?:baby|infant|newborn|toddler|child|son|daughter)[^.]{0,50}(?:floppy|limp|won'?t wake|can'?t wake|unresponsive|not breathing|turning blue)",
+        r"\bfloppy\b",
     ),
     "loss of consciousness": _pattern(
         r"passed out", r"unconscious", r"unresponsive", r"seizure", r"fainted",
@@ -54,6 +69,7 @@ EMERGENCY_RULES: dict[str, re.Pattern[str]] = {
     "possible overdose": _pattern(r"overdos", r"took too many (?:pills|tablets)"),
     "chest pain with warning signs": _pattern(
         r"chest (?:pain|pressure|tightness|discomfort)[^.]{0,60}(?:arm|jaw|back|sweat|short(?:ness)? of breath|breathless|faint)",
+        r"(?:pain|pressure|tightness|discomfort) in (?:my |the )?chest[^.]{0,60}(?:arm|jaw|back|sweat|short(?:ness)? of breath|breathless|faint)",
         r"crushing chest",
     ),
 }
@@ -62,11 +78,18 @@ EMERGENCY_RULES: dict[str, re.Pattern[str]] = {
 CRISIS_RULE = _pattern(
     r"suicid", r"kill myself", r"end (?:my|it) (?:life|all)", r"want to die",
     r"self[- ]harm", r"hurt(?:ing)? myself",
+    r"can'?t go on", r"no (?:point|reason) (?:in )?(?:living|going on|being alive)",
+    r"don'?t want to (?:be here|be alive|live|wake up)", r"better off (?:dead|without me)",
 )
 
 # Findings that need a structured safety check before any routine flow continues.
 SCREEN_TOPICS: dict[str, re.Pattern[str]] = {
-    "chest": _pattern(r"chest (?:pain|pressure|tightness|discomfort|ache|hurts)", r"heart (?:pain|racing)", r"palpitation"),
+    "chest": _pattern(
+        r"chest (?:pain|pressure|tightness|discomfort|ache|hurts)",
+        r"(?:pain|pressure|tightness|discomfort) in (?:my |the )?chest",
+        r"heart (?:is |keeps |has been |feels like it'?s )?(?:pain|racing|pounding|fluttering|skipping)",
+        r"palpitation",
+    ),
     "headache": _pattern(r"headache", r"migraine"),
 }
 

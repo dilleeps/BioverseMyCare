@@ -73,7 +73,7 @@ def run(conn, ctx: SeedContext) -> None:
                 INSERT INTO eval_cases (id, suite, text, category, expected_level, expected_topic, expected_intent,
                                         expected_specialty, known_gap, note)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (id) DO NOTHING
+                ON CONFLICT (id) DO UPDATE SET known_gap = EXCLUDED.known_gap, note = EXCLUDED.note
                 """,
                 (_id(c.n), suite, c.text, c.category, c.level, c.topic, c.intent, c.specialty, c.known_gap, c.note),
             )
