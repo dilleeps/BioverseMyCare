@@ -1,0 +1,74 @@
+/* Appointment and Visit Navigator. Builds on the shared tokens in src/styles.css. */
+
+.vx-checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.vx-checklist .task label { cursor: pointer; }
+.vx-checklist .task input[type="checkbox"] { margin-top: 2px; }
+
+.vx-details { border-top: 1px solid var(--line-soft); padding-top: 10px; }
+.vx-details > summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  min-height: 44px; font-weight: 700; font-size: 15px;
+}
+.vx-details > summary::-webkit-details-marker { display: none; }
+.vx-details > summary svg { transition: transform 0.15s ease; color: var(--muted); }
+.vx-details[open] > summary svg { transform: rotate(90deg); }
+.vx-details[open] > summary { margin-bottom: 8px; }
+.vx-details.compact { border-top: 0; padding-top: 0; }
+.vx-details.compact > summary {
+  min-height: 32px; font-size: 13px; font-weight: 600; justify-content: flex-start; gap: 6px; color: var(--accent-strong);
+}
+
+.vx-dl { display: grid; grid-template-columns: minmax(90px, max-content) minmax(0, 1fr); gap: 6px 14px; margin: 0; font-size: 14px; }
+.vx-dl dt { color: var(--muted); font-weight: 600; }
+.vx-dl dd { margin: 0; color: var(--ink-2); }
+.vx-pre { white-space: pre-wrap; }
+@media (max-width: 520px) {
+  .vx-dl { grid-template-columns: 1fr; }
+  .vx-dl dd { margin-bottom: 6px; }
+}
+
+.vx-bullets { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.vx-note { background: var(--ground); border-radius: 12px; padding: 10px 12px; }
+
+.vx-questions { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.vx-questions li { background: var(--ground); border-radius: 12px; padding: 6px 6px 6px 12px; font-size: 14px; gap: 8px; }
+.vx-icon-sm { width: 36px; height: 36px; }
+.vx-input {
+  flex-grow: 1; min-width: 0; min-height: 44px; padding: 0 14px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface); font-size: 15px;
+}
+.vx-suggest { white-space: normal; text-align: left; height: auto; padding-top: 6px; padding-bottom: 6px; }
+
+.vx-dayof { background: var(--ground); border-radius: var(--r-md); padding: 14px; gap: 8px; }
+.vx-dayof.live { background: var(--accent-soft); color: var(--accent-strong); }
+.vx-dayof.live .tiny { color: var(--accent-strong); opacity: 0.8; }
+
+.vx-confirm { background: var(--alert-soft); border: 1px solid var(--alert-line); border-radius: 12px; padding: 12px; }
+
+/* Clinic queue */
+.vx-select {
+  min-height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+  padding: 0 10px; font-size: 14px; font-weight: 600;
+}
+.vx-stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.vx-queue { list-style: none; margin: 0; padding: 0; }
+.vx-qrow {
+  display: grid; grid-template-columns: 76px minmax(0, 2.2fr) minmax(0, 1.2fr) minmax(0, 1.6fr);
+  gap: 8px 16px; align-items: start; padding: 14px 4px;
+}
+.vx-qrow + .vx-qrow { border-top: 1px solid var(--line-soft); }
+.vx-qrow.completed, .vx-qrow.no_show { opacity: 0.75; }
+.vx-qrow.arrived .vx-qtime .strong { color: var(--accent-strong); }
+.vx-qtime, .vx-qwho, .vx-qstatus { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.vx-qstatus .chip { align-self: flex-start; }
+.vx-qactions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.vx-qfull { grid-column: 1 / -1; }
+.vx-summary { background: var(--ground); border-radius: var(--r-md); padding: 14px; gap: 8px; }
+.vx-summary textarea.vx-short { min-height: 60px; }
+
+@media (max-width: 960px) {
+  .vx-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .vx-qrow { grid-template-columns: 64px minmax(0, 1fr); }
+  .vx-qstatus { grid-column: 2; }
+  .vx-qactions { grid-column: 1 / -1; justify-content: flex-start; }
+}
