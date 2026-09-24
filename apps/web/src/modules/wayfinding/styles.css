@@ -1,0 +1,178 @@
+/* In-hospital wayfinding. Plan colours are soft tints of the app palette so the teal route stands out. */
+
+.wf-page { max-width: 1240px; }
+.wf-layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px; align-items: start; }
+.wf-left { min-width: 0; }
+.wf-map-card { position: sticky; top: 84px; min-width: 0; }
+.wf-grow { flex: 1 1 auto; min-width: 0; }
+.wf-h2 { font-family: var(--display); font-size: 20px; font-weight: 600; }
+.wf-label-text { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+
+.wf-select, .wf-search input, .wf-close-form input {
+  width: 100%; min-height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface);
+  padding: 0 12px; font-size: 16px;
+}
+.wf-search { display: flex; gap: 8px; align-items: center; }
+.wf-search input { flex: 1 1 auto; min-width: 0; }
+.wf-chosen {
+  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 8px 6px 12px;
+  border-radius: 12px; background: var(--accent-soft); color: var(--accent-strong);
+}
+.wf-chosen .strong { color: var(--ink); overflow-wrap: anywhere; }
+.wf-results { list-style: none; margin: 0; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.wf-result {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 48px;
+  padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; text-align: left;
+}
+.wf-result:hover, .wf-result:focus-visible { background: var(--ground); }
+.wf-quick { display: flex; flex-wrap: wrap; gap: 8px; }
+.wf-quick .suggestion { min-height: 44px; }
+.wf-quick .wf-appt { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+
+.wf-here {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--r-md);
+  background: var(--ink); color: #fff;
+}
+.wf-here .muted { color: #d8d6ce; }
+.wf-here-dot { width: 14px; height: 14px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25); flex-shrink: 0; }
+
+.wf-summary { display: flex; flex-direction: column; gap: 6px; }
+.wf-time { font-family: var(--display); font-size: 30px; font-weight: 600; letter-spacing: -0.01em; }
+.wf-copied { overflow-wrap: anywhere; }
+
+/* Numbered, large directions: the accessible version of the map. */
+.wf-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.wf-step { display: flex; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line-soft); font-size: 18px; line-height: 1.45; }
+.wf-step:first-child { border-top: 0; }
+.wf-step-n {
+  width: 34px; height: 34px; border-radius: 999px; display: grid; place-items: center; flex-shrink: 0;
+  background: var(--ground); color: var(--ink); font-size: 15px; font-weight: 800;
+}
+.wf-step.k-floor_change .wf-step-n { background: var(--ink); color: #fff; }
+.wf-step.k-arrive .wf-step-n { background: var(--accent); color: #fff; }
+.wf-step.k-arrive .wf-step-text { font-weight: 700; }
+.wf-step-text { min-width: 0; overflow-wrap: anywhere; }
+.wf-step-floor { display: block; margin-top: 2px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+
+/* Floor switcher */
+.wf-floors { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.wf-floor {
+  position: relative; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--surface); font-weight: 800; font-size: 16px;
+}
+.wf-floor.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.wf-floor.route::after {
+  content: ""; position: absolute; right: 4px; top: 4px; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--accent); box-shadow: 0 0 0 2px var(--surface);
+}
+.wf-floor-name { margin-left: 6px; font-size: 14px; font-weight: 700; color: var(--ink-2); }
+
+/* The plan */
+.wf-map { position: relative; }
+.wf-map svg {
+  display: block; width: 100%; height: auto; aspect-ratio: 100 / 60; border-radius: var(--r-md);
+  background: #f7f6f1; border: 1px solid var(--line-soft); user-select: none;
+}
+.wf-map svg.zoomed { cursor: grab; }
+.wf-zoom { display: flex; gap: 6px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.wf-zoom .icon-btn { width: 44px; height: 44px; }
+
+.wf-outline { fill: #e6e4dc; stroke: var(--ink-2); stroke-width: 0.5; }   /* staff-only and service space */
+.wf-area { stroke: #a9a597; stroke-width: 0.22; stroke-linejoin: round; }
+.wf-area.k-corridor { fill: #fdfcf9; stroke: none; }
+.wf-area.k-clinic { fill: #dcede8; }
+.wf-area.k-lab { fill: #e1e9f3; }
+.wf-area.k-imaging { fill: #e7e2f1; }
+.wf-area.k-pharmacy { fill: #dfeedd; }
+.wf-area.k-restroom { fill: #e3ebee; }
+.wf-area.k-cafe { fill: #f5e7d2; }
+.wf-area.k-waiting { fill: #efece3; }
+.wf-area.k-desk { fill: #c7e2da; }
+.wf-area.k-elevator, .wf-area.k-stairs, .wf-area.k-escalator { fill: #dedbd2; }
+.wf-area.k-entrance { fill: #cfe6df; }
+.wf-area.k-parking { fill: #eeede7; }
+.wf-area.hl { fill: #bfe0d6; stroke: var(--accent); stroke-width: 0.5; }
+.wf-hatch-line { stroke: #bdb9ad; stroke-width: 0.18; }
+.wf-bay-line { stroke: #c9c5b8; stroke-width: 0.2; }
+
+.wf-label { fill: var(--ink-2); font-family: var(--body); font-weight: 700; pointer-events: none; }
+.wf-label.k-corridor { fill: var(--muted); font-weight: 600; }
+.wf-label.hl { fill: var(--accent-strong); }
+
+.wf-route-casing { fill: none; stroke: #fff; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.wf-route { fill: none; stroke: var(--accent); stroke-width: 1.05; stroke-linecap: round; stroke-linejoin: round; }
+.wf-start { fill: var(--ink); stroke: #fff; stroke-width: 0.5; }
+.wf-end { fill: var(--accent); stroke: #fff; stroke-width: 0.5; }
+.wf-end-halo { fill: color-mix(in srgb, var(--accent) 22%, transparent); }
+.wf-change { fill: var(--ink); stroke: #fff; stroke-width: 0.35; }
+.wf-pill rect { stroke: #fff; stroke-width: 0.25; }
+.wf-pill text { fill: #fff; font-family: var(--body); font-weight: 700; }
+.wf-pill.dark rect { fill: var(--ink); }
+.wf-pill.accent rect { fill: var(--accent-strong); }
+.wf-closed line { stroke: var(--alert); stroke-width: 0.9; stroke-dasharray: 1 0.8; }
+.wf-closed-dot { fill: var(--alert); stroke: #fff; stroke-width: 0.3; }
+.wf-closed-x { stroke: #fff; stroke-width: 0.35; stroke-linecap: round; }
+.wf-scale { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--ink-2); }
+.wf-scale i { display: inline-block; height: 8px; border: 2px solid var(--ink-2); border-top: 0; }
+
+.wf-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.wf-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.wf-key { display: inline-block; width: 14px; height: 14px; border-radius: 999px; }
+.wf-key.route { height: 5px; border-radius: 3px; background: var(--accent); }
+.wf-key.start { background: var(--ink); }
+.wf-key.end { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.wf-key.closed { background: var(--alert); }
+.wf-key.staff { background: #e6e4dc; border: 1px solid #b9b6ac; border-radius: 3px; }
+
+.wf-print-maps { display: none; }
+
+/* Staff screens */
+.wf-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.wf-tab { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 700; font-size: 14px; }
+.wf-tab.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.wf-active { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--alert-soft); color: var(--alert-strong); }
+.wf-active .muted { color: var(--alert-strong); opacity: 0.85; }
+.wf-seglist { list-style: none; margin: 0; padding: 0; }
+.wf-seg { padding: 10px 0; border-top: 1px solid var(--line-soft); }
+.wf-seg:first-child { border-top: 0; }
+.wf-seg-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.wf-close-form { margin-top: 10px; padding: 12px; border-radius: 12px; background: var(--ground); }
+.wf-table-wrap { max-width: 100%; overflow-x: auto; }
+.wf-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.wf-table th { text-align: left; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.wf-table td { padding: 10px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+.wf-table code, .wf-sign code { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; }
+
+/* Sign sheet */
+.wf-sign-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.wf-sign { background: var(--surface); border: 2px solid var(--ink); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 8px; break-inside: avoid; }
+.wf-sign-top { display: flex; align-items: center; justify-content: space-between; }
+.wf-sign-here { font-family: var(--display); font-size: 24px; font-weight: 600; }
+.wf-sign-floor { min-width: 44px; height: 44px; padding: 0 8px; border-radius: 12px; background: var(--ink); color: #fff; display: grid; place-items: center; font-size: 22px; font-weight: 800; }
+.wf-sign-name { font-size: 18px; font-weight: 700; }
+.wf-sign-code { display: flex; flex-direction: column; gap: 2px; padding-top: 8px; border-top: 1px solid var(--line); }
+.wf-sign-code code { font-size: 26px; font-weight: 800; letter-spacing: 0.04em; }
+.wf-sign-url { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+
+@media (max-width: 960px) {
+  .wf-layout { grid-template-columns: 1fr; }
+  .wf-map-card { position: static; }
+}
+@media (max-width: 520px) {
+  .wf-step { font-size: 17px; }
+  .wf-time { font-size: 26px; }
+  .wf-floor-name { flex-basis: 100%; margin-left: 0; }
+  .wf-sign-grid { grid-template-columns: 1fr; }
+}
+
+@media print {
+  body:has(.wf-page) , body:has(.wf-sign-page) { background: #fff; padding: 0; }
+  body:has(.wf-page) .topbar, body:has(.wf-page) .tabbar,
+  body:has(.wf-sign-page) .topbar, body:has(.wf-sign-page) .tabbar,
+  .wf-page .wf-noprint, .wf-sign-page .wf-noprint { display: none !important; }
+  .wf-page .wf-layout { display: block; }
+  .wf-page .card { border: 0; padding: 0; }
+  .wf-page .wf-print-maps { display: grid; gap: 12px; margin-top: 16px; }
+  .wf-print-map { break-inside: avoid; }
+  .wf-sign-page .wf-sign-grid { grid-template-columns: 1fr 1fr; }
+}
