@@ -15,7 +15,7 @@ import os
 import re
 from dataclasses import dataclass, field
 
-RULESET_VERSION = "2026.09.2-demo"
+RULESET_VERSION = "2026.09.3-demo"
 
 EMERGENCY_NUMBER = os.getenv("BIOVERSE_EMERGENCY_NUMBER", "911")
 CRISIS_LINE = os.getenv("BIOVERSE_CRISIS_LINE", "988")
@@ -43,10 +43,13 @@ EMERGENCY_RULES: dict[str, re.Pattern[str]] = {
         r"can'?t breathe", r"cannot breathe", r"struggling to breathe", r"choking",
         r"lips (?:are |turning )?blue", r"gasping",
         r"(?:hard|difficult) to breathe", r"difficulty breathing", r"can'?t catch my breath",
+        r"trouble breathing", r"(?:struggling|fighting) for (?:breath|air)",
     ),
     "possible anaphylaxis": _pattern(
         r"throat (?:is )?(?:closing|swelling|swollen|tight)", r"tongue (?:is )?swell",
         r"severe allergic", r"anaphyla",
+        r"(?:lips?|face|tongue|mouth) (?:is |are |has |have |started |starting |getting |went )?(?:swell|swollen)",
+        r"swell(?:ing|ed|s)? (?:of |in |up )?(?:my |the |his |her |their )?(?:lips?|face|tongue|mouth|throat)",
     ),
     "severe bleeding": _pattern(
         r"bleeding (?:that )?(?:won'?t|will not|doesn'?t) stop", r"vomiting blood",
