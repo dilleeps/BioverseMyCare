@@ -66,7 +66,9 @@ def run(conn, ctx: SeedContext) -> None:
         INSERT INTO locations (id, organization_id, name, mode, address, phone, parking, directions,
                                accessibility, join_url, tech_check)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON CONFLICT DO NOTHING
+        ON CONFLICT (organization_id, name) DO UPDATE SET
+            parking = EXCLUDED.parking, directions = EXCLUDED.directions,
+            accessibility = EXCLUDED.accessibility, join_url = EXCLUDED.join_url, tech_check = EXCLUDED.tech_check
         """,
         [(loc[0], ORG, *loc[1:]) for loc in LOCATIONS],
     )

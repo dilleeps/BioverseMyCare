@@ -266,7 +266,7 @@ def test_everything_is_complete_and_self_contained(client):
     assert len(by_type["Encounter"]) == counts["enc"]
     assert len(by_type["Immunization"]) == counts["imm"]
     assert len(by_type["CarePlan"]) == counts["plans"]
-    assert len(by_type["Consent"]) == counts["consents"] == 1
+    assert len(by_type["Consent"]) == counts["consents"] >= 1  # other modules seed consents too (caregivers)
     assert len(by_type["AllergyIntolerance"]) == 1
     assert len(by_type["Organization"]) == 1
     assert {p["id"] for p in by_type["Practitioner"]} == {DR_OKAFOR, "00000000-0000-0000-0000-000000000305"}

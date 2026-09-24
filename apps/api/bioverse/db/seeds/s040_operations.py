@@ -178,17 +178,22 @@ def run(conn, ctx: SeedContext) -> None:
     )
     cur.executemany(
         """
-        INSERT INTO locations (id, organization_id, name, kind, address, phone, step_free)
-        VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING
+        INSERT INTO locations (id, organization_id, name, mode, address, phone, step_free)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (organization_id, name) DO UPDATE SET step_free = EXCLUDED.step_free
         """,
         [(i, ORG, n, k, a, ph, sf) for i, n, k, a, ph, sf in LOCATIONS],
     )
+    # Another module may have created these locations first, under its own ids: resolve ours by name.
+    names = {i: n for i, n, *_ in LOCATIONS}
+    actual = dict(conn.execute("SELECT name, id::text FROM locations WHERE organization_id = %s", (ORG,)).fetchall())
+    loc = {i: actual[n] for i, n in names.items()}
     cur.executemany(
         """
         INSERT INTO departments (id, organization_id, name, specialty, location_id, hours)
         VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING
         """,
-        [(i, ORG, n, s, loc, json.dumps(h)) for i, n, s, loc, h in DEPARTMENTS],
+        [(i, ORG, n, sp, loc[lid], json.dumps(h)) for i, n, sp, lid, h in DEPARTMENTS],
     )
     cur.executemany(
         """
@@ -197,10 +202,10 @@ def run(conn, ctx: SeedContext) -> None:
         """,
         [(i, ORG, d, n, m, mode) for i, d, n, m, mode in SERVICES],
     )
-    for name, loc in PRACTITIONER_LOCATIONS.items():
+    for name, lid in PRACTITIONER_LOCATIONS.items():
         cur.execute(
             "UPDATE practitioners SET location_id = %s WHERE organization_id = %s AND location_name = %s AND location_id IS NULL",
-            (loc, ORG, name),
+            (loc[lid], ORG, name),
         )
 
     action_id = 4061

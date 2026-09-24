@@ -288,8 +288,9 @@ def test_day7_checkin_is_materialized_once(client):
     assert "muscle pain or fatigue" in day7["body"]
     steps = {r["step_day"]: r["status"] for r in client.get("/api/doctor-agent/followups", headers=MAYA).json()}
     assert steps == {1: "sent", 7: "sent", 30: "scheduled"}
+    # Other patients on Dr. Okafor's panel may get their own check-ins; count only Maya's thread.
     assert sql("SELECT count(*) FROM audit_events WHERE action = 'message_agent' AND agent = 'doctor-agent/rules' "
-               "AND detail->>'kind' = 'checkin'") == [(1,)]
+               "AND detail->>'kind' = 'checkin' AND detail->>'thread_id' = %s", T_MAYA_FOLLOWUP) == [(1,)]
 
 
 def test_clinician_inbox_also_materializes(client):

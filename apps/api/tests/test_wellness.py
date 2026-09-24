@@ -302,7 +302,10 @@ def test_assessment_free_text_red_flag_stops_routine_flow(client):
     story = client.get(f"/api/patients/{P_MAYA}/story", headers=MAYA).json()
     assert not any(e["type"] == "assessment" for e in story["events"])
     with psycopg.connect(DB) as conn:
-        assert conn.execute("SELECT practitioner_id::text FROM review_items WHERE kind = 'red_flag'").fetchone()[0] == DR_OKAFOR
+        assert conn.execute(
+            "SELECT practitioner_id::text FROM review_items WHERE kind = 'red_flag' AND patient_id = %s "
+            "ORDER BY created_at DESC LIMIT 1", (P_MAYA,)
+        ).fetchone()[0] == DR_OKAFOR
 
 
 def test_assessment_symptom_mention_points_to_front_door(client):

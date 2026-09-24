@@ -69,9 +69,11 @@ def test_location_crud_and_rename_updates_directory(client):
     assert client.post("/api/org/locations", headers=ADMIN,
                        json={"name": "Harbour Hub", "kind": "virtual"}).status_code == 409
 
-    clinic = ids(client, "/api/org/locations")["Northside Clinic"]
-    body = {"name": "Northside Clinic West", "kind": "physical", "address": "40 Mill Street", "phone": "(555) 010-2420",
-            "step_free": True}
+    current = next(l for l in client.get("/api/org/locations", headers=ADMIN).json() if l["name"] == "Northside Clinic")
+    clinic = current["id"]
+    # Rename only; every other field keeps its current value (other modules seed this location too).
+    body = {"name": "Northside Clinic West", "kind": current["kind"], "address": current["address"],
+            "phone": current["phone"], "step_free": current["step_free"], "active": current["active"]}
     assert client.put(f"/api/org/locations/{clinic}", headers=ADMIN, json=body).status_code == 200
     providers = client.get("/api/org/providers", headers=ADMIN).json()
     assert "Northside Clinic West" in {p["location_name"] for p in providers}

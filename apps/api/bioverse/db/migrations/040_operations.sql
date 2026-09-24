@@ -12,18 +12,12 @@ CREATE TABLE organization_profiles (
 );
 
 -- Location (FHIR Location): a building, or the virtual "location" of video visits.
-CREATE TABLE locations (
-    id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    organization_id uuid NOT NULL REFERENCES organizations(id),
-    name            text NOT NULL,
-    kind            text NOT NULL DEFAULT 'physical' CHECK (kind IN ('physical', 'virtual')),
-    address         text,
-    phone           text,
-    step_free       boolean NOT NULL DEFAULT false,
-    active          boolean NOT NULL DEFAULT true,
-    created_at      timestamptz NOT NULL DEFAULT now(),
-    UNIQUE (organization_id, name)
-);
+-- Locations are shared with the visits module, which creates the table in 020_visits.sql (address,
+-- parking, directions, join links). Operations adds what the organization screens manage. The location's
+-- physical/virtual type is the existing `mode` column; the API calls it "kind".
+ALTER TABLE locations ADD COLUMN step_free boolean NOT NULL DEFAULT false;
+ALTER TABLE locations ADD COLUMN active boolean NOT NULL DEFAULT true;
+ALTER TABLE locations ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
 
 -- Department (a FHIR Organization that is partOf the tenant; kept in its own table).
 -- hours: {"mon": {"open": "08:00", "close": "17:00"}, ..., "sun": null}

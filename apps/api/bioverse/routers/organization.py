@@ -180,7 +180,7 @@ class LocationIn(BaseModel):
         return self
 
 
-_LOCATION_COLS = "id::text, name, kind, address, phone, step_free, active"
+_LOCATION_COLS = "id::text, name, mode AS kind, address, phone, step_free, active"
 
 
 @router.get("/locations")
@@ -203,7 +203,7 @@ def _save_location(conn: Connection, user: User, body: LocationIn, location_id: 
             if location_id is None:
                 row = conn.execute(
                     f"""
-                    INSERT INTO locations (organization_id, name, kind, address, phone, step_free, active)
+                    INSERT INTO locations (organization_id, name, mode, address, phone, step_free, active)
                     VALUES (%(org)s, %(name)s, %(kind)s, %(address)s, %(phone)s, %(step_free)s, %(active)s)
                     RETURNING {_LOCATION_COLS}
                     """,
@@ -211,10 +211,11 @@ def _save_location(conn: Connection, user: User, body: LocationIn, location_id: 
                 ).fetchone()
                 changed = sorted(values)
             else:
-                before = _org_row(conn, "locations", location_id, user.organization_id)
+                before = dict(_org_row(conn, "locations", location_id, user.organization_id))
+                before["kind"] = before["mode"]  # the API's "kind" is stored in the shared `mode` column
                 row = conn.execute(
                     f"""
-                    UPDATE locations SET name = %(name)s, kind = %(kind)s, address = %(address)s, phone = %(phone)s,
+                    UPDATE locations SET name = %(name)s, mode = %(kind)s, address = %(address)s, phone = %(phone)s,
                            step_free = %(step_free)s, active = %(active)s
                     WHERE id = %(id)s RETURNING {_LOCATION_COLS}
                     """,
@@ -460,7 +461,7 @@ def _save_provider(conn: Connection, user: User, body: ProviderIn, provider_id: 
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Unknown location") from None
     if not location["active"]:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "That location is inactive")
-    if location["kind"] == "virtual" and not body.offers_telehealth:
+    if location["mode"] == "virtual" and not body.offers_telehealth:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Providers at a virtual location must offer telehealth")
     values = {**body.model_dump(), "location_name": location["name"]}
     if provider_id is None:
