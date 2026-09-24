@@ -280,6 +280,15 @@ textarea.edit { width: 100%; min-height: 96px; padding: 10px 12px; border-radius
   .topnav { display: none; }
 }
 @media (max-width: 520px) {
+  /* Workspace screens on a phone: wide data tables scroll inside their own box, control rows wrap,
+     and form controls never grow wider than the screen. */
+  .ws-main { padding: 18px 16px 40px; }
+  .ws-main table { display: block; max-width: 100%; overflow-x: auto; position: relative; }
+  .ws-main .row { flex-wrap: wrap; }
+  .ws-main select, .ws-main input, .ws-main textarea { max-width: 100%; }
+  .ws-main .row > *, .ws-main .card, .ws-main .stack > *, .ws-main [class$="-wrap"] { min-width: 0; max-width: 100%; }
+  .toggle-row { flex-wrap: wrap; }
+  .toggle-row label { min-width: 0; flex-basis: 60%; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .identity select { max-width: 160px; }
   .config-table { grid-template-columns: 1fr; }

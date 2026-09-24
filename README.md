@@ -94,6 +94,22 @@ LAYER 6  FOUNDATION     AI → Data → FHIR → Identity → Security → Conse
 
 ## Status
 
-Phase 1 vertical slice in code: front door with red-flag screening and safety checks, intake and routing, care navigation and booking, care plan, results with clinician-reviewed explanations, My Health Story, clinician workspace with pre-visit brief and review queue, and Doctor Agent configuration with organization-locked rules. Every action is written to an append-only audit trail.
+Every module in the [module catalog](docs/02-modules.md) has a working first version, wired into one
+database, one API, one front door and one audit trail. Switch identities in the top-right corner to see
+each role; **More** lists everything that role can open.
 
-Not built yet: real authentication, EHR integration, the Evidence Assistant's licensed sources, messaging, referrals, pharmacy and billing. See the [roadmap](docs/06-roadmap.md) for the sequence.
+| Who | What they can do |
+| --- | --- |
+| Patient (Maya Thornton) | Ask Bioverse with red-flag screening, book care, visits and check-in, referrals, care plan, results and uploads, My Health Story, Ask about my health, messages, pharmacy, bills and coverage, wellness and prevention, family and caregivers, research studies, privacy center |
+| Caregiver (David Thornton) | Everything a patient has, plus acting for the people who granted access |
+| Clinician (Dr. Adaeze Okafor) | Workspace with pre-visit brief and review queue, inbox, clinic queue, referrals, care plans from pathways, refills, Evidence Assistant, research pipeline, panel analytics, Doctor Agent settings, break-glass, incident reports |
+| Front desk | Inbox for scheduling questions, clinic queue, referrals |
+| Hospital admin (Northside Operations) | Operations dashboard, Hospital Agent, analytics, organization and provider directory, care pathways, financial assistance, lab import, compliance audit with hash-chain check, retention, safety incidents, AI governance console with red-flag evaluations |
+
+AI features use Claude when an Anthropic key is configured and a patient hasn't opted out; every one of
+them has a rules-based path, so the whole app works without a key. See
+[docs/engineering/modules.md](docs/engineering/modules.md) for how modules plug in.
+
+Not built yet: real sign-in (the identity switcher is a demo), live EHR, payer and pharmacy connections
+(billing uses a demo payer, lab feeds arrive as pasted HL7 v2), notifications by email or text, and
+background jobs (check-ins and expiries update when someone opens the relevant screen).
