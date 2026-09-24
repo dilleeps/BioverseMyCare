@@ -23,7 +23,7 @@
   min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface);
   font-size: 14px; font-weight: 600;
 }
-.vt-seg button[aria-pressed="true"], .vt-measure-pick button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.vt-seg button[aria-pressed="true"], .vt-measure-pick button[aria-pressed="true"] { background: var(--brand-800); border-color: var(--brand-800); color: #fff; }
 
 /* Chart */
 .vt-chart { position: relative; width: 100%; min-width: 0; overflow: hidden; }
@@ -40,7 +40,7 @@
 .vt-tip {
   position: absolute; top: 28px; transform: translateX(-50%); pointer-events: none; z-index: 2;
   background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px;
-  box-shadow: 0 6px 20px rgba(23, 31, 29, 0.12); font-size: 13px; min-width: 150px; white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(17, 24, 39, 0.12); font-size: 13px; min-width: 150px; white-space: nowrap;
 }
 .vt-key { display: inline-block; width: 12px; height: 2px; }
 

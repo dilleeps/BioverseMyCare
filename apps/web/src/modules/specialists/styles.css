@@ -9,7 +9,7 @@
 }
 .sp-disclosure {
   display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border-radius: 12px;
-  background: #ecebe5; color: var(--ink-2); font-size: 13px; font-weight: 600; line-height: 1.4;
+  background: #eef1f3; color: var(--ink-2); font-size: 13px; font-weight: 600; line-height: 1.4;
 }
 .sp-disclosure svg { flex-shrink: 0; margin-top: 1px; }
 .sp-disclosure.sticky { position: sticky; top: 72px; z-index: 5; box-shadow: 0 1px 0 var(--line); margin-top: 12px; }

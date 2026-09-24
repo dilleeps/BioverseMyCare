@@ -4,9 +4,9 @@
 .viz-root {
   --viz-1: #2a78d6; --viz-2: #eb6834; --viz-3: #1baf7a; --viz-4: #eda100;
   --viz-5: #e87ba4; --viz-6: #008300; --viz-7: #4a3aa7; --viz-8: #e34948;
-  --viz-other: #8a877f;
-  --viz-grid: #eceae3;
-  --viz-axis: #c9c6bc;
+  --viz-other: #6b7280;
+  --viz-grid: #eef1f3;
+  --viz-axis: #c4c9d0;
 }
 
 .viz { display: flex; flex-direction: column; gap: 10px; min-width: 0; margin: 0; }
@@ -26,7 +26,7 @@
 .viz-tip {
   position: absolute; z-index: 5; pointer-events: none; min-width: 150px; max-width: 260px;
   background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(23, 31, 29, 0.12); padding: 8px 10px; font-size: 12px; line-height: 1.35;
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.12); padding: 8px 10px; font-size: 12px; line-height: 1.35;
 }
 .viz-tip .tip-title { color: var(--muted); font-weight: 600; margin-bottom: 4px; }
 .viz-tip .tip-row { display: flex; align-items: center; gap: 8px; }
@@ -117,7 +117,7 @@
 .pick { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); text-align: left; width: 100%; }
 .pick[aria-pressed="true"], .pick[aria-current="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-soft); }
 .qa { display: flex; flex-direction: column; gap: 8px; }
-.qa .q { align-self: flex-end; background: var(--ink); color: #fff; border-radius: 16px 16px 4px 16px; padding: 10px 14px; max-width: 85%; font-size: 15px; }
+.qa .q { align-self: flex-end; background: var(--brand-800); color: #fff; border-radius: 16px 16px 4px 16px; padding: 10px 14px; max-width: 85%; font-size: 15px; }
 .qa .a { background: var(--surface); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 
 /* The core grid has no half-width span; add one that still collapses on small screens. */

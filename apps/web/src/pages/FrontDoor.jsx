@@ -9,6 +9,7 @@ import { ReadAloudToggle, useReadAloud } from "../components/frontdoor/ReadAloud
 import { SeniorHome, SeniorToggle } from "../components/frontdoor/Senior.jsx";
 import PhotoCard from "../modules/photo-questions/PhotoCard.jsx";
 import { useDisplayPrefs } from "../modules/accessibility/prefs.js";
+import { GreetingBand } from "../layouts.jsx";
 
 const GREETING = "Hi, I'm Bioverse One. Tell me what's going on, or what you need help with, and I'll guide you to the right next step.";
 
@@ -173,10 +174,11 @@ export default function FrontDoor() {
 
   return (
     <main className="column">
-      <div className="row between" style={{ marginBottom: 14 }}>
-        <span className="page-title" style={{ fontSize: 22 }}>Ask Bioverse</span>
-        <span className="chip ok"><Shield size={13} /> Private</span>
-      </div>
+      <GreetingBand>
+        <Shield size={16} />
+        <strong>Ask Bioverse</strong>
+        <span>Private. It gathers and routes; it does not diagnose.</span>
+      </GreetingBand>
       <div className="fd-toolbar"><SeniorToggle /><ReadAloudToggle /></div>
       {senior && <SeniorHome onAsk={() => inputRef.current?.focus()} />}
 

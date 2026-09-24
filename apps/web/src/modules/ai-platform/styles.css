@@ -7,7 +7,7 @@
   min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: transparent;
   font-size: 14px; font-weight: 600; color: var(--ink-2);
 }
-.aip-tab[aria-selected="true"] { background: var(--ink); color: #fff; }
+.aip-tab[aria-selected="true"] { background: var(--brand-800); color: #fff; }
 .aip-tab:hover:not([aria-selected="true"]) { background: var(--ground); }
 
 .aip-filter-row { gap: 12px; align-items: flex-end; }
@@ -45,7 +45,7 @@
 .aip-quote { margin: 0; padding: 10px 12px; border-left: 3px solid var(--line); background: var(--ground); border-radius: 0 8px 8px 0; }
 
 .aip-seg { display: flex; gap: 6px; flex-wrap: wrap; }
-.aip-seg .btn[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.aip-seg .btn[aria-pressed="true"] { background: var(--brand-800); border-color: var(--brand-800); color: #fff; }
 .aip-details > summary { cursor: pointer; min-height: 32px; }
 
 .aip-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
@@ -73,7 +73,7 @@ line.aip-cross { stroke: var(--faint); stroke-width: 1; shape-rendering: crispEd
 .aip-tooltip {
   position: absolute; top: 0; transform: translateX(-50%); pointer-events: none; z-index: 2;
   background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px;
-  box-shadow: 0 6px 20px rgba(23, 31, 29, 0.12); min-width: 150px; font-size: 13px;
+  box-shadow: 0 6px 20px rgba(17, 24, 39, 0.12); min-width: 150px; font-size: 13px;
 }
 .aip-tip-row { display: flex; align-items: center; gap: 6px; }
 .aip-linekey { width: 12px; height: 3px; border-radius: 2px; display: inline-block; flex-shrink: 0; }

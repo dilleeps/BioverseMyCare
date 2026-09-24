@@ -31,9 +31,9 @@
 
 .wf-here {
   display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--r-md);
-  background: var(--ink); color: #fff;
+  background: var(--brand-gradient); color: #fff;
 }
-.wf-here .muted { color: #d8d6ce; }
+.wf-here .muted { color: #d1d5db; }
 .wf-here-dot { width: 14px; height: 14px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25); flex-shrink: 0; }
 
 .wf-summary { display: flex; flex-direction: column; gap: 6px; }
@@ -48,7 +48,7 @@
   width: 34px; height: 34px; border-radius: 999px; display: grid; place-items: center; flex-shrink: 0;
   background: var(--ground); color: var(--ink); font-size: 15px; font-weight: 800;
 }
-.wf-step.k-floor_change .wf-step-n { background: var(--ink); color: #fff; }
+.wf-step.k-floor_change .wf-step-n { background: var(--brand-800); color: #fff; }
 .wf-step.k-arrive .wf-step-n { background: var(--accent); color: #fff; }
 .wf-step.k-arrive .wf-step-text { font-weight: 700; }
 .wf-step-text { min-width: 0; overflow-wrap: anywhere; }
@@ -60,7 +60,7 @@
   position: relative; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line);
   background: var(--surface); font-weight: 800; font-size: 16px;
 }
-.wf-floor.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.wf-floor.on { background: var(--brand-800); border-color: var(--brand-800); color: #fff; }
 .wf-floor.route::after {
   content: ""; position: absolute; right: 4px; top: 4px; width: 8px; height: 8px; border-radius: 999px;
   background: var(--accent); box-shadow: 0 0 0 2px var(--surface);
@@ -71,29 +71,29 @@
 .wf-map { position: relative; }
 .wf-map svg {
   display: block; width: 100%; height: auto; aspect-ratio: 100 / 60; border-radius: var(--r-md);
-  background: #f7f6f1; border: 1px solid var(--line-soft); user-select: none;
+  background: #f8fafb; border: 1px solid var(--line-soft); user-select: none;
 }
 .wf-map svg.zoomed { cursor: grab; }
 .wf-zoom { display: flex; gap: 6px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
 .wf-zoom .icon-btn { width: 44px; height: 44px; }
 
-.wf-outline { fill: #e6e4dc; stroke: var(--ink-2); stroke-width: 0.5; }   /* staff-only and service space */
-.wf-area { stroke: #a9a597; stroke-width: 0.22; stroke-linejoin: round; }
-.wf-area.k-corridor { fill: #fdfcf9; stroke: none; }
-.wf-area.k-clinic { fill: #dcede8; }
+.wf-outline { fill: #e5e7eb; stroke: var(--ink-2); stroke-width: 0.5; }   /* staff-only and service space */
+.wf-area { stroke: #a3aab4; stroke-width: 0.22; stroke-linejoin: round; }
+.wf-area.k-corridor { fill: #ffffff; stroke: none; }
+.wf-area.k-clinic { fill: #e3f2ee; }
 .wf-area.k-lab { fill: #e1e9f3; }
 .wf-area.k-imaging { fill: #e7e2f1; }
-.wf-area.k-pharmacy { fill: #dfeedd; }
+.wf-area.k-pharmacy { fill: #e2f5ea; }
 .wf-area.k-restroom { fill: #e3ebee; }
 .wf-area.k-cafe { fill: #f5e7d2; }
-.wf-area.k-waiting { fill: #efece3; }
-.wf-area.k-desk { fill: #c7e2da; }
-.wf-area.k-elevator, .wf-area.k-stairs, .wf-area.k-escalator { fill: #dedbd2; }
-.wf-area.k-entrance { fill: #cfe6df; }
-.wf-area.k-parking { fill: #eeede7; }
-.wf-area.hl { fill: #bfe0d6; stroke: var(--accent); stroke-width: 0.5; }
-.wf-hatch-line { stroke: #bdb9ad; stroke-width: 0.18; }
-.wf-bay-line { stroke: #c9c5b8; stroke-width: 0.2; }
+.wf-area.k-waiting { fill: #eef1f3; }
+.wf-area.k-desk { fill: #c5e6de; }
+.wf-area.k-elevator, .wf-area.k-stairs, .wf-area.k-escalator { fill: #e5e7eb; }
+.wf-area.k-entrance { fill: #cfeae3; }
+.wf-area.k-parking { fill: #eef1f3; }
+.wf-area.hl { fill: #bde3d9; stroke: var(--accent); stroke-width: 0.5; }
+.wf-hatch-line { stroke: #b6bcc4; stroke-width: 0.18; }
+.wf-bay-line { stroke: #c4c9d0; stroke-width: 0.2; }
 
 .wf-label { fill: var(--ink-2); font-family: var(--body); font-weight: 700; pointer-events: none; }
 .wf-label.k-corridor { fill: var(--muted); font-weight: 600; }
@@ -119,17 +119,17 @@
 .wf-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .wf-key { display: inline-block; width: 14px; height: 14px; border-radius: 999px; }
 .wf-key.route { height: 5px; border-radius: 3px; background: var(--accent); }
-.wf-key.start { background: var(--ink); }
+.wf-key.start { background: var(--brand-800); }
 .wf-key.end { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
 .wf-key.closed { background: var(--alert); }
-.wf-key.staff { background: #e6e4dc; border: 1px solid #b9b6ac; border-radius: 3px; }
+.wf-key.staff { background: #e5e7eb; border: 1px solid #9ca3af; border-radius: 3px; }
 
 .wf-print-maps { display: none; }
 
 /* Staff screens */
 .wf-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
 .wf-tab { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 700; font-size: 14px; }
-.wf-tab.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.wf-tab.on { background: var(--brand-800); border-color: var(--brand-800); color: #fff; }
 .wf-active { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--alert-soft); color: var(--alert-strong); }
 .wf-active .muted { color: var(--alert-strong); opacity: 0.85; }
 .wf-seglist { list-style: none; margin: 0; padding: 0; }
@@ -148,7 +148,7 @@
 .wf-sign { background: var(--surface); border: 2px solid var(--ink); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 8px; break-inside: avoid; }
 .wf-sign-top { display: flex; align-items: center; justify-content: space-between; }
 .wf-sign-here { font-family: var(--display); font-size: 24px; font-weight: 600; }
-.wf-sign-floor { min-width: 44px; height: 44px; padding: 0 8px; border-radius: 12px; background: var(--ink); color: #fff; display: grid; place-items: center; font-size: 22px; font-weight: 800; }
+.wf-sign-floor { min-width: 44px; height: 44px; padding: 0 8px; border-radius: 12px; background: var(--brand-800); color: #fff; display: grid; place-items: center; font-size: 22px; font-weight: 800; }
 .wf-sign-name { font-size: 18px; font-weight: 700; }
 .wf-sign-code { display: flex; flex-direction: column; gap: 2px; padding-top: 8px; border-top: 1px solid var(--line); }
 .wf-sign-code code { font-size: 26px; font-weight: 800; letter-spacing: 0.04em; }

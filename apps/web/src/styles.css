@@ -1,25 +1,39 @@
-/* Bioverse One. Tokens carried over from the design canvas. */
+/* Bioverse One. MedKeyRX theme: deep teal brand, mint accents, cool neutrals, red only for alerts. */
 :root {
-  --ground: #f4f3ee;
+  --ground: #f5f7f8;
   --surface: #ffffff;
-  --ink: #171f1d;
-  --ink-2: #3b4643;
-  --muted: #55605c;
-  --line: #dddbd2;
-  --line-soft: #eceae3;
-  --faint: #b9b6ac;
-  --accent: #0e6b60;
-  --accent-strong: #0a5249;
-  --accent-soft: #e2f0ec;
-  --alert: #a94a28;
-  --alert-strong: #7a3418;
-  --alert-soft: #f8e9e2;
-  --alert-line: #e8c9ba;
-  --display: "Fraunces", Georgia, serif;
-  --body: "Manrope", system-ui, sans-serif;
+  --ink: #111827;
+  --ink-2: #374151;
+  --muted: #4b5563;
+  --line: #e5e7eb;
+  --line-soft: #eef1f3;
+  --faint: #9ca3af;
+  --accent: #1b6b63;
+  --accent-strong: #134e4a;
+  --accent-soft: #e6f4f1;
+  --alert: #dc2626;
+  --alert-strong: #991b1b;
+  --alert-soft: #fef2f2;
+  --alert-line: #fecaca;
+  --success: #15803d;
+  --success-soft: #dcf5e8;
+  --warning: #b45309;
+  --warning-soft: #fef3c7;
+  --brand-900: #0f3f3c;
+  --brand-800: #134e4a;
+  --brand-700: #1b6b63;
+  --brand-500: #2a9d8f;
+  --brand-300: #5ec4b4;
+  --brand-gradient: linear-gradient(160deg, #134e4a 0%, #1b6b63 45%, #2f9e8f 100%);
+  --on-brand: #ffffff;
+  --on-brand-muted: rgba(255, 255, 255, 0.82);
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 1px 3px rgba(16, 24, 40, 0.06), 0 6px 18px rgba(16, 24, 40, 0.05);
+  --display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --r-sm: 10px;
   --r-md: 14px;
-  --r-lg: 20px;
+  --r-lg: 16px;
 }
 
 * { box-sizing: border-box; }
@@ -73,7 +87,7 @@ p { margin: 0; }
   display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px;
   background: var(--accent-soft); color: var(--accent-strong); font-size: 12px; font-weight: 700;
 }
-.ai-pill.rules { background: #ecebe5; color: var(--ink-2); }
+.ai-pill.rules { background: #eef1f3; color: var(--ink-2); }
 .brand-name, .ai-pill { white-space: nowrap; }
 @media (max-width: 1240px) { .identity .ai-pill { display: none; } }
 @media (max-width: 520px) { .brand-name { white-space: normal; } }
@@ -134,14 +148,14 @@ p { margin: 0; }
 }
 .banner.ok { background: var(--accent-soft); color: var(--accent-strong); }
 .banner.warn { background: var(--alert-soft); color: var(--alert-strong); }
-.banner.info { background: #ecebe5; color: var(--ink-2); }
+.banner.info { background: #eef1f3; color: var(--ink-2); }
 
 .error-box {
   padding: 12px 14px; border-radius: 12px; background: var(--alert-soft); color: var(--alert-strong);
   font-size: 14px; font-weight: 600; border: 1px solid var(--alert-line);
 }
 .empty { padding: 28px; text-align: center; color: var(--muted); }
-.skeleton { height: 18px; border-radius: 8px; background: linear-gradient(90deg, #ecebe5, #f7f6f1, #ecebe5); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+.skeleton { height: 18px; border-radius: 8px; background: linear-gradient(90deg, #eef1f3, #f8fafb, #eef1f3); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 .list { display: flex; flex-direction: column; }
@@ -161,7 +175,7 @@ p { margin: 0; }
 .hero .lede { font-size: 19px; color: var(--ink-2); max-width: 560px; margin-top: 20px; }
 .ask {
   display: flex; align-items: center; gap: 8px; min-height: 64px; padding: 6px 8px 6px 22px; border-radius: 999px;
-  background: var(--surface); border: 1px solid var(--line); box-shadow: 0 8px 28px rgba(23, 31, 29, 0.06);
+  background: var(--surface); border: 1px solid var(--line); box-shadow: 0 8px 28px rgba(17, 24, 39, 0.06);
 }
 .ask input { flex-grow: 1; border: 0; outline: 0; background: transparent; font-size: 17px; min-width: 0; }
 .ask .send { width: 48px; height: 48px; border-radius: 999px; border: 0; background: var(--accent); color: #fff; display: grid; place-items: center; }
@@ -229,14 +243,14 @@ p { margin: 0; }
 .sidenav { background: var(--ink); color: #fff; padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
 .sidenav a, .sidenav button.navlink {
   display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 12px;
-  color: #d8d6ce; text-decoration: none; font-size: 14px; font-weight: 500; background: transparent; border: 0; text-align: left;
+  color: #d1d5db; text-decoration: none; font-size: 14px; font-weight: 500; background: transparent; border: 0; text-align: left;
 }
 .sidenav a.active { background: rgba(255, 255, 255, 0.1); color: #fff; font-weight: 600; }
-.sidenav .section { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #b9b6ac; padding: 14px 12px 6px; }
-.patient-pick { width: 100%; text-align: left; padding: 10px 12px; border-radius: 12px; border: 0; background: transparent; color: #d8d6ce; }
+.sidenav .section { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #9ca3af; padding: 14px 12px 6px; }
+.patient-pick { width: 100%; text-align: left; padding: 10px 12px; border-radius: 12px; border: 0; background: transparent; color: #d1d5db; }
 .patient-pick[aria-current="true"] { background: rgba(255, 255, 255, 0.12); color: #fff; }
 .patient-pick .who { font-size: 14px; font-weight: 600; }
-.patient-pick .meta { font-size: 12px; color: #b9b6ac; }
+.patient-pick .meta { font-size: 12px; color: #9ca3af; }
 .ws-main { padding: 24px 28px 48px; min-width: 0; }
 .ws-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 18px; }
 .span-5 { grid-column: span 5; } .span-4 { grid-column: span 4; } .span-3 { grid-column: span 3; }
@@ -306,6 +320,98 @@ textarea.edit { width: 100%; min-height: 96px; padding: 10px 12px; border-radius
 }
 .hub-card:hover { color: var(--ink); border-color: var(--faint); }
 
+/* ---------- MedKeyRX theme ---------- */
+/* Teal gradient header, white navigation with a teal marker, soft cards, mint status chips. */
+.topbar {
+  background: var(--brand-gradient); backdrop-filter: none; border-bottom: 0; color: var(--on-brand);
+  box-shadow: 0 2px 12px rgba(15, 63, 60, 0.18);
+}
+.brand, .brand:hover { color: var(--on-brand); }
+.brand-mark { background: #fff; color: var(--brand-700); border-radius: 10px; }
+.brand-name { font-weight: 800; letter-spacing: -0.02em; }
+.topnav a { color: var(--on-brand-muted); }
+.topnav a:hover { color: #fff; background: rgba(255, 255, 255, 0.12); }
+.topnav a.active { background: #fff; color: var(--brand-800); box-shadow: none; }
+.identity select { border-color: transparent; color: var(--ink); }
+.ai-pill, .ai-pill.rules { background: rgba(255, 255, 255, 0.16); color: #fff; }
+.bell { color: #fff; }
+.bell:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.bell-count { box-shadow: 0 0 0 2px var(--brand-800); }
+
+.page-title { font-weight: 800; letter-spacing: -0.02em; }
+.hero h1 { font-weight: 800; letter-spacing: -0.03em; }
+.eyebrow { color: var(--brand-700); }
+.card-title { font-weight: 700; }
+
+.card, .hub-card, .audience {
+  border-color: var(--line-soft); box-shadow: var(--shadow-md);
+}
+.hub-card:hover, .audience:hover { border-color: var(--brand-300); box-shadow: 0 2px 6px rgba(16, 24, 40, 0.08), 0 10px 24px rgba(16, 24, 40, 0.06); }
+.card.highlight { border-color: var(--brand-500); }
+.queue-item, .toggle-row { background: #f3f6f7; }
+
+.btn { border-color: var(--line); }
+.btn.primary { background: var(--brand-700); border-color: var(--brand-700); }
+.btn.primary:hover { background: var(--brand-800); border-color: var(--brand-800); }
+.btn.dark, .chip.solid, .journey span:first-child { background: var(--brand-800); border-color: var(--brand-800); }
+.ask .send { background: var(--brand-700); }
+.bubble.user { background: var(--brand-700); }
+.chip.ok, .banner.ok { background: var(--success-soft); color: var(--success); }
+.chip { background: #eef1f3; }
+.audience-icon { background: var(--accent-soft); color: var(--brand-700); }
+
+.sidenav {
+  background: var(--surface); color: var(--ink); border-right: 1px solid var(--line);
+}
+.sidenav a, .sidenav button.navlink { color: var(--ink-2); position: relative; }
+.sidenav a:hover { background: #f3f6f7; color: var(--ink); }
+.sidenav a.active { background: #eef1f3; color: var(--ink); font-weight: 700; }
+.sidenav a.active::before {
+  content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 4px; border-radius: 0 4px 4px 0;
+  background: var(--brand-700);
+}
+.sidenav a.active svg { color: var(--brand-700); }
+.sidenav .section { color: var(--muted); }
+.patient-pick { color: var(--ink-2); }
+.patient-pick:hover { background: #f3f6f7; }
+.patient-pick[aria-current="true"] { background: var(--accent-soft); color: var(--brand-800); }
+.patient-pick .meta { color: var(--muted); }
+.sidenav .nav-foot { border-top: 1px solid var(--line); }
+
+.tabbar a.active { background: var(--accent-soft); color: var(--brand-800); }
+
+/* Greeting band, as on the MedKeyRX home screen. */
+.hero-band {
+  background: var(--brand-gradient); color: var(--on-brand); border-radius: var(--r-lg);
+  padding: 22px 24px; margin-bottom: 18px; box-shadow: 0 6px 20px rgba(15, 63, 60, 0.18);
+}
+.hero-band .greet { font-size: 15px; color: var(--on-brand-muted); }
+.hero-band .name { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-top: 2px; }
+.hero-band .role {
+  display: inline-flex; align-items: center; min-height: 26px; padding: 0 12px; margin-top: 10px; border-radius: 999px;
+  background: #fff; color: var(--brand-800); font-size: 13px; font-weight: 700;
+}
+.hero-band .overview {
+  margin-top: 16px; padding: 14px 16px; border-radius: 14px; background: rgba(255, 255, 255, 0.14);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.hero-band .overview strong { font-size: 16px; }
+.hero-band .overview span { color: var(--on-brand-muted); font-size: 14px; }
+.hero-band a { color: #fff; }
+
+/* Tinted icon tiles for hub cards and quick actions. */
+.tile-icon {
+  width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex-shrink: 0;
+  background: var(--accent-soft); color: var(--brand-700);
+}
+.tile-icon.green { background: var(--success-soft); color: var(--success); }
+.tile-icon.gray { background: #eef1f3; color: var(--brand-800); }
+.topnav { flex-wrap: nowrap; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.topnav::-webkit-scrollbar { display: none; }
+:root[data-senior] .topnav { flex-wrap: wrap; overflow: visible; }
+.topnav a { padding: 8px 10px; white-space: nowrap; }
+@media (max-width: 1440px) { .identity .ai-pill { display: none; } }
+
 /* ---------- Senior mode & accessibility ---------- */
 /* Set on <html> by src/modules/accessibility/prefs.js from the person's saved preferences:
    data-a11y-scale (text larger than standard, --a11y-scale = text_scale x 1.25 in senior mode),
@@ -327,10 +433,10 @@ textarea.edit { width: 100%; min-height: 96px; padding: 10px 12px; border-radius
 
 /* Senior mode: big touch targets, calmer spacing, stronger contrast, no small-caps labels. */
 :root[data-senior] {
-  --muted: #3b4643;
-  --ink-2: #171f1d;
-  --line: #b9b6ac;
-  --line-soft: #d6d3c9;
+  --muted: #374151;
+  --ink-2: #111827;
+  --line: #9ca3af;
+  --line-soft: #d1d5db;
 }
 :root[data-senior] body { line-height: 1.5; }
 :root[data-senior] .btn, :root[data-senior] .btn.sm, :root[data-senior] .safety-option,
@@ -356,19 +462,24 @@ textarea.edit { width: 100%; min-height: 96px; padding: 10px 12px; border-radius
   --ink: #000000;
   --ink-2: #000000;
   --muted: #1f2826;
-  --line: #4a5451;
-  --line-soft: #6b7471;
-  --faint: #4a5451;
-  --accent: #064d45;
-  --accent-strong: #03352f;
-  --accent-soft: #d3ebe4;
-  --alert: #8a3313;
-  --alert-strong: #5c1f08;
+  --line: #4b5563;
+  --line-soft: #6b7280;
+  --faint: #4b5563;
+  --accent: #0b4f4a;
+  --accent-strong: #083b37;
+  --accent-soft: #d4eee8;
+  --alert: #b91c1c;
+  --alert-strong: #7f1d1d;
 }
 :root[data-high-contrast] .card, :root[data-high-contrast] .hub-card, :root[data-high-contrast] .btn,
 :root[data-high-contrast] .bubble.assistant, :root[data-high-contrast] .composer input { border-width: 2px; }
 :root[data-high-contrast] :focus-visible { outline: 3px solid #000; outline-offset: 3px; box-shadow: 0 0 0 6px #ffd84d; }
 :root[data-high-contrast] .topbar { background: #fff; backdrop-filter: none; }
+:root[data-high-contrast] .topbar { box-shadow: none; border-bottom: 2px solid #000; }
+:root[data-high-contrast] .brand, :root[data-high-contrast] .topnav a, :root[data-high-contrast] .bell { color: #000; }
+:root[data-high-contrast] .topnav a.active { background: #000; color: #fff; }
+:root[data-high-contrast] .ai-pill { background: #fff; color: #000; border: 1px solid #000; }
+:root[data-high-contrast] .brand-mark { background: #000; color: #fff; }
 
 /* Reduced motion: from the person's setting, or from the operating system. */
 :root[data-reduce-motion] *, :root[data-reduce-motion] *::before, :root[data-reduce-motion] *::after {

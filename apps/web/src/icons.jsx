@@ -158,3 +158,19 @@ export const Lock = (p) => (
     <path d="M8 11V7a4 4 0 0 1 8 0v4" />
   </Svg>
 );
+export const Heart = (p) => (
+  <Svg {...p}>
+    <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+  </Svg>
+);
+export const Rx = (p) => (
+  <Svg {...p}>
+    <path d="M12 4v16M5 8l14 8M19 8L5 16" />
+  </Svg>
+);
+export const Card = (p) => (
+  <Svg {...p}>
+    <rect x="3" y="6" width="18" height="12" rx="2" />
+    <path d="M3 10h18M7 15h4" />
+  </Svg>
+);

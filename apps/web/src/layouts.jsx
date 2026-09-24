@@ -46,8 +46,8 @@ export function WorkspaceNav({ patients, selected, onSelect }) {
         </>
       )}
       <div style={{ flexGrow: 1 }} />
-      <div className="row" style={{ padding: "12px 8px", borderTop: "1px solid rgba(255,255,255,.12)" }}>
-        <span className="avatar" style={{ width: 34, height: 34, background: "var(--accent-soft)", color: "var(--accent-strong)", fontSize: 13 }}>
+      <div className="row nav-foot" style={{ padding: "12px 8px" }}>
+        <span className="avatar" style={{ width: 34, height: 34, background: "var(--brand-700)", color: "#fff", fontSize: 13 }}>
           {initials(me.display_name)}
         </span>
         <span className="small strong">{me.display_name}</span>
@@ -68,4 +68,25 @@ export function WorkspaceLayout({ children, patients, selected, onSelect }) {
 // Patient pages: a single readable column, or a wider page.
 export function PatientPage({ wide = false, children }) {
   return <main className={wide ? "page" : "column"}>{children}</main>;
+}
+
+const ROLE_LABEL = { patient: "Patient", clinician: "Clinician", staff: "Staff", admin: "Administrator", student: "Medical student" };
+
+function greeting(now = new Date()) {
+  const h = now.getHours();
+  return h < 12 ? "Good morning," : h < 18 ? "Good afternoon," : "Good evening,";
+}
+
+// The teal greeting band from the MedKeyRX home screen. `children` go in the translucent overview strip.
+export function GreetingBand({ children }) {
+  const { me } = useSession();
+  if (!me) return null;
+  return (
+    <section className="hero-band" aria-label="Welcome">
+      <div className="greet">{greeting()}</div>
+      <div className="name">{me.display_name}</div>
+      <span className="role">{ROLE_LABEL[me.role] || me.role}</span>
+      {children && <div className="overview">{children}</div>}
+    </section>
+  );
 }

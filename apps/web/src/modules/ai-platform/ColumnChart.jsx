@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 // Stacked column chart over days. Validated categorical slots (light surface #ffffff, all-pairs):
-//   #12876f teal, #c98500 ochre, #4a3aa7 violet. Terracotta stays reserved for warnings.
-export const SERIES_COLORS = ["#12876f", "#c98500", "#4a3aa7"];
+//   #16a34a teal, #c98500 ochre, #4a3aa7 violet. Terracotta stays reserved for warnings.
+export const SERIES_COLORS = ["#16a34a", "#c98500", "#4a3aa7"];
 
 const M = { top: 10, right: 8, bottom: 26, left: 36 };
 const GAP = 2;

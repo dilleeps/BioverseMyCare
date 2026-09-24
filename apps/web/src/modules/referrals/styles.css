@@ -21,7 +21,7 @@
 }
 .rf-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
 .rf-stats { margin-bottom: 12px; }
-.rf-filter .btn[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.rf-filter .btn[aria-pressed="true"] { background: var(--brand-800); border-color: var(--brand-800); color: #fff; }
 
 .rf-list { list-style: none; margin: 0; padding: 0; }
 .rf-row + .rf-row { border-top: 1px solid var(--line-soft); }
