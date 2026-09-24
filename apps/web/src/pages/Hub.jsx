@@ -23,7 +23,7 @@ export default function Hub() {
   const { me } = useSession();
   const [query, setQuery] = useState("");
   if (!me) return null;
-  const items = [...(CORE[me.role] || []), ...navFor(me.role)];
+  const items = [...(CORE[me.role] || []), ...navFor(me)];
   const unique = items.filter((n, i) => items.findIndex((m) => m.to === n.to) === i);
   const groups = [...new Set(unique.map((n) => n.group || "More"))];
 

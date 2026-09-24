@@ -18,7 +18,7 @@ export default {
     { to: "/clinician/inbox", label: "Inbox", description: "Patient messages, triaged, with AI-drafted replies",
       roles: ["clinician"], placement: "workspace", icon: Chat, group: "Clinical" },
     { to: "/clinician/inbox", label: "Inbox", description: "Front desk and nurse-triage messages",
-      roles: ["staff"], placement: "workspace", icon: Chat, home: true, group: "Front desk" },
-    { to: "/clinician/inbox", label: "Inbox", roles: ["staff"], placement: "top", group: "Front desk" },
+      roles: ["staff"], placement: "workspace", icon: Chat, home: true, group: "Front desk", teams: ["front_desk"] },
+    { to: "/clinician/inbox", label: "Inbox", roles: ["staff"], placement: "top", group: "Front desk", teams: ["front_desk"] },
   ],
 };

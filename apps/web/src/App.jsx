@@ -30,9 +30,9 @@ const CORE_NAV = {
 
 // Core entries, any module entries placed in the top bar, then "More" for the rest.
 // Roles without core pages (admin, staff) get their module home first.
-function navItems(role) {
-  const core = CORE_NAV[role] || [{ to: homeFor(role), label: "Home", end: true }];
-  const items = [...core, ...navFor(role, "top"), { to: "/hub", label: "More" }];
+function navItems(me) {
+  const core = CORE_NAV[me.role] || [{ to: homeFor(me), label: "Home", end: true }];
+  const items = [...core, ...navFor(me, "top"), { to: "/hub", label: "More" }];
   return items.filter((n, i) => items.findIndex((m) => m.to === n.to) === i);
 }
 
@@ -42,12 +42,12 @@ function TopBar() {
   const { users, me, switchTo } = useSession();
   const navigate = useNavigate();
   const health = useApi("/health");
-  const nav = me ? navItems(me.role) : [];
+  const nav = me ? navItems(me) : [];
 
   async function onSwitch(e) {
     const user = users.find((u) => u.id === e.target.value);
     await switchTo(e.target.value);
-    navigate(homeFor(user?.role));
+    navigate(homeFor(user));
   }
 
   return (
@@ -86,7 +86,7 @@ function TopBar() {
 function TabBar() {
   const { me } = useSession();
   if (!me) return null;
-  const nav = navItems(me.role).slice(-5);
+  const nav = navItems(me).slice(-5);
   return (
     <nav className="tabbar" aria-label="Sections">
       {nav.map((n) => (

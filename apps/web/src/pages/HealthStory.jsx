@@ -15,6 +15,14 @@ const LINK_FOR = {
   goal: () => "/wellness",
   goal_milestone: () => "/wellness",
   assessment: () => "/wellness",
+  consultation: (id) => `/consult/${id}`,
+  pharmacy_order: (id) => `/shop/orders/${id}`,
+  vital_alert: () => "/vitals",
+  companion_checkin: () => "/companion",
+  questionnaire: () => "/mind",
+  weight_goal: () => "/weight",
+  weight_goal_end: () => "/weight",
+  challenge: () => "/challenges",
 };
 
 export default function HealthStory() {
@@ -47,7 +55,7 @@ export default function HealthStory() {
           <section className="card" style={{ padding: "6px 16px" }}>
             {data.events.length === 0 && <div className="empty">Nothing recorded this year yet.</div>}
             {data.events.map((e) => {
-              const to = LINK_FOR[e.type]?.(e.ref_id);
+              const to = e.link || LINK_FOR[e.type]?.(e.ref_id);
               const body = (
                 <div className="stack" style={{ gap: 2 }}>
                   <span className="tiny muted">{fmtShortDate(e.at)}</span>

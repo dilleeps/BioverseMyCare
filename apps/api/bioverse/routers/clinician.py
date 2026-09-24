@@ -305,16 +305,49 @@ ROUTE_CHOICES = {
 }
 
 
+# Starting point for a clinician who hasn't set up their agent yet. The red-flag rule and the two review
+# requirements are organization policy, so they are locked exactly as for everyone else.
+DEFAULT_CONFIG = {
+    "previsit_questions": [
+        {"id": "q1", "text": "What would you like to talk about at this visit?", "source": "specialty", "enabled": True},
+        {"id": "q2", "text": "Current medications and any missed doses this week", "source": "specialty", "enabled": True},
+    ],
+    "followup_protocol": [
+        {"day": 1, "action": "Check the plan from the visit is clear"},
+        {"day": 7, "action": "Ask how things are going and about side effects"},
+    ],
+    "escalation_rules": [
+        {"id": "red_flag", "label": "Red-flag symptom", "action": "emergency_guidance", "route_to": "clinician_and_team_now", "locked": True},
+        {"id": "new_symptom", "label": "New or worsening symptom", "action": "gather_then_escalate", "route_to": "clinician_same_day", "locked": False},
+        {"id": "side_effect", "label": "Side-effect question", "action": "answer_from_approved_content", "route_to": "staff_if_unresolved", "locked": False},
+        {"id": "logistics", "label": "Appointment or logistics", "action": "handle_via_scheduling", "route_to": "front_desk", "locked": False},
+    ],
+    "approval_requirements": [
+        {"id": "abnormal_results", "label": "Abnormal result explanations", "required": True, "locked": True},
+        {"id": "medication_instructions", "label": "Medication instructions", "required": True, "locked": True},
+        {"id": "normal_results", "label": "Normal result explanations", "required": True, "locked": False},
+        {"id": "routine_education", "label": "Routine education from my approved handouts", "required": False, "locked": False},
+    ],
+}
+
+
 def _load_config(conn: Connection, practitioner_id: str) -> dict:
-    row = conn.execute(
-        """
+    sql = """
         SELECT active, previsit_questions, followup_protocol, escalation_rules, approval_requirements, updated_at
         FROM doctor_agent_configs WHERE practitioner_id = %s
-        """,
-        (practitioner_id,),
-    ).fetchone()
+    """
+    row = conn.execute(sql, (practitioner_id,)).fetchone()
     if row is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "No agent configured")
+        conn.execute(
+            """
+            INSERT INTO doctor_agent_configs (practitioner_id, previsit_questions, followup_protocol,
+                                              escalation_rules, approval_requirements)
+            VALUES (%s, %s, %s, %s, %s) ON CONFLICT (practitioner_id) DO NOTHING
+            """,
+            (practitioner_id, *(Jsonb(DEFAULT_CONFIG[k]) for k in
+                                ("previsit_questions", "followup_protocol", "escalation_rules", "approval_requirements"))),
+        )
+        row = conn.execute(sql, (practitioner_id,)).fetchone()
     return row
 
 

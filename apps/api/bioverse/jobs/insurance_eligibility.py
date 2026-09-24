@@ -56,7 +56,8 @@ def run(conn, now):
         if outcome == "active":
             continue
         staff = conn.execute(
-            "SELECT id::text FROM users WHERE organization_id = %s AND role = 'staff'", (appt["organization_id"],)
+            "SELECT id::text FROM users WHERE organization_id = %s AND role = 'staff' "
+            "AND coalesce(team, 'front_desk') = 'front_desk'", (appt["organization_id"],)
         ).fetchall()
         wording = {"inactive": "came back inactive", "not_found": "wasn't found by the payer",
                    "no_coverage": "isn't on file", "error": "couldn't be checked"}.get(outcome, "needs review")

@@ -123,7 +123,7 @@ def _coverage_out(cov: dict, today: date) -> dict:
     out["eligible_today"] = _is_eligible(cov, today)
     out["deductible_remaining_cents"] = max(0, cov["deductible_cents"] - cov["deductible_met_cents"])
     out["oop_remaining_cents"] = max(0, cov["oop_max_cents"] - cov["oop_met_cents"])
-    out["payer_label"] = PAYER_LABEL
+    out["payer_label"] = cov["payer_name"] or PAYER_LABEL
     return out
 
 
@@ -207,7 +207,7 @@ def check_eligibility(coverage_id: str, conn: Conn, user: CurrentUser) -> dict:
         "id": row["id"],
         "status": "active" if active else "inactive",
         "checked_at": row["checked_at"],
-        "payer": PAYER_LABEL,
+        "payer": cov["payer_name"] or PAYER_LABEL,
         "benefits": benefits,
         "notice": DEMO_NOTICE,
     }
@@ -267,7 +267,7 @@ def calculate_estimate(*,allowed_cents: int, category: str, coverage: dict | Non
     ded_left = max(0, coverage["deductible_cents"] - coverage["deductible_met_cents"])
     oop_left = max(0, coverage["oop_max_cents"] - coverage["oop_met_cents"])
     label = CATEGORY_LABELS.get(category, category)
-    steps.append(f"Allowed amount (the {PAYER_LABEL.lower()}'s rate for this service): {money(allowed_cents)}.")
+    steps.append(f"Allowed amount (your insurer's rate for this service): {money(allowed_cents)}.")
     if not in_network:
         steps.append("This clinician is out of network for your plan, so copays don't apply and the "
                      "out-of-network coinsurance rate is used.")
@@ -350,7 +350,7 @@ def estimate(conn: Conn, user: CurrentUser, service_code: str, practitioner_id: 
         "practitioner": {k: practitioner[k] for k in ("id", "name", "specialty")} if practitioner else None,
         "in_network": in_network,
         "network_checked": practitioner is not None,
-        "coverage": {"plan_name": cov["plan_name"], "payer": PAYER_LABEL} if cov else None,
+        "coverage": {"plan_name": cov["plan_name"], "payer": cov["payer_name"] or PAYER_LABEL} if cov else None,
         **result,
         "notice": "Estimate only. " + DEMO_NOTICE,
     }
@@ -362,7 +362,7 @@ def estimate(conn: Conn, user: CurrentUser, service_code: str, practitioner_id: 
 CLAIM_SELECT = """
     SELECT c.id::text, c.patient_id::text, c.service_code, c.service_name, c.category, c.service_date,
            c.billed_cents, c.status, c.denial_reason, c.appeal_reason, c.appealed_at, c.submitted_at,
-           pr.name AS practitioner_name, cv.plan_name,
+           pr.name AS practitioner_name, cv.plan_name, cv.payer_name,
            e.allowed_cents, e.plan_paid_cents, e.copay_cents, e.deductible_cents, e.coinsurance_cents,
            e.patient_resp_cents, e.adjudicated_at, s.id::text AS statement_id
     FROM claims c
@@ -379,7 +379,7 @@ def _claim_out(row: dict) -> dict:
     eob = {k: row[k] for k in eob_keys} if row["adjudicated_at"] else None
     out = {k: v for k, v in row.items() if k not in eob_keys}
     out["eob"] = eob
-    out["payer"] = PAYER_LABEL
+    out["payer"] = out.pop("payer_name", None) or PAYER_LABEL
     return out
 
 

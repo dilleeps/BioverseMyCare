@@ -99,12 +99,13 @@ def abnormal_trends(conn: Connection, patient_id: str) -> list[dict[str, Any]]:
         """
         WITH latest AS (
             SELECT DISTINCT ON (loinc_code) loinc_code, display, value, unit, interpretation, ref_low, ref_high, effective_at
-            FROM observations WHERE patient_id = %s
+            FROM observations WHERE patient_id = %s AND category = 'laboratory'
             ORDER BY loinc_code, effective_at DESC
         )
         SELECT l.*, (
             SELECT json_agg(json_build_object('value', o.value, 'at', o.effective_at) ORDER BY o.effective_at)
             FROM observations o WHERE o.patient_id = %s AND o.loinc_code = l.loinc_code
+              AND o.category = 'laboratory'
         ) AS history
         FROM latest l WHERE l.interpretation <> 'N'
         ORDER BY l.effective_at DESC

@@ -90,6 +90,10 @@ def run(conn, now):          # now: timezone-aware UTC datetime. Runs in its own
 Jobs run from `python -m bioverse.jobs` (Cloud Scheduler, every five minutes), or from Operations >
 Scheduled jobs. They must be idempotent. Tests can call `bioverse.jobs.run_job(conn, "name", now)`.
 
+**Staff teams.** `users.team` is `front_desk`, `pharmacy` or empty. A nav entry with `teams: ["pharmacy"]`
+only shows to staff in that team (people with no team see everything their role allows), and a team's
+`home: true` entry wins over a role-wide one. On the API, `user.team` is on the signed-in `User`.
+
 **Vital signs and patient-generated data** go in `observations` with `category` (`vital-signs`,
 `activity`, `survey`), `source` (`manual`, `device`, `photo`, `import`, `clinic`), optional `device`,
 `panel_id` (groups systolic and diastolic) and `note`, coded from `bioverse.vitals_codes.CODES`

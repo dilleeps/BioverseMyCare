@@ -189,7 +189,8 @@ def test_critical_blood_pressure_log_warns_and_alerts(client):
         rows = conn.execute("SELECT loinc_code, interpretation, panel_id FROM observations WHERE patient_id = %s AND category = 'vital-signs'",
                             (P_PARK,)).fetchall()
         assert {x["loinc_code"] for x in rows} == {"8480-6", "8462-4"} and len({x["panel_id"] for x in rows}) == 1
-        assert conn.execute("SELECT priority FROM review_items WHERE kind = 'vital_alert'").fetchone()["priority"] == "urgent"
+        assert conn.execute("SELECT priority FROM review_items WHERE kind = 'vital_alert' AND patient_id = %s",
+                            (P_PARK,)).fetchone()["priority"] == "urgent"
     ok = client.post(f"/api/challenges/patients/{P_PARK}/log", headers=PARK, json={"metric": "bp", "systolic": 118, "diastolic": 76})
     assert ok.json()["warning"] is None
     assert client.post(f"/api/challenges/patients/{P_PARK}/log", headers=PARK, json={"metric": "bp", "systolic": 120}).status_code == 422

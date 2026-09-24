@@ -22,6 +22,7 @@ export default {
     { to: "/shop", label: "Order medicines", description: "Home delivery or clinic pickup for prescriptions and health products",
       roles: ["patient"], placement: "hub" },
     { to: "/pharmacy-orders", label: "Pharmacy orders", description: "Verify, pack and deliver medicine orders",
-      roles: ["staff"], placement: "workspace", icon: Clipboard, group: "Pharmacy" },
+      roles: ["staff"], placement: "workspace", icon: Clipboard, group: "Pharmacy",
+      teams: ["pharmacy"], home: true, end: true },
   ],
 };

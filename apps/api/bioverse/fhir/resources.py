@@ -201,6 +201,10 @@ def lab_code(code: str, display: str) -> dict[str, Any]:
     return {"coding": [{"system": terminology.LOINC, "code": code, "display": display}], "text": display}
 
 
+_OBS_CATEGORY_DISPLAY = {"laboratory": "Laboratory", "vital-signs": "Vital Signs", "activity": "Activity",
+                         "survey": "Survey"}
+
+
 def observation(ctx: Ctx, row: dict[str, Any]) -> dict[str, Any]:
     """row: observations.* plus report `source`."""
     patient_reported = row.get("source") == "patient_upload"
@@ -216,7 +220,8 @@ def observation(ctx: Ctx, row: dict[str, Any]) -> dict[str, Any]:
         "meta": _meta(tags=_source_tags(row.get("source"))),
         # Values a patient typed in from another lab's report are not verified results.
         "status": "preliminary" if patient_reported else "final",
-        "category": [{"coding": [{"system": OBS_CATEGORY, "code": "laboratory", "display": "Laboratory"}]}],
+        "category": [{"coding": [{"system": OBS_CATEGORY, "code": row.get("category") or "laboratory",
+                                  "display": _OBS_CATEGORY_DISPLAY.get(row.get("category"), "Laboratory")}]}],
         "code": lab_code(row["loinc_code"], row["display"]),
         "subject": ref("Patient", row["patient_id"]),
         "effectiveDateTime": instant(row["effective_at"]),

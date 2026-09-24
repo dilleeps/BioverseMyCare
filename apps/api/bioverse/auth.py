@@ -26,6 +26,7 @@ class User:
     organization_id: str
     patient_id: str | None
     practitioner_id: str | None
+    team: str | None = None
 
 
 def current_user(
@@ -41,7 +42,7 @@ def current_user(
 
     row = conn.execute(
         """
-        SELECT u.id::text, u.role, u.display_name, u.organization_id::text,
+        SELECT u.id::text, u.role, u.display_name, u.organization_id::text, u.team,
                p.id::text AS patient_id, pr.id::text AS practitioner_id
         FROM users u
         LEFT JOIN patients p ON p.user_id = u.id
@@ -59,6 +60,7 @@ def current_user(
         organization_id=row["organization_id"],
         patient_id=row["patient_id"],
         practitioner_id=row["practitioner_id"],
+        team=row["team"],
     )
 
 

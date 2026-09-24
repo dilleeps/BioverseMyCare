@@ -5,7 +5,7 @@
 .billing-grid h2.card-title, .receipt h2, .admin-billing h2 { margin: 0; }
 .admin-billing .field input { min-height: 44px; font-size: 15px; }
 .admin-billing .kv { margin: 0; }
-@media (max-width: 960px) { .billing-grid { grid-template-columns: 1fr; } }
+@media (max-width: 960px) { .billing-grid { grid-template-columns: minmax(0, 1fr); } }
 
 .coverage-card {
   border-radius: var(--r-md); padding: 16px; background: var(--accent-soft); color: var(--ink);

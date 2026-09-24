@@ -13,6 +13,7 @@
 //       roles: ["patient"],                              // who sees it
 //       placement: "hub" | "top" | "workspace",          // hub card, top bar, or clinician/admin side nav
 //       home: false,                                     // true: where this role lands after sign-in
+//       teams: ["pharmacy"],                             // optional: only staff in these teams (users.team)
 //     }],
 //   }
 
@@ -27,17 +28,27 @@ export function moduleRoutes() {
   return MODULES.flatMap((m) => (m.routes || []).map((r) => ({ ...r, moduleId: m.id })));
 }
 
-export function navFor(role, placement) {
+// `who` is the signed-in user ({ role, team }) or just a role name.
+function visibleTo(n, who) {
+  const { role, team } = typeof who === "string" ? { role: who, team: null } : who || {};
+  if (n.roles && !n.roles.includes(role)) return false;
+  return !(n.teams && team && !n.teams.includes(team));
+}
+
+export function navFor(who, placement) {
   return MODULES.flatMap((m) =>
     (m.nav || [])
-      .filter((n) => (!n.roles || n.roles.includes(role)) && (!placement || (n.placement || "hub") === placement))
+      .filter((n) => visibleTo(n, who) && (!placement || (n.placement || "hub") === placement))
       .map((n) => ({ ...n, group: n.group || m.group || "More", moduleId: m.id })),
   );
 }
 
-export function homeFor(role) {
+export function homeFor(who) {
+  const role = typeof who === "string" ? who : who?.role;
   const fixed = { patient: "/app", clinician: "/clinician" };
-  const fromModule = MODULES.flatMap((m) => m.nav || []).find((n) => n.home && (n.roles || []).includes(role));
+  const homes = MODULES.flatMap((m) => m.nav || []).filter((n) => n.home && (n.roles || []).includes(role) && visibleTo(n, who));
+  // A home made for the person's team wins over a role-wide one.
+  const fromModule = homes.find((n) => n.teams) || homes[0];
   return fromModule?.to || fixed[role] || "/hub";
 }
 

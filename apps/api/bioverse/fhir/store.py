@@ -77,7 +77,8 @@ def observations(conn: Connection, ctx: R.Ctx, patient_id: str) -> list[dict[str
     rows = conn.execute(
         """
         SELECT o.id::text, o.patient_id::text, o.report_id::text, o.loinc_code, o.display, o.value, o.unit,
-               o.ref_low, o.ref_high, o.interpretation, o.effective_at, r.source
+               o.ref_low, o.ref_high, o.interpretation, o.effective_at, o.category,
+               coalesce(r.source, o.source) AS source
         FROM observations o LEFT JOIN diagnostic_reports r ON r.id = o.report_id
         WHERE o.patient_id = %s ORDER BY o.effective_at DESC, o.display
         """,

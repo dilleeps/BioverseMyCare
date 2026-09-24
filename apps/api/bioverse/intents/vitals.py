@@ -18,7 +18,8 @@ _MEASURE = (r"(blood pressure|bp|blood sugar|glucose|sugar levels?|weight|heart 
 register(
     "vitals",
     description="logging or viewing home readings: blood pressure, glucose, weight, heart rate, oxygen or temperature",
-    pattern=_NOT_A_SYMPTOM + (
+    # Buying a cuff or meter is a shopping request, not a reading ("buy a blood pressure monitor").
+    pattern=_NOT_A_SYMPTOM + r"(?!.*\b(buy|order|purchase|shop for)\b)" + (
         rf".*(\b{_ACTION}\b.{{0,20}}\b(my|a|the|new|today'?s)\b.{{0,12}}\b{_MEASURE}\b"
         rf"|\b{_MEASURE}\s+(readings?|log|numbers|trends?|history|meter|monitor|cuff)\b"
         r"|\bmy (bp|blood pressure|glucose|blood sugar) (today|this morning|tonight)\b"

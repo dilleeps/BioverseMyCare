@@ -34,7 +34,7 @@ def demo_users(conn: DbConn) -> list[dict]:
     """The identities the demo lets you switch between. Remove with real authentication."""
     return conn.execute(
         """
-        SELECT u.id::text, u.role, u.display_name, u.demo_label AS subtitle
+        SELECT u.id::text, u.role, u.team, u.display_name, u.demo_label AS subtitle
         FROM users u
         WHERE u.demo_label IS NOT NULL
         ORDER BY u.demo_order, u.display_name
@@ -50,4 +50,5 @@ def me(user: CurrentUser) -> dict:
         "display_name": user.display_name,
         "patient_id": user.patient_id,
         "practitioner_id": user.practitioner_id,
+        "team": user.team,
     }

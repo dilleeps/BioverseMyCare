@@ -2,7 +2,7 @@
 
 - A connected blood pressure cuff and scale (demo pairing, fictional vendor).
 - 30 days of twice-daily home blood pressure with pulse, running slightly high with realistic noise,
-  a daily weight and a daily step count from her phone.
+  and a daily step count from her phone. Her weekly weigh-ins come from the weight coach seed.
 - A home monitoring plan from Dr. Okafor, started at Maya's cardiology visit two days ago: BP twice daily
   for 14 days at 08:00 and 20:00. One reading is missed, so adherence isn't perfect.
 - One open sustained-high BP alert in Dr. Okafor's review queue.
@@ -63,7 +63,7 @@ def run(conn, ctx: SeedContext) -> None:
     for i, d in enumerate(range(-DAYS, 1)):
         day = days(d)
         drift = min(1.0, i / (DAYS - 1))                 # 0 -> 1 over the month: a slow upward drift
-        for s, (slot, (hh, mm)) in enumerate((("am", (7, 20 + rng.randint(0, 40))), ("pm", (20, rng.randint(0, 50))))):
+        for s, (slot, (hh, mm)) in enumerate((("am", (7, 20 + rng.randint(0, 39))), ("pm", (20, rng.randint(0, 50))))):
             skip = (d, slot) in MISSED or (d < -2 and rng.random() < 0.08)
             morning = 3 if slot == "am" else 0
             sys_ = round(min(168, 128 + 9 * drift + morning + rng.gauss(0, 5)))
@@ -83,8 +83,6 @@ def run(conn, ctx: SeedContext) -> None:
             add(base + 2, "heart_rate", pulse, when, "device", cuff, DEV_CUFF, panel)
             if d < 0:
                 bp_readings.append((when, sys_, dia))
-        add(8 * i + 6, "weight", round(72.6 - 0.3 * drift + rng.gauss(0, 0.25), 1), at(day, 7, 5), "device",
-            "Lumora Balance Scale (demo)", DEV_SCALE)
         steps = 3500 + rng.randint(0, 6000)
         if d < 0:
             add(8 * i + 7, "steps", steps, at(day, 23, 30), "import", "Apple Health")

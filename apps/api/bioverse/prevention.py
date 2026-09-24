@@ -409,7 +409,7 @@ def load_record(conn: Connection, patient_id: str) -> Record:
         observations=conn.execute(
             """
             SELECT id::text, report_id::text, loinc_code, display, value, interpretation, effective_at
-            FROM observations WHERE patient_id = %s
+            FROM observations WHERE patient_id = %s AND (category = 'laboratory' OR source = 'clinic')
             """,
             (patient_id,),
         ).fetchall(),

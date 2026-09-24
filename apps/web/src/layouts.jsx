@@ -19,7 +19,7 @@ export function WorkspaceNav({ patients, selected, onSelect }) {
   const { me } = useSession();
   if (!me) return null;
   const core = CORE_WORKSPACE_NAV[me.role] || [];
-  const extra = navFor(me.role, "workspace");
+  const extra = navFor(me, "workspace");
   return (
     <nav className="sidenav" aria-label="Workspace">
       {core.map((n) => {

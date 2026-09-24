@@ -130,8 +130,10 @@ def test_observation_search_codes_units_ranges(client):
     assert r.status_code == 200
     b = r.json()
     assert b["resourceType"] == "Bundle" and b["type"] == "searchset"
-    assert b["total"] == 12 == len(b["entry"])
-    for e in b["entry"]:
+    assert b["total"] == len(b["entry"])
+    labs = [e for e in b["entry"] if e["resource"]["category"][0]["coding"][0]["code"] == "laboratory"]
+    assert len(labs) == 12
+    for e in labs:
         o = e["resource"]
         assert_valid(o)
         assert e["fullUrl"].endswith(f"/api/fhir/R4/Observation/{o['id']}")
@@ -261,7 +263,8 @@ def test_everything_is_complete_and_self_contained(client):
             {"p": P_MAYA},
         ).fetchone()
     assert len(by_type["Patient"]) == 1 and by_type["Patient"][0]["id"] == P_MAYA
-    assert len(by_type["Observation"]) == counts["obs"] == 12
+    assert len(by_type["Observation"]) == counts["obs"]
+    assert sum(o["category"][0]["coding"][0]["code"] == "laboratory" for o in by_type["Observation"]) == 12
     assert len(by_type["DiagnosticReport"]) == counts["reports"] == 3
     assert len(by_type["Encounter"]) == counts["enc"]
     assert len(by_type["Immunization"]) == counts["imm"]

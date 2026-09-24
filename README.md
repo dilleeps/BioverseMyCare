@@ -100,11 +100,15 @@ each role; **More** lists everything that role can open.
 
 | Who | What they can do |
 | --- | --- |
-| Patient (Maya Thornton) | Ask Bioverse with red-flag screening, book care, visits and check-in, referrals, care plan, results and uploads, My Health Story, Ask about my health, messages, pharmacy, bills and coverage, wellness and prevention, family and caregivers, research studies, privacy center |
+| Patient (Maya Thornton) | Ask Bioverse by typing, voice or photo (medicine box, skin, paper report) with red-flag screening; Today companion with dose, visit and check-in reminders; home vitals with meter photos, device import and abnormal-reading alerts; online consultations by message or video with verified clinicians; order medicines for delivery; insurance card with QR, eligibility and benefits; nutrition and food scan, weight coach, mood and anxiety checks, challenges and rewards; health fact check; specialist AI agents; find your way in the hospital; notifications by app, email or text; plus booking, visits, referrals, care plan, results, My Health Story, messages, pharmacy, bills, wellness, family, research, privacy |
+| Senior mode (Rana Haddad) | Large text and buttons, four big actions on the home screen, read-aloud replies |
 | Caregiver (David Thornton) | Everything a patient has, plus acting for the people who granted access |
-| Clinician (Dr. Adaeze Okafor) | Workspace with pre-visit brief and review queue, inbox, clinic queue, referrals, care plans from pathways, refills, Evidence Assistant, research pipeline, panel analytics, Doctor Agent settings, break-glass, incident reports |
-| Front desk | Inbox for scheduling questions, clinic queue, referrals |
-| Hospital admin (Northside Operations) | Operations dashboard, Hospital Agent, analytics, organization and provider directory, care pathways, financial assistance, lab import, compliance audit with hash-chain check, retention, safety incidents, AI governance console with red-flag evaluations |
+| Clinician (Dr. Adaeze Okafor) | Workspace with pre-visit brief, review queue and panels for home vitals, between-visit adherence, nutrition and weight, mood and anxiety, online consults; consult queue and video room; monitoring plans; public specialist agent; inbox, clinic queue, referrals, care plans, refills, Evidence Assistant, research, analytics, Doctor Agent settings, break-glass, incidents |
+| Clinician (Dr. Nadia Benali) | Dermatology online consults and her license page |
+| Front desk | Inbox, clinic queue, referrals, insurance eligibility and card scanning, claims |
+| Pharmacist (Lena Marsh) | Order verification queue with interaction and allergy checks, packing, dispatch and delivery |
+| Medical student (Priya Raman) | De-identified case library with a tutor, quizzes, evidence search; never sees identifiable records |
+| Hospital admin (Northside Operations) | Operations, Hospital Agent, analytics, organization, credentialing, payer connections, specialist agent approvals, wayfinding closures and signs, scheduled jobs, pathways, financial assistance, lab import, compliance audit, retention, incidents, AI governance |
 
 AI features use Claude when an Anthropic key is configured and a patient hasn't opted out; every one of
 them has a rules-based path, so the whole app works without a key. See

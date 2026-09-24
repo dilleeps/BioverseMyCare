@@ -22,10 +22,9 @@ from bioverse.challenge_engine import (BADGES, BY_ID, DEFINITIONS, REWARD_NOTE, 
                                        required_periods, add_points)
 from bioverse.config import clinic_today, clinic_tz
 from bioverse.db import DbConn
-from bioverse.mind_escalation import raise_review
 from bioverse.notify import notify
+from bioverse.routers import vitals_core
 from bioverse.routers.nutrition import own_record, read_access
-from bioverse.safety import red_flags
 from bioverse.vitals_codes import CODES, interpret
 
 router = APIRouter(prefix="/api/challenges", tags=["challenges"])
@@ -339,20 +338,15 @@ def log_activity(patient_id: str, body: LogIn, conn: Conn, user: CurrentUser) ->
     at = now_local if day == today else datetime.combine(day, time(20, 0), tzinfo=clinic_tz())
     warning = None
     if body.metric == "bp":
-        panel = str(uuid.uuid4())
-        _obs(conn, patient_id, "bp_systolic", body.systolic, at, panel)
-        _obs(conn, patient_id, "bp_diastolic", body.diastolic, at, panel)
-        flags = {interpret(CODES["bp_systolic"], body.systolic), interpret(CODES["bp_diastolic"], body.diastolic)}
-        if flags & {"HH", "LL"}:
-            warning = (f"{body.systolic}/{body.diastolic} is outside the safe range. Sit quietly for 5 minutes and "
-                       f"measure again. If you have chest pain, shortness of breath, weakness, trouble speaking or "
-                       f"a severe headache, call {red_flags.EMERGENCY_NUMBER} now. Your care team has been told.")
-            raise_review(conn, patient_id=patient_id, kind="vital_alert", priority="urgent", actor=user,
-                         agent="challenges/rules", link=f"/clinician/nutrition/{patient_id}",
-                         title=f"Home blood pressure {body.systolic}/{body.diastolic}",
-                         body=f"Logged by the patient on {day:%d %b} while doing a blood pressure challenge. "
-                              "They were advised to recheck and to call emergency services with symptoms.",
-                         notify_title="Urgent: a patient's home reading needs review")
+        # Same path as the Vitals screen, so alerts, thresholds and the care team's queue stay in one place.
+        reading = vitals_core.store_reading(
+            conn, patient_id=patient_id, values=[("bp_systolic", body.systolic), ("bp_diastolic", body.diastolic)],
+            taken_at=at, source="manual", note="Logged for a blood pressure challenge")
+        result = vitals_core.evaluate(conn, patient_id, reading)
+        if result["safety"]:
+            warning = f"{result['safety']['message']} Your care team has been told."
+        elif any(a["severity"] == "critical" for a in result["alerts"]):
+            warning = "That reading is outside the safe range. Your care team has been told."
         detail = {"systolic": body.systolic, "diastolic": body.diastolic}
     else:
         _obs(conn, patient_id, body.metric, round(body.value or 0), at)

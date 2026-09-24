@@ -95,7 +95,7 @@ def test_no_coverage_is_self_pay_price():
 
 def test_estimate_endpoint_and_network_check(client):
     r = client.get("/api/billing/estimate?service_code=SPEC_VISIT", headers=MAYA).json()
-    assert r["patient_cents"] == 5000 and r["in_network"] and r["coverage"]["payer"] == "Demo payer"
+    assert r["patient_cents"] == 5000 and r["in_network"] and r["coverage"]["payer"] == "Evergreen Mutual Health"
     echo = client.get("/api/billing/estimate?service_code=ECHO", headers=MAYA).json()
     assert echo["patient_cents"] == 90000 and echo["steps"]
 
@@ -142,7 +142,7 @@ def test_eligibility_check_active_and_inactive(client):
     r = client.post(f"/api/billing/coverage/{COV_MAYA}/eligibility", headers=MAYA)
     assert r.status_code == 200
     assert r.json()["status"] == "active" and r.json()["benefits"]["copays"]["specialist"] == 5000
-    assert r.json()["payer"] == "Demo payer"
+    assert r.json()["payer"] == "Evergreen Mutual Health"
 
     park = client.post(f"/api/billing/coverage/{COV_PARK}/eligibility", headers=PARK).json()
     assert park["status"] == "inactive" and "copays" not in park["benefits"]

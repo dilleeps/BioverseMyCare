@@ -83,7 +83,7 @@ def test_dates_are_shifted_consistently_within_a_case(client):
         content = conn.execute("SELECT content FROM learning_cases WHERE id = %s", (_id(16201),)).fetchone()[0]
         real = [r[0] for r in conn.execute(
             "SELECT DISTINCT (effective_at AT TIME ZONE 'America/New_York')::date FROM observations "
-            "WHERE patient_id = %s ORDER BY 1", (P_MAYA,)).fetchall()]
+            "WHERE patient_id = %s AND category = 'laboratory' ORDER BY 1", (P_MAYA,)).fetchall()]
     shown = sorted({date.fromisoformat(r["date"]) for r in content["stages"][2]["table"]})
     assert len(shown) == len(real) == 3
     gaps_real = [(b - a).days for a, b in zip(real, real[1:])]

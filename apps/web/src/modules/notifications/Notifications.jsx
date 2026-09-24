@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api } from "../../api.js";
 import { useApi } from "../../hooks.js";
 import { fmtDateTime } from "../../format.js";
+import { useSession } from "../../session.jsx";
 
 const KIND_LABEL = {
   welcome: "Welcome",
@@ -13,7 +14,24 @@ const KIND_LABEL = {
   consultation: "Online consultations",
   order_update: "Pharmacy orders",
   challenge: "Challenges and rewards",
+  vital_reminder: "Reminders to take a reading",
+  results_ready: "New results",
+  care_gap_nudge: "Screenings and checkups due",
+  daily_brief: "Morning summary",
+  weight_coach: "Weight coach check-ins",
+  mind_retest: "Mood and anxiety check reminders",
+  companion_escalation: "Check-in follow-ups for my patients",
+  insurance_coverage_flag: "Coverage problems before visits",
+  credential_expiry: "License expiry",
 };
+
+// What a patient can expect to receive, listed even before the first one arrives.
+const PATIENT_KINDS = ["medication_reminder", "appointment_reminder", "vital_alert", "vital_reminder", "results_ready",
+  "companion", "consultation", "order_update", "care_gap_nudge", "weight_coach", "challenge"];
+
+function kindLabel(k) {
+  return KIND_LABEL[k] || k.charAt(0).toUpperCase() + k.slice(1).replace(/_/g, " ");
+}
 const CHANNEL_LABEL = { in_app: "In the app", email: "Email", sms: "Text message", push: "Phone push" };
 
 function refreshBell() {
@@ -103,6 +121,7 @@ function BrowserAlerts() {
 }
 
 function Preferences() {
+  const { me } = useSession();
   const { data, error, loading } = useApi("/notifications/preferences");
   const [form, setForm] = useState(null);
   const [state, setState] = useState({ saving: false, saved: false, error: null });
@@ -119,7 +138,7 @@ function Preferences() {
   if (error) return <div className="error-box">{error.message}</div>;
   if (!form) return null;
 
-  const kinds = Array.from(new Set([...Object.keys(KIND_LABEL).filter((k) => k !== "welcome"), ...(data.known_kinds || [])]))
+  const kinds = Array.from(new Set([...(me?.role === "patient" ? PATIENT_KINDS : []), ...(data.known_kinds || [])]))
     .filter((k) => k !== "welcome" && k !== "test");
   const channelsFor = (k) => form.channels[k] || ["in_app"];
   function toggle(kind, ch) {
@@ -163,27 +182,31 @@ function Preferences() {
           <input type="tel" value={form.phone} onChange={set("phone")} placeholder="+1 555 555 0123" autoComplete="tel" />
         </label>
       </div>
-      <fieldset className="notif-matrix">
-        <legend className="small strong">What to send where</legend>
-        <table>
-          <thead>
-            <tr><th scope="col">Type</th>{["email", "sms", "push"].map((c) => <th scope="col" key={c}>{CHANNEL_LABEL[c]}</th>)}</tr>
-          </thead>
-          <tbody>
-            {kinds.map((k) => (
-              <tr key={k}>
-                <th scope="row">{KIND_LABEL[k] || k.replace(/_/g, " ")}</th>
-                {["email", "sms", "push"].map((c) => (
-                  <td key={c}>
-                    <input type="checkbox" checked={channelsFor(k).includes(c)} onChange={() => toggle(k, c)}
-                           aria-label={`${KIND_LABEL[k] || k} by ${CHANNEL_LABEL[c]}`} />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </fieldset>
+      {kinds.length === 0 ? (
+        <p className="small muted">Once you start receiving notifications, you can choose here how each type reaches you.</p>
+      ) : (
+        <fieldset className="notif-matrix">
+          <legend className="small strong">What to send where</legend>
+          <table>
+            <thead>
+              <tr><th scope="col">Type</th>{["email", "sms", "push"].map((c) => <th scope="col" key={c}>{CHANNEL_LABEL[c]}</th>)}</tr>
+            </thead>
+            <tbody>
+              {kinds.map((k) => (
+                <tr key={k}>
+                  <th scope="row">{kindLabel(k)}</th>
+                  {["email", "sms", "push"].map((c) => (
+                    <td key={c}>
+                      <input type="checkbox" checked={channelsFor(k).includes(c)} onChange={() => toggle(k, c)}
+                             aria-label={`${kindLabel(k)} by ${CHANNEL_LABEL[c]}`} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </fieldset>
+      )}
       <div className="notif-fields">
         <label className="stack" style={{ gap: 4 }}>
           <span className="small strong">Quiet hours from</span>

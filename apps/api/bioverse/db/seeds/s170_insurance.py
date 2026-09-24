@@ -181,6 +181,7 @@ def run(conn, ctx: SeedContext) -> None:
 
     _seed_eligibility_check(cur, ctx)
     _seed_claim_cycle(cur, ctx)
+    _payer_names(conn)
 
 
 def _seed_eligibility_check(cur, ctx: SeedContext) -> None:
@@ -303,4 +304,15 @@ def _seed_claim_cycle(cur, ctx: SeedContext) -> None:
          json.dumps([a.model_dump() for a in adjustments]),
          json.dumps([remit_claim.service_lines[0].model_dump(mode="json")]),
          "Paid $210; patient responsibility $50 (deductible $0, coinsurance $0, copay $50).", ctx.at(paid_on, 10)),
+    )
+
+
+def _payer_names(conn) -> None:
+    """Billing shows the payer named on the coverage, so use the registered payer's name there too."""
+    conn.execute(
+        """
+        UPDATE coverages c SET payer_name = py.name
+        FROM coverage_details d JOIN payers py ON py.id = d.payer_ref
+        WHERE d.coverage_id = c.id AND c.payer_name IS DISTINCT FROM py.name
+        """
     )

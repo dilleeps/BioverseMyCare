@@ -66,7 +66,7 @@ def load_record(conn: Connection, patient_id: str) -> dict[str, Any]:
     for o in conn.execute(
         """
         SELECT loinc_code, display, value, unit, effective_at FROM observations
-        WHERE patient_id = %s ORDER BY effective_at DESC
+        WHERE patient_id = %s AND (category = 'laboratory' OR source = 'clinic') ORDER BY effective_at DESC
         """,
         (patient_id,),
     ).fetchall():

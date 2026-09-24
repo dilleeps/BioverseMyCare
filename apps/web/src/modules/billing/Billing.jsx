@@ -294,7 +294,7 @@ function ClaimRow({ claim, onChanged }) {
             <p className="small muted">
               {claim.status === "denied" || claim.status === "appealed"
                 ? "No payment was made on this claim."
-                : `Billed ${fmtMoney(claim.billed_cents)}. The ${claim.payer.toLowerCase()} is still processing this claim; you won't be billed until it's done.`}
+                : `Billed ${fmtMoney(claim.billed_cents)}. ${claim.payer} is still processing this claim; you won't be billed until it's done.`}
             </p>
           )}
           {claim.denial_reason && (
