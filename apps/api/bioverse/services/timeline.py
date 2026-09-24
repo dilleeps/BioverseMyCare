@@ -84,7 +84,12 @@ def events(conn: Connection, patient_id: str, since: datetime | None = None, lim
         """,
         {"p": patient_id, "since": since, "limit": limit},
     ).fetchall()
-    return rows
+    # Events contributed by modules (bioverse/timeline/).
+    from bioverse import timeline as contributors
+
+    rows = list(rows) + contributors.collect(conn, patient_id, since)
+    rows.sort(key=lambda r: r["at"], reverse=True)
+    return rows[:limit]
 
 
 def abnormal_trends(conn: Connection, patient_id: str) -> list[dict[str, Any]]:

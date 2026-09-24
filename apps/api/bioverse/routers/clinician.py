@@ -111,6 +111,14 @@ def previsit_brief(patient_id: str, conn: Conn, user: Clinician) -> dict:
     ).fetchall():
         bullets.append({"text": f"{g['title']}. {g['detail']}", "source": {"type": "care_gap", "id": g["id"]}})
 
+    # Lines contributed by modules (bioverse/briefs/).
+    from bioverse import briefs
+
+    for b in briefs.collect(conn, patient_id, user.practitioner_id):
+        bullets.append({"text": b["text"], "source": b["source"]})
+        if b.get("flag"):
+            flags.append(b["flag"])
+
     questions_row = conn.execute(
         """
         SELECT x.questions FROM result_explanations x JOIN diagnostic_reports r ON r.id = x.report_id
@@ -131,8 +139,18 @@ def previsit_brief(patient_id: str, conn: Conn, user: Clinician) -> dict:
     ).fetchone()
 
     audit.record(conn, action="brief_viewed", entity_type="patient", entity_id=patient_id, actor=user,
-                 agent="doctor-agent/rules")
+                 agent="doctor-agent/rules", patient_id=patient_id)
+    accepted = conn.execute(
+        """
+        SELECT occurred_at FROM audit_events
+        WHERE action = 'brief_accepted' AND entity_id = %s AND actor_user_id = %s
+          AND occurred_at > now() - interval '24 hours'
+        ORDER BY occurred_at DESC LIMIT 1
+        """,
+        (patient_id, user.id),
+    ).fetchone()
     return {
+        "accepted_at": accepted["occurred_at"] if accepted else None,
         "patient": header,
         "next_visit": next_visit,
         "bullets": bullets,
@@ -143,11 +161,21 @@ def previsit_brief(patient_id: str, conn: Conn, user: Clinician) -> dict:
     }
 
 
+@router.post("/patients/{patient_id}/brief/accept")
+def accept_brief(patient_id: str, conn: Conn, user: Clinician) -> dict:
+    """The clinician has reviewed the drafted brief. Recorded as provenance for the visit."""
+    assert_patient_access(conn, user, patient_id)
+    audit.record(conn, action="brief_accepted", entity_type="patient", entity_id=patient_id, actor=user,
+                 agent="doctor-agent/rules", patient_id=patient_id)
+    row = conn.execute("SELECT now() AS at").fetchone()
+    return {"accepted_at": row["at"]}
+
+
 @router.get("/review-queue")
 def review_queue(conn: Conn, user: Clinician) -> list[dict]:
     return conn.execute(
         """
-        SELECT r.id::text, r.kind, r.title, r.body, r.priority, r.created_at,
+        SELECT r.id::text, r.kind, r.title, r.body, r.priority, r.created_at, r.link,
                p.id::text AS patient_id, p.name AS patient_name
         FROM review_items r JOIN patients p ON p.id = r.patient_id
         WHERE r.practitioner_id = %s AND r.status = 'open'
@@ -182,7 +210,8 @@ def resolve(item_id: str, body: ResolveIn, conn: Conn, user: Clinician) -> dict:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Review item not found")
     if item["status"] != "open":
         raise HTTPException(status.HTTP_409_CONFLICT, "Already resolved")
-    if body.action not in ALLOWED_ACTIONS[item["kind"]]:
+    # Kinds owned by modules resolve in their own screens; here they can only be acknowledged.
+    if body.action not in ALLOWED_ACTIONS.get(item["kind"], {"acknowledge"}):
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"'{body.action}' is not valid for {item['kind']}")
     if body.action == "reply" and not (body.text and body.text.strip()):
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "A reply needs text")
@@ -216,6 +245,7 @@ def resolve(item_id: str, body: ResolveIn, conn: Conn, user: Clinician) -> dict:
         entity_type="review_item",
         entity_id=item_id,
         actor=user,
+        patient_id=item["patient_id"],
         detail={"kind": item["kind"], "edited": bool(body.text and body.text.strip())},
     )
     return {"id": item_id, "status": "resolved", "resolution": resolution}

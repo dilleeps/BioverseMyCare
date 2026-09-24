@@ -15,9 +15,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+import importlib
+import pkgutil
+
+from bioverse import routers
 from bioverse.config import get_settings
 from bioverse.db import close_pool, open_pool
-from bioverse.routers import care, clinician, conversations, records, session
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
@@ -43,8 +46,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (session.router, conversations.router, care.router, records.router, clinician.router):
-    app.include_router(r)
+# Every module in bioverse/routers that defines `router` is mounted. Adding a module never
+# requires editing this file.
+for info in sorted(pkgutil.iter_modules(routers.__path__), key=lambda m: m.name):
+    module = importlib.import_module(f"{routers.__name__}.{info.name}")
+    if hasattr(module, "router"):
+        app.include_router(module.router)
 
 # Serve the built React app when it exists (single-process deployment).
 WEB_DIST = Path(__file__).resolve().parents[2] / "web" / "dist"

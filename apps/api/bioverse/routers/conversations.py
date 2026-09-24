@@ -59,7 +59,8 @@ def start(conn: Conn, user: CurrentUser) -> dict:
         "INSERT INTO conversations (patient_id) VALUES (%s) RETURNING id::text, status",
         (user.patient_id,),
     ).fetchone()
-    audit.record(conn, action="conversation_started", entity_type="conversation", entity_id=row["id"], actor=user)
+    audit.record(conn, action="conversation_started", entity_type="conversation", entity_id=row["id"], actor=user,
+                 patient_id=user.patient_id)
     return {"id": row["id"], "status": row["status"], "messages": []}
 
 

@@ -215,6 +215,7 @@ def book(body: BookIn, conn: Conn, user: CurrentUser) -> dict:
         entity_id=appt["id"],
         actor=user,
         agent="scheduling-agent",
+        patient_id=pid,
         detail={"slot_id": slot["id"], "intake_id": body.intake_id, "care_plan_task_id": body.care_plan_task_id},
     )
     result = _appointment(conn, appt["id"])
@@ -234,7 +235,8 @@ def cancel(appointment_id: str, conn: Conn, user: CurrentUser) -> dict:
         raise HTTPException(status.HTTP_409_CONFLICT, "Appointment is not active")
     conn.execute("UPDATE appointments SET status = 'cancelled' WHERE id = %s", (appointment_id,))
     conn.execute("UPDATE slots SET status = 'free' WHERE id = %s", (row["slot_id"],))
-    audit.record(conn, action="appointment_cancelled", entity_type="appointment", entity_id=appointment_id, actor=user)
+    audit.record(conn, action="appointment_cancelled", entity_type="appointment", entity_id=appointment_id, actor=user,
+                 patient_id=user.patient_id)
     return _appointment(conn, appointment_id)
 
 

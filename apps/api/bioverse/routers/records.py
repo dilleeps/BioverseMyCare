@@ -92,7 +92,8 @@ def get_report(report_id: str, conn: Conn, user: CurrentUser) -> dict:
             explanation["draft_text"] = x["draft_text"]
             explanation["produced_by"] = x["produced_by"]
 
-    audit.record(conn, action="report_viewed", entity_type="diagnostic_report", entity_id=report_id, actor=user)
+    audit.record(conn, action="report_viewed", entity_type="diagnostic_report", entity_id=report_id, actor=user,
+                 patient_id=report["patient_id"])
     return {**report, "observations": observations, "explanation": explanation}
 
 
@@ -161,7 +162,8 @@ def update_task(task_id: str, body: TaskUpdate, conn: Conn, user: CurrentUser) -
         """,
         (body.status, body.status, task_id),
     ).fetchone()
-    audit.record(conn, action=f"task_{body.status}", entity_type="care_plan_task", entity_id=task_id, actor=user)
+    audit.record(conn, action=f"task_{body.status}", entity_type="care_plan_task", entity_id=task_id, actor=user,
+                 patient_id=row["patient_id"])
     return updated
 
 

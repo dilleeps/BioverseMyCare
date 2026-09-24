@@ -74,6 +74,35 @@ def require_clinician(user: CurrentUser) -> User:
 Clinician = Annotated[User, Depends(require_clinician)]
 
 
+def require_patient(user: CurrentUser) -> User:
+    if user.role != "patient" or not user.patient_id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Patient access required")
+    return user
+
+
+Patient = Annotated[User, Depends(require_patient)]
+
+
+def require_admin(user: CurrentUser) -> User:
+    """Organization administrators: hospital operations, configuration, analytics, audit."""
+    if user.role != "admin":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Administrator access required")
+    return user
+
+
+Admin = Annotated[User, Depends(require_admin)]
+
+
+def require_staff_or_admin(user: CurrentUser) -> User:
+    """Clinicians, staff and admins: anyone working for the organization."""
+    if user.role not in ("clinician", "staff", "admin"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Staff access required")
+    return user
+
+
+Workforce = Annotated[User, Depends(require_staff_or_admin)]
+
+
 def assert_patient_access(conn: Connection, user: User, patient_id: str) -> None:
     """Patients see only themselves. Clinicians and staff see patients in their organization."""
     if user.role == "patient":

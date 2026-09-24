@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSession } from "../session.jsx";
 import { Arrow, Chevron, Hospital, Person, Shield, Stethoscope } from "../icons.jsx";
+import { homeFor } from "../modules/registry.js";
 
 const SUGGESTIONS = [
   "Explain my lab report",
@@ -21,6 +22,12 @@ export default function Landing() {
     const patient = users.find((u) => u.role === "patient");
     if (me?.role !== "patient" && patient) await switchTo(patient.id);
     navigate("/app", { state: { initial: message } });
+  }
+
+  async function openAdmin() {
+    const admin = users.find((u) => u.role === "admin");
+    if (admin && me?.role !== "admin") await switchTo(admin.id);
+    navigate(homeFor("admin"));
   }
 
   async function openClinician() {
@@ -84,14 +91,14 @@ export default function Landing() {
             </span>
             <Chevron size={20} />
           </button>
-          <Link to="/clinician/agent" className="audience" onClick={(e) => { e.preventDefault(); openClinician().then(() => navigate("/clinician/agent")); }}>
+          <button type="button" className="audience" onClick={openAdmin} style={{ textAlign: "left" }}>
             <span className="audience-icon"><Hospital size={24} /></span>
             <span style={{ flexGrow: 1 }}>
               <span className="strong" style={{ display: "block", fontSize: 18 }}>Hospitals &amp; health systems</span>
-              <span className="muted">Configure agents within your organization's rules.</span>
+              <span className="muted">Operations, configuration and analytics for the whole organization.</span>
             </span>
             <Chevron size={20} />
-          </Link>
+          </button>
         </div>
       </section>
 

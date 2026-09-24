@@ -285,3 +285,11 @@ textarea.edit { width: 100%; min-height: 96px; padding: 10px 12px; border-radius
   .config-table { grid-template-columns: 1fr; }
   .config-table > .th { display: none; }
 }
+
+/* ---------- Hub ---------- */
+.hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.hub-card {
+  display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-radius: var(--r-lg);
+  background: var(--surface); border: 1px solid var(--line); color: var(--ink); text-decoration: none;
+}
+.hub-card:hover { color: var(--ink); border-color: var(--faint); }

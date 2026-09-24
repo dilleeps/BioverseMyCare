@@ -10,28 +10,39 @@ import { ResultsList, ResultDetail } from "./pages/Results.jsx";
 import HealthStory from "./pages/HealthStory.jsx";
 import Clinician from "./pages/Clinician.jsx";
 import AgentConfig from "./pages/AgentConfig.jsx";
+import Hub from "./pages/Hub.jsx";
+import { homeFor, moduleRoutes, navFor } from "./modules/registry.js";
 
-const PATIENT_NAV = [
-  { to: "/app", label: "Ask Bioverse" },
-  { to: "/plan", label: "Care plan" },
-  { to: "/results", label: "Results" },
-  { to: "/story", label: "My Health Story" },
-];
-const CLINICIAN_NAV = [
-  { to: "/clinician", label: "Workspace", end: true },
-  { to: "/clinician/agent", label: "My agent" },
-];
+const CORE_NAV = {
+  patient: [
+    { to: "/app", label: "Ask Bioverse" },
+    { to: "/plan", label: "Care plan" },
+    { to: "/results", label: "Results" },
+    { to: "/story", label: "My Health Story" },
+  ],
+  clinician: [
+    { to: "/clinician", label: "Workspace", end: true },
+    { to: "/clinician/agent", label: "My agent" },
+  ],
+};
+
+// Core entries, any module entries placed in the top bar, then "More" for the rest.
+function navItems(role) {
+  return [...(CORE_NAV[role] || []), ...navFor(role, "top"), { to: "/hub", label: "More" }];
+}
+
+const ROLE_NOUN = { patient: "patients", clinician: "clinicians", admin: "administrators", staff: "staff" };
 
 function TopBar() {
   const { users, me, switchTo } = useSession();
   const navigate = useNavigate();
   const health = useApi("/health");
-  const nav = me?.role === "clinician" ? CLINICIAN_NAV : PATIENT_NAV;
+  const nav = me ? navItems(me.role) : [];
 
   async function onSwitch(e) {
     const user = users.find((u) => u.id === e.target.value);
     await switchTo(e.target.value);
-    navigate(user?.role === "clinician" ? "/clinician" : "/app");
+    navigate(homeFor(user?.role));
   }
 
   return (
@@ -69,7 +80,7 @@ function TopBar() {
 function TabBar() {
   const { me } = useSession();
   if (!me) return null;
-  const nav = me.role === "clinician" ? CLINICIAN_NAV : PATIENT_NAV;
+  const nav = navItems(me.role).slice(-5);
   return (
     <nav className="tabbar" aria-label="Sections">
       {nav.map((n) => (
@@ -79,17 +90,19 @@ function TabBar() {
   );
 }
 
-function RequireRole({ role, children }) {
+// `role` (one) or `roles` (several). No roles given means any signed-in user.
+export function RequireRole({ role, roles, children }) {
   const { me, status, users, switchTo } = useSession();
   const navigate = useNavigate();
+  const allowed = roles || (role ? [role] : null);
   if (status === "loading" && !me) return <div className="column"><div className="skeleton" /></div>;
   if (!me) return null;
-  if (me.role === role) return children;
-  const target = users.find((u) => u.role === role);
+  if (!allowed || allowed.includes(me.role)) return children;
+  const target = users.find((u) => allowed.includes(u.role));
   return (
     <div className="column">
       <div className="card stack">
-        <div className="card-title">This page is for {role === "patient" ? "patients" : "clinicians"}.</div>
+        <div className="card-title">This page is for {allowed.map((r) => ROLE_NOUN[r] || r).join(" and ")}.</div>
         <p className="muted small">You're signed in as {me.display_name}.</p>
         {target && (
           <button
@@ -137,6 +150,10 @@ export default function App() {
           <Route path="/story" element={<RequireRole role="patient"><HealthStory /></RequireRole>} />
           <Route path="/clinician" element={<RequireRole role="clinician"><Clinician /></RequireRole>} />
           <Route path="/clinician/agent" element={<RequireRole role="clinician"><AgentConfig /></RequireRole>} />
+          <Route path="/hub" element={<RequireRole><Hub /></RequireRole>} />
+          {moduleRoutes().map((r) => (
+            <Route key={r.path} path={r.path} element={<RequireRole roles={r.roles}>{r.element}</RequireRole>} />
+          ))}
           <Route path="*" element={<div className="column empty">Page not found. <Link to="/">Go home</Link></div>} />
         </Routes>
         <TabBar />

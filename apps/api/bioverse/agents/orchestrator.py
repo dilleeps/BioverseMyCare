@@ -19,7 +19,8 @@ from psycopg import Connection
 from psycopg.types.json import Jsonb
 
 from bioverse import audit
-from bioverse.agents import llm
+from bioverse import consent
+from bioverse.agents import intents, llm
 from bioverse.agents.triage import URGENCY_RANK, TriageResult, claude_triage, rules_triage
 from bioverse.auth import User
 from bioverse.safety import red_flags
@@ -31,11 +32,6 @@ TOPIC_PHRASES = {
     "headache": "a headache",
 }
 
-LINKS = {
-    "results": {"to": "/results", "label": "Open my results"},
-    "care_plan": {"to": "/plan", "label": "Open my care plan"},
-    "health_story": {"to": "/story", "label": "Open my health story"},
-}
 
 
 def _age(birth_date: date) -> int:
@@ -170,6 +166,7 @@ def _escalate(
         entity_type="intake",
         entity_id=intake["id"],
         actor=user,
+        patient_id=conversation["patient_id"],
         agent=source,
         detail={"flags": flags, "level": result.level, "ruleset": result.ruleset},
     )
@@ -187,7 +184,8 @@ def _escalate(
 
 def _run_triage(conn: Connection, patient: dict, history: list[dict[str, str]]) -> tuple[TriageResult, str, str | None]:
     """Returns (result, produced_by, model)."""
-    if llm.ai_enabled():
+    # The patient can opt out of AI processing; then only the rules engine sees their words.
+    if llm.ai_enabled() and consent.ai_allowed(conn, patient["id"]):
         try:
             outcome = claude_triage(history, patient)
             label = f"intake-agent/claude{'+fallback' if outcome.fell_back else ''}"
@@ -218,6 +216,7 @@ def _triage_and_route(conn: Connection, user: User, conversation: dict, patient:
         entity_type="conversation",
         entity_id=conversation["id"],
         actor=user,
+        patient_id=conversation["patient_id"],
         agent=produced_by,
         model=model,
         detail={"intent": result.intent, "urgency": result.urgency, "specialty": result.specialty},
@@ -228,8 +227,10 @@ def _triage_and_route(conn: Connection, user: User, conversation: dict, patient:
         screen = red_flags.ScreenResult(level="emergency", flags=result.red_flags or ["flagged by intake agent"])
         return _escalate(conn, user, conversation, patient, screen, produced_by)
 
-    if result.intent in LINKS:
-        return _add_message(conn, conversation["id"], "assistant", result.reply, {"kind": "link", **LINKS[result.intent]})
+    link = intents.REGISTRY.get(result.intent)
+    if link is not None:
+        payload = {"kind": "link", "to": link.to, "label": link.label}
+        return _add_message(conn, conversation["id"], "assistant", result.reply or link.reply, payload)
 
     if (
         result.needs_more_info
@@ -264,6 +265,7 @@ def _triage_and_route(conn: Connection, user: User, conversation: dict, patient:
         entity_type="intake",
         entity_id=intake["id"],
         actor=user,
+        patient_id=conversation["patient_id"],
         agent=produced_by,
         model=model,
         detail={"specialty": specialty, "urgency": result.urgency},
@@ -322,6 +324,7 @@ def handle_turn(
             entity_type="conversation",
             entity_id=conversation["id"],
             actor=user,
+        patient_id=conversation["patient_id"],
             agent="safety/red-flags",
             detail={"topic": topic, "answer": safety_answer, "level": result.level},
         )
@@ -345,6 +348,7 @@ def handle_turn(
             entity_type="conversation",
             entity_id=conversation["id"],
             actor=user,
+        patient_id=conversation["patient_id"],
             agent="safety/red-flags",
             detail={"topic": result.topic, "ruleset": result.ruleset},
         )

@@ -34,12 +34,10 @@ def demo_users(conn: DbConn) -> list[dict]:
     """The identities the demo lets you switch between. Remove with real authentication."""
     return conn.execute(
         """
-        SELECT u.id::text, u.role, u.display_name,
-               coalesce(pr.specialty, CASE WHEN u.role = 'patient' THEN 'Patient' END) AS subtitle
+        SELECT u.id::text, u.role, u.display_name, u.demo_label AS subtitle
         FROM users u
-        LEFT JOIN practitioners pr ON pr.user_id = u.id
-        WHERE u.email IN ('maya@example.com', 'a.okafor@northside.example')
-        ORDER BY u.role DESC
+        WHERE u.demo_label IS NOT NULL
+        ORDER BY u.demo_order, u.display_name
         """
     ).fetchall()
 

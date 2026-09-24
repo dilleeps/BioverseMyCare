@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 from bioverse.db import close_pool  # noqa: E402
 from bioverse.db.migrate import migrate  # noqa: E402
-from bioverse.db.seed import P_MAYA, P_PARK, U_MAYA, U_OKAFOR, U_PARK, seed  # noqa: E402
+from bioverse.db.seed import P_MAYA, P_PARK, U_ADMIN, U_MAYA, U_OKAFOR, U_PARK, seed  # noqa: E402
 from bioverse.main import app  # noqa: E402
 
 DB = os.environ["DATABASE_URL"]
@@ -35,5 +35,6 @@ def as_user(user_id: str) -> dict:
 MAYA = as_user(U_MAYA)
 PARK = as_user(U_PARK)
 OKAFOR = as_user(U_OKAFOR)
+ADMIN = as_user(U_ADMIN)
 
-__all__ = ["MAYA", "PARK", "OKAFOR", "P_MAYA", "P_PARK", "DB"]
+__all__ = ["MAYA", "PARK", "OKAFOR", "ADMIN", "P_MAYA", "P_PARK", "DB"]

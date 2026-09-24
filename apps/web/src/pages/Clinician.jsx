@@ -1,51 +1,38 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { WorkspaceLayout } from "../layouts.jsx";
+import { workspacePanels } from "../modules/registry.js";
 import { api } from "../api.js";
 import { useApi } from "../hooks.js";
 import { useSession } from "../session.jsx";
 import { fmtDateTime, fmtShortDate, initials } from "../format.js";
-import { Book, Calendar, Gear, Inbox, Person, Sparkle, Warning } from "../icons.jsx";
+import { Book, Inbox, Person, Sparkle, Warning } from "../icons.jsx";
 
-export function ClinicianNav({ patients, selected, onSelect }) {
-  const { me } = useSession();
-  return (
-    <nav className="sidenav" aria-label="Clinician">
-      <NavLink to="/clinician" end><Calendar size={18} /> Today</NavLink>
-      <NavLink to="/clinician/agent"><Gear size={18} /> My agent</NavLink>
-      {patients && (
-        <>
-          <div className="section">My patients</div>
-          {patients.map((p) => (
-            <button key={p.id} className="patient-pick" aria-current={p.id === selected} onClick={() => onSelect(p.id)}>
-              <div className="who">{p.name}{p.open_items > 0 ? ` · ${p.open_items}` : ""}</div>
-              <div className="meta">
-                {p.age} · {p.pronouns || "—"}
-                {p.next_appointment ? ` · ${fmtDateTime(p.next_appointment)}` : ""}
-              </div>
-            </button>
-          ))}
-        </>
-      )}
-      <div style={{ flexGrow: 1 }} />
-      <div className="row" style={{ padding: "12px 8px", borderTop: "1px solid rgba(255,255,255,.12)" }}>
-        <span className="avatar" style={{ width: 34, height: 34, background: "var(--accent-soft)", color: "var(--accent-strong)", fontSize: 13 }}>
-          {initials(me.display_name)}
-        </span>
-        <span className="small strong">{me.display_name}</span>
-      </div>
-    </nav>
-  );
-}
+// Kept for existing imports; the shared layout owns the side navigation now.
+export { WorkspaceNav as ClinicianNav } from "../layouts.jsx";
 
 function Brief({ patientId }) {
   const { data, error, loading } = useApi(`/clinician/patients/${patientId}/brief`);
-  const [accepted, setAccepted] = useState(false);
+  const [acceptedAt, setAcceptedAt] = useState(null);
+  const [acceptError, setAcceptError] = useState(null);
   const [showSources, setShowSources] = useState(false);
+  const accepted = Boolean(acceptedAt || data?.accepted_at);
 
   useEffect(() => {
-    setAccepted(false);
+    setAcceptedAt(null);
+    setAcceptError(null);
     setShowSources(false);
   }, [patientId]);
+
+  async function accept() {
+    setAcceptError(null);
+    try {
+      const r = await api(`/clinician/patients/${patientId}/brief/accept`, { method: "POST" });
+      setAcceptedAt(r.accepted_at);
+    } catch (e) {
+      setAcceptError(e.message);
+    }
+  }
 
   if (error) return <div className="error-box">{error.message}</div>;
   if (loading || !data) return <div className="card"><div className="skeleton" /></div>;
@@ -90,8 +77,9 @@ function Brief({ patientId }) {
                 {data.attention_flags.map((f) => <span key={f} className="chip warn">Attention: {f}</span>)}
               </div>
             )}
+            {acceptError && <div className="error-box small">{acceptError}</div>}
             <div className="row wrap" style={{ gap: 8 }}>
-              <button className="btn dark sm" onClick={() => setAccepted(true)} disabled={accepted}>Accept brief</button>
+              <button className="btn dark sm" onClick={accept} disabled={accepted}>{accepted ? "Accepted" : "Accept brief"}</button>
               <button className="btn sm" onClick={() => setShowSources((s) => !s)}>{showSources ? "Hide sources" : "View sources"}</button>
             </div>
           </article>
@@ -104,6 +92,13 @@ function Brief({ patientId }) {
               ))}
             </article>
           )}
+
+          {workspacePanels().map(({ id, title, component: Panel }) => (
+            <article key={id} className="card stack" aria-label={title}>
+              <span className="card-title">{title}</span>
+              <Panel patientId={patientId} />
+            </article>
+          ))}
 
           <article className="card stack" style={{ gap: 8 }}>
             <span className="card-title">Evidence</span>
@@ -195,6 +190,12 @@ function QueueItem({ item, onDone }) {
         {item.kind === "red_flag" && (
           <button className="btn danger sm" disabled={busy} onClick={() => resolve("acknowledge", false)}>Acknowledge</button>
         )}
+        {!["result_explanation", "agent_escalation", "red_flag"].includes(item.kind) && (
+          <>
+            {item.link && <Link className="btn dark sm" to={item.link}>Open</Link>}
+            <button className="btn sm" disabled={busy} onClick={() => resolve("acknowledge", false)}>Acknowledge</button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -246,9 +247,7 @@ export default function Clinician() {
   }, [patients.data, selected]);
 
   return (
-    <div className="workspace">
-      <ClinicianNav patients={patients.data} selected={selected} onSelect={setSelected} />
-      <main className="ws-main">
+    <WorkspaceLayout patients={patients.data} selected={selected} onSelect={setSelected}>
         <div className="ws-grid">
           <div className="span-8">
             {patients.error && <div className="error-box">{patients.error.message}</div>}
@@ -261,7 +260,6 @@ export default function Clinician() {
             <ReviewQueue onChanged={patients.reload} />
           </div>
         </div>
-      </main>
-    </div>
+    </WorkspaceLayout>
   );
 }

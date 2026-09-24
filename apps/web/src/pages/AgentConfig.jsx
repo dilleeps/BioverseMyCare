@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
 import { useApi } from "../hooks.js";
-import { ClinicianNav } from "./Clinician.jsx";
+import { WorkspaceLayout } from "../layouts.jsx";
 import { Close, Lock, Plus } from "../icons.jsx";
 
 const LABELS = {
@@ -60,9 +60,7 @@ export default function AgentConfig() {
   }
 
   return (
-    <div className="workspace">
-      <ClinicianNav />
-      <main className="ws-main">
+    <WorkspaceLayout>
         {error && <div className="error-box">{error.message}</div>}
         {(loading || !config) && !error && <div className="card"><div className="skeleton" /></div>}
         {config && (
@@ -172,8 +170,7 @@ export default function AgentConfig() {
             </div>
           </>
         )}
-      </main>
-    </div>
+    </WorkspaceLayout>
   );
 }
 
