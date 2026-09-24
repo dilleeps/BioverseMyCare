@@ -1,0 +1,44 @@
+/* Records module: patient uploads and record download. Uses the core tokens only. */
+main.column.rec { max-width: 780px; }
+.rec h2.card-title { font-family: var(--body); }
+.rec h2.eyebrow { margin: 0; }
+
+.rec-choice { display: flex; gap: 8px; flex-wrap: wrap; border: 0; padding: 0; margin: 0; }
+.rec-choice label {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.rec-choice label.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); }
+.rec-choice input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
+
+.rec-file {
+  min-height: 48px; padding: 10px; border-radius: 12px; border: 1px dashed var(--faint); background: var(--ground);
+  font-size: 14px; width: 100%;
+}
+.rec-file::file-selector-button {
+  min-height: 36px; margin-right: 12px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); font: inherit; font-weight: 600; cursor: pointer;
+}
+.rec-paste { min-height: 160px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+
+.rec-meta { display: grid; grid-template-columns: 1.4fr 1.4fr 1fr; gap: 10px; }
+.rec input:not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+  width: 100%; min-height: 44px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); font-size: 14px;
+}
+.rec-table-wrap { overflow-x: auto; margin: 0 -4px; }
+.rec-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 620px; }
+.rec-table th {
+  text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--muted); padding: 6px 4px; border-bottom: 1px solid var(--line);
+}
+.rec-table td { padding: 6px 4px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+.rec-table td:first-child { min-width: 170px; }
+.rec .rec-table input.num { width: 80px; }
+.rec .rec-table input.unit { width: 88px; }
+.rec-code { display: block; margin-top: 3px; }
+.rec-table td .chip { margin-top: 9px; }
+
+@media (max-width: 620px) {
+  .rec-meta { grid-template-columns: 1fr; }
+}
