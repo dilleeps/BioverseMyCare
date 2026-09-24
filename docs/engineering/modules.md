@@ -49,8 +49,9 @@ actor=user, patient_id=..., agent=..., model=...)`. Always pass `patient_id` whe
 `ai_processing`: when `consent.ai_allowed(conn, patient_id)` is false, use your rules path. Research contact
 needs `research_matching`. Caregiver access needs `caregiver_access` with the caregiver's user id as grantee.
 
-**AI.** Call Claude through `bioverse.agents.llm.parse(system=..., messages=..., output_format=PydanticModel)`.
-It uses structured output and server-side refusal fallbacks, and raises `llm.LLMUnavailable` on any failure.
+**AI.** Call the model through `bioverse.agents.llm.parse(system=..., messages=..., output_format=PydanticModel)`.
+It tries MedGemma (Google's medical model on Vertex AI) first, then Claude, returns validated Pydantic output,
+and raises `llm.LLMUnavailable` when every provider fails. Write prompts that work for both models.
 Every AI feature needs a deterministic fallback, so the app works in rules mode. Rules:
 
 - Clinical content meant for a patient goes through clinician review (a `review_items` row) before release.

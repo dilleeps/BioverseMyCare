@@ -36,6 +36,8 @@ function navItems(me) {
   return items.filter((n, i) => items.findIndex((m) => m.to === n.to) === i);
 }
 
+const AI_LABEL = { medgemma: "AI: MedGemma", claude: "AI: Claude", rules: "AI: rules mode" };
+
 const ROLE_NOUN = { patient: "patients", clinician: "clinicians", admin: "administrators", staff: "staff", student: "medical students" };
 
 function TopBar() {
@@ -63,8 +65,8 @@ function TopBar() {
       </nav>
       <div className="identity">
         {health.data && (
-          <span className={`ai-pill ${health.data.ai === "claude" ? "" : "rules"}`} title="How the AI layer is running">
-            {health.data.ai === "claude" ? "AI: Claude" : "AI: rules mode"}
+          <span className={`ai-pill ${health.data.ai === "rules" ? "rules" : ""}`} title="How the AI layer is running">
+            {AI_LABEL[health.data.ai] || "AI: rules mode"}
           </span>
         )}
         {health.error && <span className="ai-pill rules">API offline</span>}

@@ -56,6 +56,25 @@ PUBLIC_URL="${PUBLIC_URL:-$(gcloud run services describe "${SERVICE}" --project 
 ENV_VARS="BIOVERSE_AI=auto,BIOVERSE_MODEL=claude-opus-5,BIOVERSE_CLINIC_TZ=America/New_York"
 [[ -n "${PUBLIC_URL}" ]] && ENV_VARS="${ENV_VARS},BIOVERSE_PUBLIC_URL=${PUBLIC_URL}"
 
+# MedGemma: when medgemma.sh has deployed the endpoint, the app uses it first and Claude (if a key is set)
+# as the backup. Otherwise Claude alone, or rules mode.
+MG_ENDPOINT="$(gcloud ai endpoints list --project "${PROJECT_ID}" --region "${MEDGEMMA_REGION}" \
+  --filter="displayName=${MEDGEMMA_ENDPOINT_NAME}" --format="value(name)" 2>/dev/null | head -1 || true)"
+if [[ -n "${MG_ENDPOINT}" ]]; then
+  MG_ID="${MG_ENDPOINT##*/}"
+  MG_DNS="$(gcloud ai endpoints describe "${MG_ID}" --project "${PROJECT_ID}" --region "${MEDGEMMA_REGION}" \
+    --format="value(dedicatedEndpointDns)" 2>/dev/null || true)"
+  MG_LABEL="${MEDGEMMA_MODEL##*@}"
+  MG_MULTI=true; [[ "${MG_LABEL}" == *text* ]] && MG_MULTI=false
+  # The default provider order is MedGemma first, then Claude. No need to set BIOVERSE_AI_PROVIDER
+  # (its commas would also clash with the comma-separated --set-env-vars list).
+  ENV_VARS="${ENV_VARS},GOOGLE_CLOUD_PROJECT=${PROJECT_ID}"
+  ENV_VARS="${ENV_VARS},BIOVERSE_MEDGEMMA_ENDPOINT=${MG_ID},BIOVERSE_MEDGEMMA_REGION=${MEDGEMMA_REGION}"
+  ENV_VARS="${ENV_VARS},BIOVERSE_MEDGEMMA_MODEL=${MG_LABEL},BIOVERSE_MEDGEMMA_MULTIMODAL=${MG_MULTI}"
+  [[ -n "${MG_DNS}" ]] && ENV_VARS="${ENV_VARS},BIOVERSE_MEDGEMMA_DNS=${MG_DNS}"
+  echo "AI: MedGemma (${MG_LABEL}) at endpoint ${MG_ID}"
+fi
+
 # define_job NAME MODULE: create or update a Cloud Run job that runs `python -m MODULE`.
 define_job() {
   local name="$1" args="$2"

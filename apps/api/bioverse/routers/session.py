@@ -7,7 +7,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from psycopg import Connection
 
-from bioverse.agents import llm
+from bioverse.agents import llm, medgemma
 from bioverse.auth import CurrentUser
 from bioverse.config import get_settings
 from bioverse.db import DbConn
@@ -23,8 +23,10 @@ def health(conn: DbConn) -> dict:
     return {
         "status": "ok",
         "database": "ok",
-        "ai": "claude" if llm.ai_enabled() else "rules",
-        "model": settings.ai_model if llm.ai_enabled() else None,
+        "ai": llm.active_provider() or "rules",
+        "providers": llm.providers() if llm.ai_enabled() else [],
+        "model": (medgemma.model_label() if llm.active_provider() == "medgemma"
+                  else settings.ai_model if llm.active_provider() == "claude" else None),
         "red_flag_ruleset": RULESET_VERSION,
     }
 

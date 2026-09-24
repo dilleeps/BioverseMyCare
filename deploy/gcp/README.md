@@ -83,6 +83,30 @@ gcloud run services add-iam-policy-binding bioverse --region us-central1 \
   --member=user:colleague@example.com --role=roles/run.invoker
 ```
 
+## AI: MedGemma, Google's medical model
+
+The app's AI (triage, explanations, photo reading, summaries, check-ins, fact check, tutor) runs on
+[MedGemma](https://developers.google.com/health-ai-developer-foundations/medgemma), Google's open medical
+model, deployed from Vertex AI Model Garden into this project. Claude is the backup when a key is set;
+without either, every feature uses its rules path.
+
+```bash
+./deploy/gcp/medgemma.sh                      # deploys MedGemma 1.5 4B (multimodal) on one NVIDIA L4
+ALLOW_PUBLIC=true ./deploy/gcp/deploy.sh      # finds the endpoint and switches the app to it
+./deploy/gcp/medgemma.sh --status             # what is deployed
+./deploy/gcp/medgemma.sh --delete             # remove it and stop the GPU bill
+```
+
+- **Cost.** The endpoint holds a GPU around the clock and bills for every hour it exists, even with no
+  traffic. Set a budget alert. The 27B variants (`MEDGEMMA_MODEL=google/medgemma@medgemma-27b-it`) need
+  much larger GPUs and cost several times more.
+- **Terms.** `--accept-eula` accepts the Health AI Developer Foundations terms. Read them first.
+- **Validation.** MedGemma is a developer model, not a cleared medical device. Bioverse keeps its safety
+  layers regardless of model: deterministic red-flag screening runs before any model, and clinical content
+  for patients goes through clinician review.
+- If the deploy fails on the model name or GPU quota, the script prints the commands to list MedGemma
+  versions and deployment options, or deploy from the console and name the endpoint `bioverse-medgemma`.
+
 ## Keys: Claude, email and text messages
 
 The app runs without any of these; each one turns a feature on.

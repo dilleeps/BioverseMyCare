@@ -19,12 +19,18 @@ def _has_anthropic_credentials() -> bool:
     return bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"))
 
 
+def _has_medgemma() -> bool:
+    return bool(os.getenv("BIOVERSE_MEDGEMMA_ENDPOINT") or os.getenv("BIOVERSE_MEDGEMMA_URL"))
+
+
 @dataclass(frozen=True)
 class Settings:
     database_url: str
     cors_origins: tuple[str, ...]
     ai_enabled: bool
     ai_model: str
+    # Which models to try, in order: "medgemma" (Google's medical model on Vertex AI) and/or "claude".
+    ai_providers: tuple[str, ...] = ()
 
 
 @lru_cache
@@ -35,7 +41,12 @@ def get_settings() -> Settings:
     elif ai_setting == "on":
         ai_enabled = True
     else:
-        ai_enabled = _has_anthropic_credentials()
+        ai_enabled = _has_anthropic_credentials() or _has_medgemma()
+
+    # BIOVERSE_AI_PROVIDER: medgemma (default when configured), claude, or a list like "medgemma,claude".
+    wanted = os.getenv("BIOVERSE_AI_PROVIDER", "medgemma,claude").lower().replace(" ", "").split(",")
+    available = {"medgemma": _has_medgemma(), "claude": _has_anthropic_credentials()}
+    ai_providers = tuple(p for p in wanted if available.get(p))
 
     return Settings(
         database_url=os.getenv(
@@ -48,6 +59,7 @@ def get_settings() -> Settings:
         ),
         ai_enabled=ai_enabled,
         ai_model=os.getenv("BIOVERSE_MODEL", "claude-opus-5"),
+        ai_providers=ai_providers,
     )
 
 

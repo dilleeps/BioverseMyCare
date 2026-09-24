@@ -22,6 +22,11 @@ SCHEDULER_SA_NAME="${SCHEDULER_SA_NAME:-bioverse-scheduler}"
 SCHEDULER_SA="${SCHEDULER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 JOBS_SCHEDULE="${JOBS_SCHEDULE:-*/5 * * * *}"
 
+# MedGemma (Google's medical model) on Vertex AI. See medgemma.sh.
+MEDGEMMA_MODEL="${MEDGEMMA_MODEL:-google/medgemma@medgemma-1.5-4b-it}"
+MEDGEMMA_REGION="${MEDGEMMA_REGION:-${REGION}}"
+MEDGEMMA_ENDPOINT_NAME="${MEDGEMMA_ENDPOINT_NAME:-bioverse-medgemma}"
+
 # Secret Manager names.
 SECRET_DB_URL="bioverse-database-url"
 SECRET_ANTHROPIC="bioverse-anthropic-api-key"

@@ -117,7 +117,7 @@ export default function Assistant() {
               <div className="q">{t.question}</div>
               <div className="a">
                 <div className="row between wrap" style={{ gap: 8 }}>
-                  <span className="chip ok"><Sparkle size={12} /> {t.produced_by.endsWith("claude") ? `Claude${t.model ? ` · ${t.model}` : ""}` : "Rules mode"}</span>
+                  <span className="chip ok"><Sparkle size={12} /> {t.produced_by.endsWith("claude") ? `AI${t.model ? ` · ${t.model}` : ""}` : "Rules mode"}</span>
                 </div>
                 <p style={{ whiteSpace: "pre-wrap", lineHeight: 1.55 }}>{t.answer}</p>
                 <MetricsUsed metrics={t.metrics_used} />

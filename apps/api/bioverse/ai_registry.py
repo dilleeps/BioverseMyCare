@@ -22,7 +22,9 @@ from typing import Any
 from psycopg import Connection
 
 DETERMINISTIC = "none (deterministic rules)"
-CONFIGURED = "Claude (BIOVERSE_MODEL), rules fallback"
+CONFIGURED = "MedGemma on Vertex AI, then Claude, rules fallback"
+# Earlier text for the same setting, still stored in databases seeded before MedGemma was added.
+LEGACY_CONFIGURED = {"Claude (BIOVERSE_MODEL), rules fallback"}
 
 # Order is the display order. `audit_agents` are the audit_events.agent prefixes each one writes.
 AGENTS: list[dict[str, Any]] = [
@@ -228,12 +230,17 @@ def ruleset_version() -> str:
 
 
 def live_model(registered: str) -> str:
-    from bioverse.agents import llm
+    from bioverse.agents import llm, medgemma
     from bioverse.config import get_settings
 
-    if registered != CONFIGURED:
+    if registered != CONFIGURED and registered not in LEGACY_CONFIGURED:
         return registered
-    return get_settings().ai_model if llm.ai_enabled() else "rules mode (AI is off)"
+    provider = llm.active_provider()
+    if provider == "medgemma":
+        return f"{medgemma.model_label()} (MedGemma, Vertex AI)"
+    if provider == "claude":
+        return get_settings().ai_model
+    return "rules mode (AI is off)"
 
 
 def agent_for(agent_value: str | None, agents: list[dict[str, Any]]) -> dict[str, Any] | None:

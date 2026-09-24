@@ -1,12 +1,14 @@
-"""Claude access for Bioverse agents.
+"""Model access for Bioverse agents.
 
-Every call is structured output validated by Pydantic, so agents receive typed data,
-never free text they have to parse. Server-side refusal fallbacks are on: if the
-requested model declines on policy grounds, the API re-runs the request on
-Anthropic's recommended fallback model inside the same call.
+Providers are tried in the order of settings.ai_providers (BIOVERSE_AI_PROVIDER):
 
-Any failure (no credentials, network, refusal, invalid output) raises LLMUnavailable,
-and every caller has a deterministic path to fall back to.
+- **medgemma**: Google's open medical model (MedGemma) on a Vertex AI endpoint in this project.
+  See bioverse/agents/medgemma.py.
+- **claude**: the Anthropic API, with structured output and server-side refusal fallbacks.
+
+Every call returns structured output validated by Pydantic, so agents receive typed data, never free
+text they have to parse. When every provider fails (no credentials, network, refusal, invalid output),
+parse raises LLMUnavailable, and every caller has a deterministic rules path to fall back to.
 """
 
 from __future__ import annotations
@@ -18,6 +20,7 @@ from typing import Any, Generic, TypeVar
 import anthropic
 from pydantic import BaseModel
 
+from bioverse.agents import medgemma
 from bioverse.config import get_settings
 
 log = logging.getLogger(__name__)
@@ -58,6 +61,22 @@ def ai_enabled() -> bool:
     return get_settings().ai_enabled
 
 
+def providers() -> list[str]:
+    """Providers to try, in order. A test-injected Claude client counts as configured."""
+    chosen = list(get_settings().ai_providers)
+    if _client is not None and "claude" not in chosen:
+        chosen.append("claude")
+    return chosen
+
+
+def active_provider() -> str | None:
+    """The first provider in use, for status displays ("medgemma", "claude"), or None in rules mode."""
+    if not ai_enabled():
+        return None
+    chosen = providers()
+    return chosen[0] if chosen else None
+
+
 def parse(
     *,
     system: str,
@@ -68,7 +87,37 @@ def parse(
 ) -> LLMResult[T]:
     if not ai_enabled():
         raise LLMUnavailable("AI is disabled")
+    chosen = providers()
+    if not chosen:
+        raise LLMUnavailable("no AI provider configured")
+    reasons = []
+    for i, provider in enumerate(chosen):
+        try:
+            if provider == "medgemma":
+                output = medgemma.parse(system=system, messages=messages, output_format=output_format,
+                                        max_tokens=max_tokens)
+                return LLMResult(output=output, model=medgemma.model_label(), fell_back=i > 0)
+            if provider == "claude":
+                result = _claude(system=system, messages=messages, output_format=output_format,
+                                 effort=effort, max_tokens=max_tokens)
+                result.fell_back = result.fell_back or i > 0
+                return result
+        except (LLMUnavailable, medgemma.MedGemmaUnavailable) as exc:
+            reasons.append((provider, str(exc)))
+    # One provider: keep its reason as is ("refusal", "rate limited"...), which audit and tests rely on.
+    if len(reasons) == 1:
+        raise LLMUnavailable(reasons[0][1])
+    raise LLMUnavailable("; ".join(f"{p}: {r}" for p, r in reasons))
 
+
+def _claude(
+    *,
+    system: str,
+    messages: list[dict[str, Any]],
+    output_format: type[T],
+    effort: str,
+    max_tokens: int,
+) -> LLMResult[T]:
     settings = get_settings()
     try:
         response = get_client().beta.messages.parse(
