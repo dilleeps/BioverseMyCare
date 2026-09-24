@@ -1,0 +1,28 @@
+/* Research & Clinical Trials */
+.rs-points { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; color: var(--ink-2); line-height: 1.5; }
+.rs-study-title { font-size: 16px; line-height: 1.35; flex: 1 1 240px; }
+.rs-criteria { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.rs-crit { display: flex; gap: 10px; align-items: flex-start; }
+.rs-crit-icon {
+  width: 24px; height: 24px; border-radius: 999px; display: grid; place-items: center; flex-shrink: 0;
+  background: var(--ground); color: var(--ink-2);
+}
+.rs-crit.pass .rs-crit-icon { background: var(--accent-soft); color: var(--accent-strong); }
+.rs-crit.fail .rs-crit-icon { background: var(--alert-soft); color: var(--alert); }
+.rs-details > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: 8px; list-style: none; }
+.rs-details > summary::-webkit-details-marker { display: none; }
+.rs-details > summary::before {
+  content: ""; width: 7px; height: 7px; flex-shrink: 0; margin: 0 4px 0 2px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+.rs-details[open] > summary::before { transform: rotate(45deg); }
+.rs-details[open] > summary { margin-bottom: 4px; }
+.rs-row {
+  display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 0;
+  color: var(--ink); text-decoration: none;
+}
+.rs-row:hover { color: var(--ink); }
+.rs-row:hover .strong { color: var(--accent-strong); }
+.rs-interest { padding: 10px 0; }
+.rs-explain { padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); }
