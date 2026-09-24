@@ -201,7 +201,7 @@ class ResolveIn(BaseModel):
 def resolve(item_id: str, body: ResolveIn, conn: Conn, user: Clinician) -> dict:
     item = conn.execute(
         """
-        SELECT id::text, kind, ref_id::text, patient_id::text, status
+        SELECT id::text, kind, ref_id::text, patient_id::text, status, link
         FROM review_items WHERE id = %s AND practitioner_id = %s FOR UPDATE
         """,
         (item_id, user.practitioner_id),
@@ -210,7 +210,10 @@ def resolve(item_id: str, body: ResolveIn, conn: Conn, user: Clinician) -> dict:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Review item not found")
     if item["status"] != "open":
         raise HTTPException(status.HTTP_409_CONFLICT, "Already resolved")
-    # Kinds owned by modules resolve in their own screens; here they can only be acknowledged.
+    # Kinds owned by modules resolve in their own screens. Those with a link must be decided there;
+    # acknowledging them here would close the item and leave the decision (a refill, a referral) undone.
+    if item["kind"] not in ALLOWED_ACTIONS and item["link"]:
+        raise HTTPException(status.HTTP_409_CONFLICT, f"Decide this in its own screen: {item['link']}")
     if body.action not in ALLOWED_ACTIONS.get(item["kind"], {"acknowledge"}):
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"'{body.action}' is not valid for {item['kind']}")
     if body.action == "reply" and not (body.text and body.text.strip()):

@@ -192,11 +192,12 @@ function QueueItem({ item, onDone }) {
             <button className="btn danger sm" disabled={busy} onClick={() => resolve("acknowledge", false)}>Acknowledge</button>
           </>
         )}
+        {/* Module-owned items (refills, referrals...) are decided in their own screen, which resolves them.
+            Acknowledging here would close the item and leave the decision undone. */}
         {!["result_explanation", "agent_escalation", "red_flag"].includes(item.kind) && (
-          <>
-            {item.link && <Link className="btn dark sm" to={item.link}>Open</Link>}
-            <button className="btn sm" disabled={busy} onClick={() => resolve("acknowledge", false)}>Acknowledge</button>
-          </>
+          item.link
+            ? <Link className="btn dark sm" to={item.link}>Open</Link>
+            : <button className="btn sm" disabled={busy} onClick={() => resolve("acknowledge", false)}>Acknowledge</button>
         )}
       </div>
     </div>
