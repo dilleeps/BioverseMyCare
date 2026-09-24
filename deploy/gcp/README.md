@@ -1,4 +1,4 @@
-# Deploying Bioverse to Google Cloud
+# Deploying Bioverse One to Google Cloud
 
 Target project: **`bioverseone-509616`** · default region **`us-central1`** (change in `config.sh`).
 

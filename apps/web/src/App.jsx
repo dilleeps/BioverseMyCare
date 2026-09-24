@@ -50,9 +50,9 @@ function TopBar() {
 
   return (
     <header className="topbar">
-      <Link to="/" className="brand" aria-label="Bioverse home">
+      <Link to="/" className="brand" aria-label="Bioverse One home">
         <span className="brand-mark"><Logo size={16} /></span>
-        <span className="brand-name">Bioverse</span>
+        <span className="brand-name">Bioverse One</span>
       </Link>
       <nav className="topnav" aria-label="Main">
         {nav.map((n) => (

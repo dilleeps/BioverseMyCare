@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { Arrow, Check, Phone, Shield, Warning } from "../icons.jsx";
 
-const GREETING = "Hi, I'm Bioverse. Tell me what's going on, or what you need help with, and I'll guide you to the right next step.";
+const GREETING = "Hi, I'm Bioverse One. Tell me what's going on, or what you need help with, and I'll guide you to the right next step.";
 
 function SafetyCheck({ payload, active, onAnswer, busy }) {
   const [selected, setSelected] = useState([]);

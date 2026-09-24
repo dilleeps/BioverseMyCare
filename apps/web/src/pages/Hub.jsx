@@ -28,8 +28,8 @@ export default function Hub() {
     <main className="page">
       <div className="page-head">
         <div>
-          <div className="page-title">Everything in Bioverse</div>
-          <div className="page-sub">Or just ask. Bioverse will take you to the right place.</div>
+          <div className="page-title">Everything in Bioverse One</div>
+          <div className="page-sub">Or just ask. Bioverse One will take you to the right place.</div>
         </div>
       </div>
       {unique.length === 0 && <div className="card empty">Nothing here yet for this role.</div>}

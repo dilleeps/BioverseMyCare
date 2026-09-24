@@ -33,7 +33,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(
-    title="Bioverse API",
+    title="Bioverse One API",
     version="0.1.0",
     description="AI-powered healthcare companion and orchestration platform.",
     lifespan=lifespan,
