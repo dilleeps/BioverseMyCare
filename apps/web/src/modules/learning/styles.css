@@ -1,0 +1,51 @@
+/* Medical-student learning */
+.ln-page { max-width: 1000px; }
+.ln-privacy { margin-bottom: 16px; align-items: flex-start; line-height: 1.4; }
+.ln-privacy svg { flex-shrink: 0; margin-top: 1px; }
+.ln-stats { margin-bottom: 16px; }
+.ln-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 14px; }
+.ln-grid .card + .card { margin-top: 0; }
+.ln-case { height: 100%; }
+.ln-case-title { font-family: var(--display); font-size: 20px; font-weight: 600; line-height: 1.25; }
+.ln-progress { display: flex; gap: 6px; margin-bottom: 14px; }
+.ln-progress span { flex: 1; height: 6px; border-radius: 999px; background: var(--line); }
+.ln-progress span.on { background: var(--accent); }
+.ln-stages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.ln-stages .card + .card { margin-top: 0; }
+.ln-stage { scroll-margin-top: 90px; }
+.ln-lines { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; line-height: 1.5; overflow-wrap: anywhere; }
+.ln-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.ln-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ln-table th { text-align: left; background: var(--ground); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.ln-table th, .ln-table td { padding: 8px 10px; border-top: 1px solid var(--line-soft); white-space: nowrap; }
+.ln-table tr.flag td:nth-child(2) { color: var(--alert-strong); }
+.ln-prompt { padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 10px 10px 0; }
+.ln-feedback { padding: 12px; border-radius: 12px; background: var(--ground); gap: 10px; }
+.ln-answer p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.ln-socratic { font-style: italic; color: var(--accent-strong); }
+.ln-model { padding: 12px; border-radius: 12px; border: 1px dashed var(--accent); }
+.ln-evidence, .ln-hist { margin: 0; padding: 0; list-style: none; }
+.ln-evidence > li, .ln-hist > li { padding: 8px 0; display: flex; flex-direction: column; gap: 2px; overflow-wrap: anywhere; }
+.ln-deid { margin-top: 16px; display: flex; align-items: center; gap: 6px; }
+.ln-quiz { max-width: 640px; }
+.ln-q { border: 1px solid var(--line); margin: 0; min-width: 0; }
+.ln-stages + .card, .ln-quiz .card + .card { margin-top: 12px; }
+.ln-option {
+  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 12px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface); font-size: 14px; cursor: pointer;
+}
+.ln-option input { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; }
+.ln-option span { flex: 1; }
+.ln-option.chosen { border-color: var(--accent); background: var(--accent-soft); }
+.ln-option.right { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
+.ln-option.wrong { border-color: var(--alert); background: var(--alert-soft); color: var(--alert-strong); }
+.ln-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ln-two .card + .card { margin-top: 0; }
+.ln-search { gap: 8px; }
+.ln-search input { flex: 1 1 240px; min-width: 0; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); padding: 0 12px; background: var(--surface); }
+.ln-ev-title { color: var(--ink); overflow-wrap: anywhere; }
+.ln-snippet { color: var(--ink-2); line-height: 1.5; }
+.ln-page .stack > .card + .card, .ln-page .stack > .card { margin-top: 0; }
+@media (max-width: 720px) {
+  .ln-two { grid-template-columns: 1fr; }
+}

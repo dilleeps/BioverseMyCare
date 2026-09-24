@@ -103,8 +103,21 @@ def require_staff_or_admin(user: CurrentUser) -> User:
 Workforce = Annotated[User, Depends(require_staff_or_admin)]
 
 
+def require_student(user: CurrentUser) -> User:
+    """Medical students: de-identified teaching material only, never patient records."""
+    if user.role != "student":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Medical student access required")
+    return user
+
+
+Student = Annotated[User, Depends(require_student)]
+
+
 def assert_patient_access(conn: Connection, user: User, patient_id: str) -> None:
-    """Patients see only themselves. Clinicians and staff see patients in their organization."""
+    """Patients see only themselves. Clinicians and staff see patients in their organization.
+    Medical students never reach an identifiable patient record."""
+    if user.role == "student":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Students work with de-identified cases only")
     if user.role == "patient":
         if user.patient_id != patient_id:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Not your record")
