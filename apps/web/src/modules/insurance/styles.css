@@ -1,0 +1,97 @@
+/* Insurance card & coverage. Scoped class names (ins-*); tokens from src/styles.css. */
+
+.ins-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 18px; align-items: start; }
+.ins-grid .stack > .card + .card, .ins-page .stack > .card + .card { margin-top: 0; }
+@media (max-width: 960px) { .ins-grid { grid-template-columns: 1fr; } }
+
+.ins-page .field input, .ins-page .field select, .ins-grid .field input, .ins-grid .field select {
+  min-height: 44px; font-size: 15px; border-radius: 10px; padding: 0 12px;
+}
+.ins-page .field label, .ins-grid .field label { display: block; margin-bottom: 4px; }
+.ins-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+.ins-break { overflow-wrap: anywhere; }
+
+/* --- The card ---------------------------------------------------------------------------------- */
+.ins-side-toggle { display: flex; gap: 6px; flex-wrap: wrap; }
+.ins-card-pair { display: grid; grid-template-columns: minmax(0, 440px); }
+.ins-card-pair[data-side="front"] .ins-card.back,
+.ins-card-pair[data-side="back"] .ins-card.front { display: none; }
+.ins-card {
+  /* Credit-card proportions, growing taller rather than clipping when text is large. */
+  position: relative; aspect-ratio: 1.586; border-radius: 16px; padding: 18px; min-width: 0;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+  box-shadow: 0 10px 26px rgba(23, 31, 29, 0.12);
+}
+.ins-card.front {
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-strong) 0%, var(--accent) 55%, #2c8a7c 100%);
+}
+.ins-card.back { background: var(--surface); border: 1px solid var(--line); color: var(--ink); }
+.ins-card-payer { font-family: var(--display); font-size: 19px; font-weight: 600; line-height: 1.15; }
+.ins-card-plan { font-size: 13px; opacity: 0.88; margin-top: 2px; }
+.ins-card-status {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 8px;
+  border-radius: 999px; background: rgba(255, 255, 255, 0.18); white-space: nowrap;
+}
+.ins-card-status.off { background: var(--alert); }
+.ins-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; }
+.ins-card-grid.rx { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ins-field { min-width: 0; }
+.ins-field-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.8; }
+.ins-card.back .ins-field-label { color: var(--muted); opacity: 1; }
+.ins-field-value { font-size: 14px; font-weight: 700; overflow-wrap: anywhere; line-height: 1.25; }
+.ins-field-value.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+.ins-card-copays {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; border-top: 1px solid rgba(255, 255, 255, 0.25);
+  padding-top: 8px; font-size: 11px;
+}
+.ins-card-copays div { display: flex; flex-direction: column; min-width: 0; }
+.ins-card-copays span { opacity: 0.85; overflow-wrap: anywhere; }
+.ins-card-copays strong { font-size: 14px; }
+.ins-card-back { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; height: 100%; }
+.ins-card-back .ins-field-value { font-size: 13px; }
+.ins-qr-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; color: var(--muted); }
+.ins-qr { display: block; border-radius: 6px; }
+.ins-token {
+  margin-top: 6px; padding: 10px; border-radius: 10px; background: var(--ground); overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
+}
+@media (max-width: 420px) {
+  .ins-card { aspect-ratio: auto; min-height: 200px; padding: 14px; }
+  .ins-card-copays { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ins-qr { width: 104px; height: 104px; }
+}
+
+/* --- Lists and forms --------------------------------------------------------------------------- */
+.ins-summary { margin: 0; padding-left: 18px; line-height: 1.5; }
+.ins-summary li + li { margin-top: 3px; }
+.ins-errors { margin: 0; padding-left: 18px; }
+.ins-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+@media (max-width: 520px) { .ins-form-grid { grid-template-columns: 1fr; } }
+.ins-file { position: relative; overflow: hidden; }
+.ins-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.ins-file:focus-within { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+
+.ins-patient { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; min-width: 0; }
+.ins-kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px 16px; margin: 0; }
+.ins-kv dt { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.ins-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.ins-verify { padding: 14px; border-radius: var(--r-md); background: var(--accent-soft); }
+.ins-video { width: 100%; max-width: 360px; border-radius: 12px; background: #000; }
+.ins-pa-edit { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 10px; align-items: end; margin-top: 8px; }
+.ins-details summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.ins-builder { padding: 14px; border-radius: var(--r-md); background: var(--ground); }
+.ins-x12 {
+  margin: 0; max-height: 260px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: #1f2624; color: #e7efe9;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.45; white-space: pre; max-width: 100%;
+}
+.ins-remit-claim { padding: 10px 12px; border-radius: 12px; background: var(--ground); display: flex; flex-direction: column; gap: 6px; }
+.ins-adjustments { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.45; }
+.ins-connect { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+.ins-payer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+.ins-payer-grid > .card + .card { margin-top: 0; }
+.alert-text { color: var(--alert); }
+@media (max-width: 520px) {
+  .ins-connect { grid-template-columns: 1fr; }
+  .ins-payer-grid { grid-template-columns: 1fr; }
+}
