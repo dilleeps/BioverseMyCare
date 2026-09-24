@@ -1,0 +1,52 @@
+/* Wellness & prevention. Uses the core tokens only. */
+
+.wl-section { margin-top: 28px; }
+.wl-section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.wl-section-title { font-family: var(--display); font-size: 21px; font-weight: 600; }
+
+.wl-item { display: flex; gap: 12px; align-items: flex-start; padding: 14px 0; }
+.wl-item + .wl-item { border-top: 1px solid var(--line-soft); }
+.wl-item-body { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.wl-item details summary { cursor: pointer; font-size: 13px; color: var(--accent); font-weight: 600; min-height: 28px; display: inline-flex; align-items: center; }
+.wl-item details p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+/* Meter: accent fill on a lighter step of the same hue. */
+.wl-meter { height: 10px; border-radius: 999px; background: var(--accent-soft); overflow: hidden; }
+.wl-meter > div { height: 10px; border-radius: 999px; background: var(--accent); }
+
+.wl-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.wl-stat { background: var(--ground); border-radius: 12px; padding: 10px; }
+.wl-stat .v { font-size: 20px; font-weight: 700; line-height: 1.2; }
+
+.wl-chart { position: relative; }
+.wl-chart svg { display: block; overflow: visible; }
+.wl-chart .hit { fill: transparent; cursor: default; outline: none; }
+.wl-chart .hit:focus-visible { stroke: var(--accent); stroke-width: 2; }
+.wl-chart .bar.active { opacity: 0.8; }
+.wl-tip {
+  position: absolute; transform: translate(-50%, -100%); pointer-events: none; z-index: 2;
+  background: var(--ink); color: #fff; border-radius: 10px; padding: 6px 10px; font-size: 12px; white-space: nowrap;
+}
+.wl-tip strong { display: block; font-size: 14px; }
+.wl-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+.wl-table th, .wl-table td { text-align: left; padding: 6px 4px; border-top: 1px solid var(--line-soft); font-variant-numeric: tabular-nums; }
+
+.wl-form { display: grid; gap: 14px; }
+.wl-field { display: flex; flex-direction: column; gap: 6px; }
+.wl-field > label, .wl-field > legend { font-size: 14px; font-weight: 600; }
+.wl-field input[type="number"], .wl-field input[type="text"], .wl-field select, .wl-field textarea {
+  min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 15px;
+}
+.wl-field textarea { padding: 10px 12px; min-height: 80px; resize: vertical; }
+fieldset.wl-field { border: 0; padding: 0; margin: 0; }
+.wl-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.wl-choice { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; cursor: pointer; }
+.wl-choice:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; }
+.wl-choice input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
+.wl-log { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.wl-log .wl-field { flex: 1 1 120px; }
+
+@media (max-width: 520px) {
+  .wl-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .wl-item { flex-wrap: wrap; }
+}
