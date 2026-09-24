@@ -241,10 +241,27 @@ def test_patient_without_a_clinician_cannot_save_yet(client):
     # Park has a report with a responsible clinician, so he is routed to Dr. Okafor.
     saved = client.post(f"/api/documents/{doc['id']}/confirm", headers=PARK, json=confirmation(doc))
     assert saved.status_code == 200
+
+    # A brand-new patient with no care plan, results, visits or appointments has nobody to review uploads.
+    new_user, new_patient = "00000000-0000-0000-0000-000000008999", "00000000-0000-0000-0000-000000008998"
     with db() as conn:
-        conn.execute("UPDATE diagnostic_reports SET responsible_practitioner_id = NULL WHERE patient_id = %s", (P_PARK,))
-    doc2 = upload_text(client, headers=PARK).json()
-    refused = client.post(f"/api/documents/{doc2['id']}/confirm", headers=PARK, json=confirmation(doc2))
+        conn.execute(
+            """
+            INSERT INTO users (id, role, display_name, email, organization_id)
+            SELECT %s, 'patient', 'New Patient', 'new.patient@example.com', id FROM organizations LIMIT 1
+            """,
+            (new_user,),
+        )
+        conn.execute(
+            """
+            INSERT INTO patients (id, user_id, organization_id, name, birth_date)
+            SELECT %s, %s, id, 'New Patient', '1990-01-01' FROM organizations LIMIT 1
+            """,
+            (new_patient, new_user),
+        )
+    newcomer = {"X-Bioverse-User": new_user}
+    doc2 = upload_text(client, headers=newcomer).json()
+    refused = client.post(f"/api/documents/{doc2['id']}/confirm", headers=newcomer, json=confirmation(doc2))
     assert refused.status_code == 409 and "care team" in refused.json()["detail"]
 
 

@@ -27,7 +27,7 @@ def list_reports(patient_id: str, conn: Conn, user: CurrentUser) -> list[dict]:
     assert_patient_access(conn, user, patient_id)
     return conn.execute(
         """
-        SELECT r.id::text, r.name, r.lab_name, r.collected_at,
+        SELECT r.id::text, r.name, r.lab_name, r.collected_at, r.source,
                (SELECT count(*) FROM observations o WHERE o.report_id = r.id AND o.interpretation <> 'N') AS abnormal_count,
                coalesce(x.status, 'none') AS explanation_status
         FROM diagnostic_reports r
@@ -43,7 +43,7 @@ def list_reports(patient_id: str, conn: Conn, user: CurrentUser) -> list[dict]:
 def get_report(report_id: str, conn: Conn, user: CurrentUser) -> dict:
     report = conn.execute(
         """
-        SELECT r.id::text, r.patient_id::text, r.name, r.lab_name, r.collected_at,
+        SELECT r.id::text, r.patient_id::text, r.name, r.lab_name, r.collected_at, r.source,
                pr.name AS responsible_clinician
         FROM diagnostic_reports r LEFT JOIN practitioners pr ON pr.id = r.responsible_practitioner_id
         WHERE r.id = %s

@@ -4,6 +4,11 @@ import { useSession } from "../session.jsx";
 import { fmtDate, fmtMonthYear, fmtNumber, fmtShortDate } from "../format.js";
 import { Back, Check, Chevron, Down, Shield, Up } from "../icons.jsx";
 
+const SOURCE_LABEL = {
+  patient_upload: "Uploaded by you · patient-reported",
+  hl7_import: "Received from the lab",
+};
+
 function target(o) {
   if (o.ref_high != null && o.ref_low != null) return `Target ${fmtNumber(o.ref_low)}–${fmtNumber(o.ref_high)}`;
   if (o.ref_high != null) return `Target below ${fmtNumber(o.ref_high)}`;
@@ -75,6 +80,7 @@ export function ResultsList() {
                 {r.abnormal_count > 0 ? <span className="chip warn">{r.abnormal_count} outside range</span> : <span className="chip ok">All in range</span>}
                 {r.explanation_status === "approved" && <span className="chip"><Shield size={12} /> Reviewed</span>}
                 {r.explanation_status === "pending_review" && <span className="chip">Awaiting review</span>}
+                {SOURCE_LABEL[r.source] && <span className="chip">{SOURCE_LABEL[r.source]}</span>}
               </div>
             </div>
             <Chevron size={20} />
@@ -99,7 +105,12 @@ export function ResultDetail() {
         <button className="icon-btn" aria-label="Back" onClick={() => navigate(-1)}><Back /></button>
         <div>
           <div className="page-title" style={{ fontSize: 22 }}>{data?.name || "Result"}</div>
-          {data && <div className="page-sub">Collected {fmtDate(data.collected_at)} · {data.lab_name}</div>}
+          {data && (
+            <div className="page-sub">
+              Collected {fmtDate(data.collected_at)} · {data.lab_name}
+              {SOURCE_LABEL[data.source] ? ` · ${SOURCE_LABEL[data.source]}` : ""}
+            </div>
+          )}
         </div>
       </div>
       {error && <div className="error-box">{error.message}</div>}

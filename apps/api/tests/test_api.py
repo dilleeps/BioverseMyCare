@@ -218,3 +218,23 @@ def test_model_refusal_falls_back_to_rules(client, fake_claude):
     card = last_payload(say(client, cid, text="I have an itchy rash"))
     assert card["kind"] == "care_options"
     assert card["specialty"] == "Dermatology"
+
+
+def test_linked_module_items_cannot_be_acknowledged_away(client):
+    """A refill or referral must be decided in its own screen, not closed from the core queue."""
+    with psycopg.connect(DB) as conn:
+        item_id = conn.execute(
+            """
+            INSERT INTO review_items (kind, patient_id, practitioner_id, title, body, link)
+            SELECT 'refill_request', %s, pr.id, 'Refill request', 'test', '/clinician/refills'
+            FROM practitioners pr WHERE pr.user_id IS NOT NULL LIMIT 1
+            RETURNING id::text
+            """,
+            (P_MAYA,),
+        ).fetchone()[0]
+        conn.commit()
+    r = client.post(f"/api/clinician/review-items/{item_id}/resolve", headers=OKAFOR, json={"action": "acknowledge"})
+    assert r.status_code == 409
+    queue = client.get("/api/clinician/review-queue", headers=OKAFOR).json()
+    item = next(i for i in queue if i["id"] == item_id)
+    assert item["link"] == "/clinician/refills"
