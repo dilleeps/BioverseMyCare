@@ -169,7 +169,14 @@ function QueueItem({ item, onDone }) {
             <button className="btn sm" disabled={busy} onClick={() => resolve("reject", false)}>Reject</button>
           </>
         )}
-        {item.kind === "agent_escalation" && (
+        {item.kind === "agent_escalation" && item.link && (
+          <>
+            {/* The conversation lives in the inbox: replying there reaches the patient and resolves this item. */}
+            <Link className="btn dark sm" to={item.link}>Open conversation</Link>
+            <button className="btn sm" disabled={busy} onClick={() => resolve("forward_to_staff", false)}>To staff</button>
+          </>
+        )}
+        {item.kind === "agent_escalation" && !item.link && (
           <>
             {mode === "reply" ? (
               <button className="btn dark sm" disabled={busy || !text.trim()} onClick={() => resolve("reply", true)}>Send reply</button>
@@ -180,7 +187,10 @@ function QueueItem({ item, onDone }) {
           </>
         )}
         {item.kind === "red_flag" && (
-          <button className="btn danger sm" disabled={busy} onClick={() => resolve("acknowledge", false)}>Acknowledge</button>
+          <>
+            {item.link && <Link className="btn dark sm" to={item.link}>Open</Link>}
+            <button className="btn danger sm" disabled={busy} onClick={() => resolve("acknowledge", false)}>Acknowledge</button>
+          </>
         )}
         {!["result_explanation", "agent_escalation", "red_flag"].includes(item.kind) && (
           <>
