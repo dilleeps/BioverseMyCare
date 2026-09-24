@@ -1,0 +1,66 @@
+/* Pharmacy. Scoped class names; tokens from src/styles.css. */
+
+.pharmacy-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 18px; align-items: start; }
+.pharmacy-grid .stack > .card + .card { margin-top: 0; }
+.pharmacy-grid h2, .pharmacy-grid h3, .refills-page h2 { margin: 0; }
+@media (max-width: 960px) { .pharmacy-grid { grid-template-columns: 1fr; } }
+
+.rx-name { font-family: var(--display); font-size: 22px; font-weight: 600; }
+.rx-divider { height: 1px; background: var(--line-soft); }
+
+.pharmacy-grid .field label, .refills-page .field label { display: block; margin-bottom: 4px; }
+.pharmacy-grid .field select, .refills-page .field select {
+  width: 100%; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+  padding: 0 12px; font-size: 15px;
+}
+.pharmacy-grid .toggle-row { min-height: 44px; cursor: pointer; }
+
+.fill-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; list-style: none; margin: 0; padding: 0; }
+.fill-steps li {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600;
+  color: var(--muted); position: relative; text-align: center;
+}
+.fill-steps li::before {
+  content: ""; position: absolute; top: 10px; left: -50%; width: 100%; height: 2px; background: var(--line); z-index: 0;
+}
+.fill-steps li:first-child::before { display: none; }
+.fill-steps li.done::before, .fill-steps li.current::before { background: var(--accent); }
+.fill-steps .dot {
+  width: 22px; height: 22px; border-radius: 999px; background: var(--surface); border: 2px solid var(--line);
+  display: grid; place-items: center; position: relative; z-index: 1; color: #fff;
+}
+.fill-steps li.done .dot { background: var(--accent); border-color: var(--accent); }
+.fill-steps li.current .dot { border-color: var(--accent); box-shadow: inset 0 0 0 4px var(--accent-soft); }
+.fill-steps li.current { color: var(--ink); }
+
+.adh-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.adh-stats > div { background: var(--ground); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; }
+.adh-stats dt { font-size: 12px; font-weight: 700; color: var(--muted); }
+.adh-stats dd { margin: 0; font-family: var(--display); font-size: 24px; font-weight: 600; line-height: 1.2; }
+.alert-text { color: var(--alert); }
+
+.dose-strip { display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 4px; list-style: none; margin: 0; padding: 0; }
+.dose-strip li {
+  aspect-ratio: 1; border-radius: 8px; display: grid; place-items: center; font-size: 11px; font-weight: 700;
+  background: var(--ground); color: var(--faint); border: 1px solid var(--line-soft);
+}
+.dose-strip li.taken { background: var(--accent); border-color: var(--accent); color: #fff; }
+.dose-strip li.missed { background: var(--alert-soft); border-color: var(--alert-line); color: var(--alert-strong); }
+.dose-strip li.pending { border-style: dashed; border-color: var(--accent); color: var(--accent-strong); }
+.dose-strip li.untracked { opacity: 0.5; }
+
+.drug-info summary, .pharmacy-grid details summary { cursor: pointer; padding: 10px 0; }
+.drug-info ul { margin: 4px 0 0; padding-left: 20px; }
+
+.ix { border-radius: 12px; padding: 12px; background: var(--ground); display: flex; flex-direction: column; gap: 6px; }
+.ix.major, .ix.moderate { background: var(--alert-soft); border: 1px solid var(--alert-line); }
+
+.pharmacy { padding: 12px; border-radius: 12px; background: var(--ground); display: flex; flex-direction: column; gap: 4px; }
+.pharmacy.current { background: var(--accent-soft); }
+.pharmacy-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.list.plain { list-style: none; margin: 0; padding: 0; }
+
+.rx-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px 16px; margin: 0; }
+.rx-facts dt { font-size: 12px; font-weight: 700; color: var(--muted); }
+.rx-facts dd { margin: 2px 0 0; font-size: 14px; font-weight: 600; }
+.patient-note { margin: 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--ground); border-radius: 0 10px 10px 0; }

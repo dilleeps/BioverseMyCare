@@ -1,0 +1,76 @@
+/* Billing & Coverage. Scoped class names; tokens from src/styles.css. */
+
+.billing-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 18px; align-items: start; }
+.billing-grid .stack > .card + .card { margin-top: 0; }
+.billing-grid h2.card-title, .receipt h2, .admin-billing h2 { margin: 0; }
+.admin-billing .field input { min-height: 44px; font-size: 15px; }
+.admin-billing .kv { margin: 0; }
+@media (max-width: 960px) { .billing-grid { grid-template-columns: 1fr; } }
+
+.coverage-card {
+  border-radius: var(--r-md); padding: 16px; background: var(--accent-soft); color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.coverage-plan { font-family: var(--display); font-size: 22px; font-weight: 600; margin: 2px 0 10px; }
+
+.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 16px; margin: 0; }
+.kv dt { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 600; }
+
+.linkish {
+  border: 0; background: transparent; padding: 0 4px; min-height: 32px; color: var(--accent); font-weight: 700;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+
+.billing-grid .field label, .admin-billing .field label { display: block; margin-bottom: 4px; }
+.billing-grid .field select, .billing-grid .field input,
+.plan-select, .money-input {
+  width: 100%; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+  padding: 0 12px; font-size: 15px;
+}
+.plan-select { width: auto; }
+.money-input { max-width: 180px; font-variant-numeric: tabular-nums; }
+.money-input[aria-invalid="true"] { border-color: var(--alert); }
+.toggle-row input[type="radio"] { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); flex-shrink: 0; }
+.toggle-row { min-height: 44px; cursor: pointer; }
+
+.big-money { font-family: var(--display); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.alert-text { color: var(--alert); }
+
+.money-table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.money-table th, .money-table td { padding: 7px 0; border-top: 1px solid var(--line-soft); text-align: left; font-weight: 500; }
+.money-table td { text-align: right; }
+.money-table thead th { border-top: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.money-table.schedule td:first-child { text-align: left; }
+.money-table.schedule th:not(:first-child) { text-align: right; }
+.money-table tr.total th, .money-table tr.total td { font-weight: 800; border-top: 2px solid var(--line); }
+
+.estimate { padding: 14px; border-radius: var(--r-md); background: var(--ground); }
+.billing-grid details summary { cursor: pointer; padding: 8px 0; }
+.steps { margin: 8px 0 0; padding-left: 20px; color: var(--ink-2); line-height: 1.5; }
+.steps li + li { margin-top: 4px; }
+
+.claim-head {
+  width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 0; min-height: 56px;
+  background: transparent; border: 0; color: var(--ink);
+}
+.claim-body { padding: 0 0 14px; }
+
+.bill { border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.bill.overdue { border-color: var(--alert-line); background: var(--alert-soft); }
+
+.receipt-link {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px;
+  text-decoration: none; color: var(--ink); font-size: 14px;
+}
+
+.receipt-title { font-family: var(--display); font-size: 26px; font-weight: 600; }
+
+@media print {
+  body:has(.receipt-page) { background: #fff; padding: 0; }
+  body:has(.receipt-page) .topbar,
+  body:has(.receipt-page) .tabbar,
+  .receipt-page .no-print { display: none !important; }
+  .receipt-page { max-width: none; padding: 0; }
+  .receipt-page .receipt { border: 0; padding: 0; }
+}
