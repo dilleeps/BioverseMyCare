@@ -1,0 +1,59 @@
+/* Referral Manager. Builds on the shared tokens in src/styles.css. */
+
+.rf-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.rf-steps li { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; color: var(--muted); }
+.rf-steps li + li::before {
+  content: ""; position: absolute; top: 12px; right: calc(50% + 14px); width: calc(100% - 28px); height: 2px; background: var(--line);
+}
+.rf-steps li.done + li::before, .rf-steps li.done + li.current::before { background: var(--accent); }
+.rf-dot {
+  width: 24px; height: 24px; border-radius: 999px; display: grid; place-items: center; font-size: 12px; font-weight: 700;
+  background: var(--ground); border: 2px solid var(--line); color: var(--muted);
+}
+.rf-steps li.done .rf-dot { background: var(--accent); border-color: var(--accent); color: #fff; }
+.rf-steps li.current .rf-dot { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+.rf-steps li.current { color: var(--accent-strong); font-weight: 700; }
+
+.rf-tabs { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 1px solid var(--line); }
+.rf-tab {
+  min-height: 44px; padding: 0 14px; border: 0; background: transparent; font-weight: 600; font-size: 14px;
+  color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+.rf-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.rf-stats { margin-bottom: 12px; }
+.rf-filter .btn[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+.rf-list { list-style: none; margin: 0; padding: 0; }
+.rf-row + .rf-row { border-top: 1px solid var(--line-soft); }
+.rf-row-head {
+  width: 100%; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 4px;
+  background: transparent; border: 0; text-align: left;
+}
+.rf-row-head svg { color: var(--muted); transition: transform 0.15s ease; flex-shrink: 0; }
+.rf-row.open .rf-row-head svg { transform: rotate(90deg); }
+.rf-col-main { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0; }
+.rf-col-status { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.rf-row-flags { padding: 0 4px 10px; }
+.rf-row-flags:empty { display: none; }
+.rf-detail { padding: 4px 4px 16px; }
+.rf-dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px; margin: 0; font-size: 13px; }
+.rf-dl dt { color: var(--muted); font-weight: 600; }
+.rf-dl dd { margin: 0; }
+.rf-history { margin: 0; padding-left: 18px; color: var(--ink-2); display: flex; flex-direction: column; gap: 2px; }
+.rf-plain { border: 0; margin: 0; padding: 0; min-width: 0; }
+.rf-plain legend { padding: 0; margin-bottom: 6px; }
+
+.rf-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.rf-form .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.rf-form .rf-wide { grid-column: 1 / -1; }
+.rf-form select, .rf-form input[type="date"], .rf-form input:not([type]) { min-height: 44px; font-size: 14px; }
+.rf-docs { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.rf-doc { display: grid; grid-template-columns: minmax(0, 1fr) 80px 80px; align-items: center; padding: 6px 12px; min-height: 44px; }
+.rf-doc + .rf-doc { border-top: 1px solid var(--line-soft); }
+.rf-doc.th { background: var(--ground); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); min-height: 32px; }
+.rf-doc input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); margin: 0; }
+.rf-form input#rf-custom-doc { flex-grow: 1; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); padding: 0 10px; }
+
+@media (max-width: 960px) {
+  .rf-form { grid-template-columns: 1fr; }
+}
