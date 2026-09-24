@@ -1,0 +1,97 @@
+/* Vitals & devices. Scoped vt- class names; tokens from src/styles.css. */
+
+.vt-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 18px; align-items: start; }
+.vt-grid .stack > .card + .card, .vt-clin .stack > .card + .card { margin-top: 0; }
+.vt-grid h2, .vt-grid h3, .vt-clin h2, .vt-clin h3 { margin: 0; }
+@media (max-width: 960px) { .vt-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Tiles */
+.vt-tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 720px) { .vt-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.vt-tile {
+  width: 100%; min-height: 118px; text-align: left; display: flex; flex-direction: column; gap: 4px; padding: 12px;
+  border-radius: 16px; border: 1px solid var(--line); background: var(--surface);
+}
+.vt-tile[aria-pressed="true"] { border: 2px solid var(--accent); padding: 11px; }
+.vt-tile.off .vt-tile-value { color: var(--alert-strong); }
+.vt-tile-value { font-family: var(--display); font-size: 24px; font-weight: 600; line-height: 1.15; }
+.vt-tile .chip { min-height: 22px; padding: 0 8px; font-size: 11px; }
+
+/* Segmented controls */
+.vt-seg, .vt-measure-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.vt-seg button, .vt-measure-pick button {
+  min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface);
+  font-size: 14px; font-weight: 600;
+}
+.vt-seg button[aria-pressed="true"], .vt-measure-pick button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+/* Chart */
+.vt-chart { position: relative; width: 100%; min-width: 0; overflow: hidden; }
+.vt-chart svg { display: block; touch-action: pan-y; }
+.vt-band { fill: var(--accent-soft); }
+.vt-gridline { stroke: var(--line-soft); stroke-width: 1; }
+.vt-axis { font-size: 11px; fill: var(--muted); font-family: var(--body); }
+.vt-direct { font-size: 11px; font-weight: 700; fill: var(--ink-2); font-family: var(--body); }
+.vt-flag { fill: var(--surface); stroke: var(--alert); stroke-width: 2; }
+.vt-cross { stroke: var(--faint); stroke-width: 1; }
+.vt-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.vt-legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 4px; }
+.vt-legend i.band { height: 10px; background: var(--accent-soft); border-radius: 3px; }
+.vt-tip {
+  position: absolute; top: 28px; transform: translateX(-50%); pointer-events: none; z-index: 2;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px;
+  box-shadow: 0 6px 20px rgba(23, 31, 29, 0.12); font-size: 13px; min-width: 150px; white-space: nowrap;
+}
+.vt-key { display: inline-block; width: 12px; height: 2px; }
+
+.vt-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 0; }
+.vt-stats > div { background: var(--ground); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; min-width: 0; }
+.vt-stats dt { font-size: 12px; font-weight: 700; color: var(--muted); }
+.vt-stats dd { margin: 0; font-family: var(--display); font-size: 20px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.vt-alert-text { color: var(--alert); }
+
+.vt-explain summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.vt-list { list-style: none; margin: 0; padding: 0; }
+.vt-readings li { padding: 8px 0; gap: 8px; }
+
+/* Forms */
+.vt-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.vt-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.vt-field input, .vt-field select, .vt-input, .vt-times input {
+  width: 100%; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+  padding: 0 12px; font-size: 15px; min-width: 0;
+}
+.vt-field input[aria-invalid="true"] { border-color: var(--alert); box-shadow: 0 0 0 2px var(--alert-soft); }
+.vt-photo-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.vt-photo-row label.btn { cursor: pointer; }
+.vt-with-photo { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 12px; align-items: start; }
+@media (max-width: 520px) { .vt-with-photo { grid-template-columns: 1fr; } }
+.vt-photo { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.vt-photo img { width: 100%; max-height: 220px; object-fit: contain; border-radius: 12px; border: 1px solid var(--line); background: var(--ground); }
+.vt-subform { padding: 12px; border-radius: 14px; background: var(--ground); }
+.vt-times { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.vt-times legend { margin-bottom: 4px; }
+.vt-times input { width: 130px; }
+
+/* Plans */
+.vt-slots { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; flex-wrap: wrap; }
+.vt-slots li { display: flex; flex-direction: column; gap: 3px; }
+.vt-slot { width: 18px; height: 12px; border-radius: 4px; background: var(--ground); border: 1px solid var(--line); display: block; }
+.vt-slot.done { background: var(--accent); border-color: var(--accent); }
+.vt-slot.missed { background: var(--alert-soft); border-color: var(--alert-line); }
+.vt-slot.due { border: 2px dashed var(--accent); }
+.vt-plan { padding: 12px; border-radius: 12px; background: var(--ground); }
+
+/* Devices */
+.vt-devices li { padding: 10px 0; gap: 8px; }
+
+/* Clinician */
+.vt-threshold {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--ground);
+}
+.vt-threshold-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 6px; }
+.vt-threshold-fields input { min-height: 38px; font-size: 14px; padding: 0 8px; }
+.vt-patient-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; color: var(--ink); text-decoration: none; }
+.vt-patient-row:hover { color: var(--ink); border-color: var(--faint); }
+.vt-panel-row { padding: 8px 12px; border-radius: 12px; background: var(--ground); }
+.vt-panel-row.urgent { background: var(--alert-soft); color: var(--alert-strong); }
