@@ -13,6 +13,7 @@ import AgentConfig from "./pages/AgentConfig.jsx";
 import Hub from "./pages/Hub.jsx";
 import Bell from "./modules/notifications/Bell.jsx";
 import { homeFor, moduleRoutes, navFor } from "./modules/registry.js";
+import { useSyncDisplayPrefs } from "./modules/accessibility/prefs.js";
 
 const CORE_NAV = {
   patient: [
@@ -141,6 +142,8 @@ function SessionGate({ children }) {
 }
 
 export default function App() {
+  // Senior mode, text size, contrast and motion: applied to the root <html> element as data attributes.
+  useSyncDisplayPrefs(useSession().me?.id);
   return (
     <>
       <TopBar />
