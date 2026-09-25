@@ -73,6 +73,7 @@ add_env BIOVERSE_GOOGLE_ALLOWED_DOMAINS "${GOOGLE_ALLOWED_DOMAINS}"
 add_env BIOVERSE_BOOTSTRAP_ADMINS "${BOOTSTRAP_ADMINS}"
 add_env BIOVERSE_EMAIL_SIGNIN "${EMAIL_SIGNIN:-}"
 add_env BIOVERSE_SELF_REGISTRATION "${SELF_REGISTRATION:-}"
+add_env BIOVERSE_VAPID_SUBJECT "${VAPID_SUBJECT:-}"
 if [[ -n "${ENTRA_CLIENT_ID}${OKTA_CLIENT_ID}${GOOGLE_CLIENT_ID}" ]]; then
   echo "Single sign-on redirect URIs to register:"
   for p in entra okta google; do echo "  ${PUBLIC_URL:-https://<service-url>}/api/auth/callback/${p}"; done

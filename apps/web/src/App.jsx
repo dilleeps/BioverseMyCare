@@ -15,6 +15,7 @@ import SignIn from "./pages/SignIn.jsx";
 import Join from "./pages/Join.jsx";
 import Register from "./pages/Register.jsx";
 import Bell from "./modules/notifications/Bell.jsx";
+import { InstallBanner } from "./components/InstallApp.jsx";
 import { homeFor, moduleRoutes, navFor } from "./modules/registry.js";
 import { useSyncDisplayPrefs } from "./modules/accessibility/prefs.js";
 
@@ -172,6 +173,7 @@ export default function App() {
   return (
     <>
       <TopBar />
+      <InstallBanner />
       <SessionGate>
         <Routes>
           <Route path="/" element={<Landing />} />

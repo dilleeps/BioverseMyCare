@@ -7,6 +7,7 @@ Run locally:
 from __future__ import annotations
 
 import logging
+import mimetypes
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -56,6 +57,8 @@ for info in sorted(pkgutil.iter_modules(routers.__path__), key=lambda m: m.name)
 # Serve the built React app when it exists (single-process deployment).
 WEB_DIST = Path(__file__).resolve().parents[2] / "web" / "dist"
 if WEB_DIST.is_dir():
+    # The installable-app manifest must be served with its own type (not every mime.types lists it).
+    mimetypes.add_type("application/manifest+json", ".webmanifest")
     app.mount("/assets", StaticFiles(directory=WEB_DIST / "assets"), name="assets")
 
     @app.get("/{path:path}", include_in_schema=False)

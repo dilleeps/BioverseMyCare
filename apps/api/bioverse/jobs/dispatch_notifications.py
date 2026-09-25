@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 
 from psycopg.types.json import Jsonb
 
-from bioverse import channels
+from bioverse import channels, webpush
 from bioverse.jobs import job
 
 
@@ -25,7 +25,7 @@ def in_quiet_hours(start: time | None, end: time | None, tz: str, now: datetime)
 def run(conn, now):
     rows = conn.execute(
         """
-        SELECT n.id, n.kind, n.title, n.link, n.priority, n.channels, n.delivery,
+        SELECT n.id, n.user_id::text, n.kind, n.title, n.link, n.priority, n.channels, n.delivery,
                u.email AS account_email, p.email, p.phone, p.channels AS prefs,
                p.quiet_start, p.quiet_end, coalesce(p.timezone, 'America/New_York') AS tz
         FROM notifications n
@@ -54,8 +54,12 @@ def run(conn, now):
             sender = channels.SENDERS.get(ch)
             if sender is None:
                 continue
-            to = (r["email"] or r["account_email"]) if ch == "email" else r["phone"] if ch == "sms" else None
-            res = sender(to, r["title"], r["link"])
+            if ch == "push":
+                # Push goes to each of the user's devices, looked up by user rather than by an address.
+                res = webpush.deliver(conn, r["user_id"], r["title"], r["link"], r["priority"], tag=str(r["id"]))
+            else:
+                to = (r["email"] or r["account_email"]) if ch == "email" else r["phone"] if ch == "sms" else None
+                res = sender(to, r["title"], r["link"])
             delivery[ch] = {"status": res.status, "detail": res.detail, "at": now.isoformat()}
             if res.status == "sent":
                 counts[ch] += 1
