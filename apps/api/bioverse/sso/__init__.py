@@ -29,4 +29,21 @@ Configuration (environment; client secrets from Secret Manager):
     BIOVERSE_{ENTRA|OKTA|GOOGLE}_ALLOWED_DOMAINS   optional email domains allowed to sign in
     BIOVERSE_BOOTSTRAP_ADMINS     emails that become administrators on first sign-in (to set up the rest)
     BIOVERSE_SESSION_IDLE_MINUTES (default 60), BIOVERSE_SESSION_MAX_HOURS (default 12)
+
+Directory groups -> roles (plugins/group_mapping.py, admin screen "Sign-in rules", /api/admin/sign-in-rules):
+an organization's rules match a claim of the ID token (`groups`, `roles`, Google's `hd`, or `email_domain`) and
+give a role (admin, staff, clinician, student; never patient), a staff team and a clinician's specialty. With
+"create accounts on first sign-in" on, someone with no account who matches a rule gets one; with "keep roles in
+sync" on, administrators and staff get their matching rule's role and team at every sign-in (the last
+administrator is never demoted; clinicians, patients and students are never changed). Both are off by default.
+To make the providers send groups:
+- Entra: App registration > Token configuration > Add groups claim (security groups, or "groups assigned to the
+  application" to stay under the 200-group limit; past it Entra drops the claim). The ID token then carries
+  group object ids in `groups`. Or define App roles on the registration, assign them to groups under Enterprise
+  applications > Users and groups, and match the `roles` claim with the role's value.
+- Okta: Security > API > Authorization servers > (yours) > Claims > Add claim `groups`, include in the ID token,
+  value type Groups, filter e.g. "Starts with: Bioverse"; add the `groups` scope if the claim is scope-bound.
+  For the org authorization server set the Groups claim filter on the app's Sign On tab instead.
+- Google sends no groups: match the Workspace domain in `hd` (e.g. every hospital.org account is a student).
+Admins can paste a token's claims (or the token, e.g. from jwt.ms) into "Test a sign-in" to see what would happen.
 """

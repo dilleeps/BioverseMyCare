@@ -127,6 +127,27 @@ switcher while you test; set `AUTH_MODE=sso` (the default once a provider is set
 Sessions: an opaque HttpOnly, Secure, SameSite=Lax cookie; signed out after 60 minutes idle or 12 hours.
 Sign-out also ends the provider session when the provider supports it (Entra, Okta).
 
+### Adding many people: CSV import and directory groups
+
+**People & sign-in > Import people** takes a CSV (`name, email, role, team, specialty, location, birth_date,
+consult_fee`; download the template there). It always shows a dry run first, row by row, then imports in one
+go: nothing is imported while any row has a problem, unless you choose to skip those rows. **Export CSV**
+downloads everyone (cells that a spreadsheet would run as formulas are prefixed with `'`).
+
+**People & sign-in > Sign-in rules** maps directory groups to roles, so accounts can be created on first
+sign-in and staff roles and teams follow your directory. Both switches are off until you turn them on.
+Patients are never created from a group. Make the provider send groups first:
+
+- **Entra**: App registration > **Token configuration** > **Add groups claim** (choose *Groups assigned to the
+  application* to stay under the 200-group limit). Rules match group **object ids** in `groups`. Or create
+  **App roles** on the registration, assign them to groups (Enterprise applications > Users and groups) and
+  match the `roles` claim.
+- **Okta**: Security > API > Authorization servers > *default* > **Claims** > Add claim `groups`, include in
+  the ID token, value type *Groups*, with a filter such as *Starts with* `Bioverse`. Rules match group names.
+- **Google** sends no groups: match the Workspace domain (`hd` claim).
+
+Use **Test a sign-in** on that screen with a token's claims (e.g. from https://jwt.ms) to check a rule.
+
 ## AI: MedGemma, Google's medical model
 
 The app's AI (triage, explanations, photo reading, summaries, check-ins, fact check, tutor) runs on
