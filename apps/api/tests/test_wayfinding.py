@@ -246,7 +246,7 @@ def test_next_appointment_resolves_to_the_heart_centre(client):
         slot = conn.execute(
             """
             INSERT INTO slots (practitioner_id, starts_at, mode, status)
-            VALUES (%s, date_trunc('minute', now()) + interval '3 hours 7 minutes', 'in_person', 'booked') RETURNING id
+            VALUES (%s, date_trunc('minute', now()) + interval '3 hours 7 minutes 11 seconds', 'in_person', 'booked') RETURNING id
             """,
             (DR_OKAFOR,),
         ).fetchone()[0]

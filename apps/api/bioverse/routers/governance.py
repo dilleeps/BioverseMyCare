@@ -175,7 +175,7 @@ def audit_facets(conn: DbConn, user: Admin) -> dict:
         (org,),
     ).fetchall()
     patients = conn.execute(
-        "SELECT id::text, name FROM patients WHERE organization_id = %s ORDER BY name", (org,)
+        "SELECT id::text, name FROM patients WHERE organization_id = %s AND merged_into IS NULL ORDER BY name", (org,)
     ).fetchall()
     return {"actions": actions, "entity_types": entity_types, "actors": actors, "patients": patients}
 
@@ -383,7 +383,7 @@ def break_glass_patient_search(conn: DbConn, user: Clinician, q: str = Query(min
     return conn.execute(
         """
         SELECT id::text, name, extract(year FROM birth_date)::int AS birth_year
-        FROM patients WHERE organization_id = %s AND name ILIKE %s ORDER BY name LIMIT 10
+        FROM patients WHERE organization_id = %s AND merged_into IS NULL AND name ILIKE %s ORDER BY name LIMIT 10
         """,
         (user.organization_id, like),
     ).fetchall()

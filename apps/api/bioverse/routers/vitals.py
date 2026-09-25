@@ -576,7 +576,7 @@ def monitored_patients(conn: Conn, user: Clinician) -> list[dict]:
                (SELECT max(o.effective_at) FROM observations o WHERE o.patient_id = p.id
                   AND o.category IN ('vital-signs', 'activity')) AS last_reading_at
         FROM patients p
-        WHERE p.organization_id = %(org)s AND (
+        WHERE p.organization_id = %(org)s AND p.merged_into IS NULL AND (
             EXISTS (SELECT 1 FROM vital_alerts a WHERE a.patient_id = p.id AND a.status = 'open'
                     AND (a.practitioner_id = %(pr)s OR a.practitioner_id IS NULL))
             OR EXISTS (SELECT 1 FROM vital_monitoring_plans v WHERE v.patient_id = p.id AND v.status = 'active'

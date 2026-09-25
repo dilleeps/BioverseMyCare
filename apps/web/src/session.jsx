@@ -35,7 +35,7 @@ export function SessionProvider({ children }) {
         if (!cfg.demo) setUserId(null);
         // A single sign-on session wins over a remembered demo identity.
         const saved = getUserId();
-        if (cfg.providers.length > 0) {
+        if (cfg.providers.length > 0 || cfg.email) {
           setUserId(null);
           try {
             const current = await api("/me");

@@ -41,6 +41,7 @@ def my_patients(conn: Conn, user: Clinician) -> list[dict]:
                (SELECT count(*) FROM review_items r WHERE r.patient_id = p.id AND r.practitioner_id = %(pr)s
                  AND r.status = 'open') AS open_items
         FROM patients p JOIN mine m ON m.patient_id = p.id
+        WHERE p.merged_into IS NULL
         ORDER BY next_appointment NULLS LAST, p.name
         """,
         {"pr": user.practitioner_id},

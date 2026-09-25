@@ -89,6 +89,9 @@ def match_patient(conn: Connection, pid: hl7v2.Segment, organization_id: str) ->
 
     if candidates:
         patient_id = next(iter(candidates.values()))
+        # An identifier on a record that was merged away belongs to the surviving record now.
+        patient_id = conn.execute("SELECT coalesce(merged_into, id)::text AS id FROM patients WHERE id = %s",
+                                  (patient_id,)).fetchone()["id"]
         p = conn.execute("SELECT name, birth_date FROM patients WHERE id = %s", (patient_id,)).fetchone()
         p_given, p_family = _name_parts(p["name"])
         if dob and dob != p["birth_date"]:
@@ -103,7 +106,8 @@ def match_patient(conn: Connection, pid: hl7v2.Segment, organization_id: str) ->
         raise Rejected("No known identifier, and the message lacks the full name and date of birth needed to match. "
                        "Nothing was imported.", "patient_match")
     rows = conn.execute(
-        "SELECT id::text, name FROM patients WHERE birth_date = %s AND organization_id = %s", (dob, organization_id)
+        "SELECT id::text, name FROM patients WHERE birth_date = %s AND organization_id = %s AND merged_into IS NULL",
+        (dob, organization_id)
     ).fetchall()
     matches = [r["id"] for r in rows if _name_parts(r["name"]) == (_norm(given).split()[0], _norm(family).split()[-1])]
     if not matches:

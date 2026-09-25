@@ -500,7 +500,7 @@ def front_desk(conn: DbConn, user: CurrentUser) -> dict:
     _require_office(user)
     now = datetime.now(timezone.utc)
     patients = conn.execute(
-        "SELECT id::text, name, birth_date FROM patients WHERE organization_id = %s ORDER BY name",
+        "SELECT id::text, name, birth_date FROM patients WHERE organization_id = %s AND merged_into IS NULL ORDER BY name",
         (user.organization_id,),
     ).fetchall()
     for p in patients:

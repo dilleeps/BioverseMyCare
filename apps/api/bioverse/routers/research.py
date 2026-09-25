@@ -247,7 +247,7 @@ def coordinator(conn: DbConn, user: Clinician) -> dict:
         FROM patients p
         JOIN consents c ON c.patient_id = p.id AND c.scope = %s AND c.grantee = '' AND c.status = 'granted'
                        AND (c.expires_at IS NULL OR c.expires_at > now())
-        WHERE p.organization_id = %s
+        WHERE p.organization_id = %s AND p.merged_into IS NULL
         ORDER BY p.name
         """,
         (SCOPE, user.organization_id),

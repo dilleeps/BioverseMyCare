@@ -36,7 +36,7 @@ def panel_patient_ids(conn: Connection, practitioner_id: str, organization_id: s
             SELECT patient_id FROM review_items WHERE practitioner_id = %(pr)s AND status = 'open'
         )
         SELECT p.id::text FROM patients p JOIN mine m ON m.patient_id = p.id
-        WHERE p.organization_id = %(org)s ORDER BY p.name
+        WHERE p.organization_id = %(org)s AND p.merged_into IS NULL ORDER BY p.name
         """,
         {"pr": practitioner_id, "org": organization_id},
     ).fetchall()
