@@ -83,6 +83,50 @@ gcloud run services add-iam-policy-binding bioverse --region us-central1 \
   --member=user:colleague@example.com --role=roles/run.invoker
 ```
 
+## Single sign-on: Microsoft Entra ID, Okta, Google
+
+Bioverse One signs people in with OpenID Connect (authorization code flow with PKCE). The identity
+provider proves who someone is; their role and access stay in Bioverse (**People & sign-in** for admins).
+A first sign-in links to the Bioverse user with the same email, when the provider confirms that email.
+
+**Redirect URI** to register with every provider (`deploy.sh` prints it):
+`https://bioverse-1057658446982.us-central1.run.app/api/auth/callback/<entra|okta|google>`
+
+**Microsoft Entra ID** (Entra admin center > App registrations > New registration)
+1. Supported account types: *this organizational directory only*. Redirect URI: platform **Web**, the URI above.
+2. Certificates & secrets > New client secret. Note the **Application (client) ID** and **Directory (tenant) ID**.
+3. Optional: Token configuration > add the `email` optional claim. Without it, the sign-in name (UPN) is used.
+
+**Okta** (Admin console > Applications > Create App Integration)
+1. OIDC, **Web Application**. Sign-in redirect URI: the URI above. Sign-out redirect URI: `.../signin`.
+2. Grant type: Authorization Code. Assign the people or groups who may use Bioverse One.
+3. Issuer: `https://<your-okta-domain>/oauth2/default` (or your custom authorization server).
+
+**Google** (Google Cloud console > APIs & Services > Credentials > Create OAuth client ID)
+1. Configure the OAuth consent screen (Internal for a Workspace organization).
+2. Application type **Web application**; authorized redirect URI: the URI above.
+3. Set `GOOGLE_ALLOWED_DOMAINS` to your Workspace domain to keep personal Gmail accounts out.
+
+**Turn it on** in Cloud Shell:
+
+```bash
+./deploy/gcp/sso-secret.sh entra      # paste each client secret (hidden), one provider at a time
+./deploy/gcp/sso-secret.sh okta
+./deploy/gcp/sso-secret.sh google
+ENTRA_TENANT_ID=<tenant-id> ENTRA_CLIENT_ID=<client-id> \
+OKTA_ISSUER=https://<domain>/oauth2/default OKTA_CLIENT_ID=<client-id> \
+GOOGLE_CLIENT_ID=<id>.apps.googleusercontent.com \
+BOOTSTRAP_ADMINS=you@yourhospital.org AUTH_MODE=sso+demo \
+./deploy/gcp/deploy.sh
+```
+
+Configure any one, two or all three. `BOOTSTRAP_ADMINS` makes your email an administrator on first
+sign-in, so you can add everyone else under **People & sign-in**. `AUTH_MODE=sso+demo` keeps the demo
+switcher while you test; set `AUTH_MODE=sso` (the default once a provider is set) to turn it off.
+
+Sessions: an opaque HttpOnly, Secure, SameSite=Lax cookie; signed out after 60 minutes idle or 12 hours.
+Sign-out also ends the provider session when the provider supports it (Entra, Okta).
+
 ## AI: MedGemma, Google's medical model
 
 The app's AI (triage, explanations, photo reading, summaries, check-ins, fact check, tutor) runs on
@@ -137,7 +181,7 @@ Emails and texts only say that something is waiting, never health details, and l
 
 The demo identity switcher trusts a request header, so anyone who can reach the service can act as any user. Keep the service private (the default) and use seeded demo data only until all of these are done:
 
-1. Replace the demo sign-in with real authentication, for example Identity Platform or your hospital's identity provider over OIDC, in `apps/api/bioverse/auth.py`.
+1. Turn on single sign-on (above) and set `AUTH_MODE=sso` so the demo identity switcher is off.
 2. Sign Google Cloud's Business Associate Agreement and confirm every service in use is covered by it.
 3. Put the service behind Identity-Aware Proxy or a load balancer with Cloud Armor, and restrict ingress.
 4. Move Cloud SQL to a private IP with a Serverless VPC connector.

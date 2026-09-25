@@ -40,7 +40,9 @@ function messageFrom(detail, status) {
 }
 
 export async function api(path, { method = "GET", body } = {}) {
-  const headers = { Accept: "application/json" };
+  // X-Bioverse-Client marks requests from this app; the API requires it for writes made with the
+  // sign-in cookie (a cross-site page can't add it). The demo identity header is sent only in demo sign-in.
+  const headers = { Accept: "application/json", "X-Bioverse-Client": "web" };
   const uid = getUserId() || memoryUserId;
   if (uid) headers["X-Bioverse-User"] = uid;
   if (body !== undefined) headers["Content-Type"] = "application/json";

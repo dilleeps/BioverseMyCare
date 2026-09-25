@@ -50,11 +50,31 @@ for pair in "${OPTIONAL_SECRETS[@]}"; do
   fi
 done
 
-# Links in emails and texts point here. Known once the service exists; override with PUBLIC_URL.
-PUBLIC_URL="${PUBLIC_URL:-$(gcloud run services describe "${SERVICE}" --project "${PROJECT_ID}" --region "${REGION}" \
-  --format='value(status.url)' 2>/dev/null || true)}"
+# Links in emails and texts, and sign-in redirect URIs, use this address. Cloud Run serves the service at
+# https://SERVICE-PROJECTNUMBER.REGION.run.app (stable, predictable); override with PUBLIC_URL (custom domain).
+PROJECT_NUMBER="$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)' 2>/dev/null || true)"
+if [[ -z "${PUBLIC_URL:-}" && -n "${PROJECT_NUMBER}" ]]; then
+  PUBLIC_URL="https://${SERVICE}-${PROJECT_NUMBER}.${REGION}.run.app"
+fi
 ENV_VARS="BIOVERSE_AI=auto,BIOVERSE_MODEL=claude-opus-5,BIOVERSE_CLINIC_TZ=America/New_York"
 [[ -n "${PUBLIC_URL}" ]] && ENV_VARS="${ENV_VARS},BIOVERSE_PUBLIC_URL=${PUBLIC_URL}"
+
+# Single sign-on settings (client ids are not secret; client secrets come from Secret Manager above).
+add_env() { [[ -n "$2" ]] && ENV_VARS="${ENV_VARS},$1=$2" || true; }
+add_env BIOVERSE_AUTH_MODE "${AUTH_MODE}"
+add_env BIOVERSE_ENTRA_TENANT_ID "${ENTRA_TENANT_ID}"
+add_env BIOVERSE_ENTRA_CLIENT_ID "${ENTRA_CLIENT_ID}"
+add_env BIOVERSE_OKTA_ISSUER "${OKTA_ISSUER}"
+add_env BIOVERSE_OKTA_CLIENT_ID "${OKTA_CLIENT_ID}"
+add_env BIOVERSE_GOOGLE_CLIENT_ID "${GOOGLE_CLIENT_ID}"
+[[ "${GOOGLE_ALLOWED_DOMAINS}" == *,* || "${BOOTSTRAP_ADMINS}" == *,* ]] && {
+  echo "Use one value for GOOGLE_ALLOWED_DOMAINS and BOOTSTRAP_ADMINS here (commas split --set-env-vars)." >&2; exit 1; }
+add_env BIOVERSE_GOOGLE_ALLOWED_DOMAINS "${GOOGLE_ALLOWED_DOMAINS}"
+add_env BIOVERSE_BOOTSTRAP_ADMINS "${BOOTSTRAP_ADMINS}"
+if [[ -n "${ENTRA_CLIENT_ID}${OKTA_CLIENT_ID}${GOOGLE_CLIENT_ID}" ]]; then
+  echo "Single sign-on redirect URIs to register:"
+  for p in entra okta google; do echo "  ${PUBLIC_URL:-https://<service-url>}/api/auth/callback/${p}"; done
+fi
 
 # MedGemma: when medgemma.sh has deployed the endpoint, the app uses it first and Claude (if a key is set)
 # as the backup. Otherwise Claude alone, or rules mode.
@@ -128,7 +148,7 @@ gcloud run deploy "${SERVICE}" \
   --cpu 1 --memory 512Mi --concurrency 40 --min-instances 0 --max-instances 3 \
   --ingress all "${AUTH_FLAG}"
 
-URL="$(gcloud run services describe "${SERVICE}" --project "${PROJECT_ID}" --region "${REGION}" --format='value(status.url)')"
+URL="${PUBLIC_URL:-$(gcloud run services describe "${SERVICE}" --project "${PROJECT_ID}" --region "${REGION}" --format='value(status.url)')}"
 say "Deployed: ${URL}"
 if [[ "${ALLOW_PUBLIC}" != "true" ]]; then
   echo "The service is private. Open it through an authenticated local proxy:"

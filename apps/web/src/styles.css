@@ -399,6 +399,23 @@ textarea.edit { width: 100%; min-height: 96px; padding: 10px 12px; border-radius
 .hero-band .overview span { color: var(--on-brand-muted); font-size: 14px; }
 .hero-band a { color: #fff; }
 
+/* Sign-in */
+.signin { min-height: calc(100vh - 72px); display: grid; place-items: center; padding: 32px 16px 64px;
+  background: radial-gradient(ellipse at top, rgba(42, 157, 143, 0.14), transparent 60%), var(--ground); }
+.signin-card { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--line-soft);
+  border-radius: 20px; box-shadow: var(--shadow-md); padding: 28px; display: flex; flex-direction: column; gap: 14px; }
+.signin-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; color: var(--brand-800); }
+.signin-brand .brand-mark { background: var(--brand-gradient); color: #fff; }
+.signin-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+.signin-btn { justify-content: flex-start; gap: 12px; min-height: 48px; font-weight: 700; }
+.signin-btn:hover { border-color: var(--brand-500); }
+.identity .who { color: #fff; font-weight: 700; font-size: 14px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.identity .signout { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.35); color: #fff; }
+.identity .signout:hover { background: #fff; color: var(--brand-800); }
+@media (max-width: 520px) { .identity .who { display: none; } }
+:root[data-high-contrast] .identity .who { color: #000; }
+:root[data-high-contrast] .identity .signout { color: #000; border-color: #000; background: #fff; }
+
 /* Tinted icon tiles for hub cards and quick actions. */
 .tile-icon {
   width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex-shrink: 0;

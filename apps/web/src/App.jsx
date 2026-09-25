@@ -11,6 +11,7 @@ import HealthStory from "./pages/HealthStory.jsx";
 import Clinician from "./pages/Clinician.jsx";
 import AgentConfig from "./pages/AgentConfig.jsx";
 import Hub from "./pages/Hub.jsx";
+import SignIn from "./pages/SignIn.jsx";
 import Bell from "./modules/notifications/Bell.jsx";
 import { homeFor, moduleRoutes, navFor } from "./modules/registry.js";
 import { useSyncDisplayPrefs } from "./modules/accessibility/prefs.js";
@@ -41,7 +42,7 @@ const AI_LABEL = { medgemma: "AI: MedGemma", claude: "AI: Claude", rules: "AI: r
 const ROLE_NOUN = { patient: "patients", clinician: "clinicians", admin: "administrators", staff: "staff", student: "medical students" };
 
 function TopBar() {
-  const { users, me, switchTo } = useSession();
+  const { users, me, switchTo, signOut } = useSession();
   const navigate = useNavigate();
   const health = useApi("/health");
   const nav = me ? navItems(me) : [];
@@ -70,15 +71,24 @@ function TopBar() {
           </span>
         )}
         {health.error && <span className="ai-pill rules">API offline</span>}
-        <Bell />
-        <label htmlFor="identity" className="sr-only">Viewing as</label>
-        <select id="identity" value={me?.id || ""} onChange={onSwitch} disabled={!users.length}>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.display_name} · {u.subtitle}
-            </option>
-          ))}
-        </select>
+        {me && <Bell />}
+        {me?.auth === "sso" ? (
+          <>
+            <span className="who" title={me.display_name}>{me.display_name}</span>
+            <button type="button" className="btn sm signout" onClick={signOut}>Sign out</button>
+          </>
+        ) : users.length > 0 ? (
+          <>
+            <label htmlFor="identity" className="sr-only">Viewing as</label>
+            <select id="identity" value={me?.id || ""} onChange={onSwitch}>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.display_name} · {u.subtitle}
+                </option>
+              ))}
+            </select>
+          </>
+        ) : null}
       </div>
     </header>
   );
@@ -130,6 +140,7 @@ export function RequireRole({ role, roles, children }) {
 
 function SessionGate({ children }) {
   const { status, error } = useSession();
+  if (status === "signed_out") return <SignIn />;
   if (status === "error") {
     return (
       <div className="column">
@@ -152,6 +163,7 @@ export default function App() {
       <SessionGate>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/signin" element={<SignIn />} />
           <Route path="/app" element={<RequireRole role="patient"><FrontDoor /></RequireRole>} />
           <Route path="/care/find" element={<RequireRole role="patient"><Navigator /></RequireRole>} />
           <Route path="/plan" element={<RequireRole role="patient"><CarePlan /></RequireRole>} />

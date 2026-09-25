@@ -90,7 +90,8 @@ def test_emergency_intake_cannot_be_booked_as_routine(client):
     say(client, cid, text="my chest hurts")
     say(client, cid, safety_answer=["ongoing"])
     with psycopg.connect(DB) as conn:
-        intake_id = conn.execute("SELECT id FROM intakes WHERE urgency = 'emergency' ORDER BY created_at DESC LIMIT 1").fetchone()[0]
+        intake_id = conn.execute("SELECT id FROM intakes WHERE urgency = 'emergency' AND conversation_id = %s",
+                                 (cid,)).fetchone()[0]
     r = client.get(f"/api/care/options?intake_id={intake_id}", headers=MAYA)
     assert r.status_code == 409
     assert r.json()["detail"]["code"] == "emergency"

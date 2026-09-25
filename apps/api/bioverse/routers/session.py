@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from psycopg import Connection
 
 from bioverse.agents import llm, medgemma
@@ -12,6 +12,7 @@ from bioverse.auth import CurrentUser
 from bioverse.config import get_settings
 from bioverse.db import DbConn
 from bioverse.safety.red_flags import RULESET_VERSION
+from bioverse.sso.providers import demo_allowed
 
 router = APIRouter(prefix="/api", tags=["session"])
 
@@ -33,7 +34,9 @@ def health(conn: DbConn) -> dict:
 
 @router.get("/session/demo-users")
 def demo_users(conn: DbConn) -> list[dict]:
-    """The identities the demo lets you switch between. Remove with real authentication."""
+    """The identities the demo lets you switch between. Empty when demo sign-in is off."""
+    if not demo_allowed():
+        return []
     return conn.execute(
         """
         SELECT u.id::text, u.role, u.team, u.display_name, u.demo_label AS subtitle
@@ -45,8 +48,9 @@ def demo_users(conn: DbConn) -> list[dict]:
 
 
 @router.get("/me")
-def me(user: CurrentUser) -> dict:
+def me(user: CurrentUser, request: Request) -> dict:
     return {
+        "auth": getattr(request.state, "auth", None),
         "id": user.id,
         "role": user.role,
         "display_name": user.display_name,

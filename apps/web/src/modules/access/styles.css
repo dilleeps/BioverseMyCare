@@ -1,0 +1,8 @@
+.people-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.people-form input, .people-form select, .people-table input, .people-search {
+  min-height: 40px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font: inherit; min-width: 0;
+}
+.people-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.people-table th, .people-table td { padding: 10px 8px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
+.people-table tr.off td { opacity: 0.6; }
+.people-table input { width: 100%; max-width: 260px; }

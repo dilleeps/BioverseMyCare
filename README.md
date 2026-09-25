@@ -57,7 +57,7 @@ cd apps/api && python -m pytest
 
 To serve everything from one process like production, run `npm run build` in `apps/web`, then start the API. It serves the built app at `/`.
 
-**The sign-in is a demo.** The identity selector sends a header the API trusts. Replace it with real authentication before any real patient data goes near this. See [deploy/gcp/README.md](deploy/gcp/README.md#before-any-real-patient-data).
+**Sign-in.** Single sign-on with Microsoft Entra ID, Okta or Google (OpenID Connect) is built in; see [deploy/gcp/README.md](deploy/gcp/README.md#single-sign-on-microsoft-entra-id-okta-google). Until a provider is configured the app runs with a demo identity switcher that trusts a request header: demo data only. See [before any real patient data](deploy/gcp/README.md#before-any-real-patient-data).
 
 ## The blueprint
 

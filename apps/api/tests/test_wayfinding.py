@@ -234,6 +234,9 @@ def test_route_api_for_any_signed_in_role(client):
 
 
 def test_next_appointment_resolves_to_the_heart_centre(client):
+    # Seeded visits sit at fixed clinic times today, so whether one is still ahead depends on the clock.
+    with psycopg.connect(DB) as conn:
+        conn.execute("UPDATE appointments SET status = 'cancelled' WHERE patient_id = %s", (P_MAYA,))
     r = client.get("/api/wayfinding/my-next-appointment", headers=MAYA)
     assert r.status_code == 200 and r.json()["appointment"] is None
     assert client.get("/api/wayfinding/my-next-appointment", headers=OKAFOR).status_code == 403
@@ -255,7 +258,8 @@ def test_next_appointment_resolves_to_the_heart_centre(client):
     route_ = client.get(f"/api/wayfinding/route?from=NS-P-LIFT-A&to={body['destination']['area_id']}", headers=MAYA).json()
     assert route_["found"] and route_["to_area"]["slug"] == "cardiology"
     # Another patient never sees Maya's appointment.
-    assert client.get("/api/wayfinding/my-next-appointment", headers=PARK).json()["appointment"] is None
+    park = client.get("/api/wayfinding/my-next-appointment", headers=PARK).json()["appointment"]
+    assert park is None or park["id"] != body["appointment"]["id"]
 
 
 def test_imaging_at_the_heart_centre_resolves_by_location_and_specialty(client):

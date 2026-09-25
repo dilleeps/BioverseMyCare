@@ -40,7 +40,21 @@ OPTIONAL_SECRETS=(
   "TWILIO_AUTH_TOKEN=bioverse-twilio-auth-token"
   "TWILIO_FROM_NUMBER=bioverse-twilio-from-number"
   "BIOVERSE_OUTBOUND_ALLOWLIST=bioverse-outbound-allowlist"
+  "BIOVERSE_ENTRA_CLIENT_SECRET=bioverse-entra-client-secret"
+  "BIOVERSE_OKTA_CLIENT_SECRET=bioverse-okta-client-secret"
+  "BIOVERSE_GOOGLE_CLIENT_SECRET=bioverse-google-client-secret"
 )
+
+# Single sign-on (not secret). A provider turns on when its client id is set here AND its client secret is
+# stored (./deploy/gcp/sso-secret.sh entra|okta|google). See README "Single sign-on".
+AUTH_MODE="${AUTH_MODE:-}"                     # sso | sso+demo | demo ; empty = sso once a provider is set
+ENTRA_TENANT_ID="${ENTRA_TENANT_ID:-}"         # directory (tenant) id
+ENTRA_CLIENT_ID="${ENTRA_CLIENT_ID:-}"         # application (client) id
+OKTA_ISSUER="${OKTA_ISSUER:-}"                 # e.g. https://yourorg.okta.com/oauth2/default
+OKTA_CLIENT_ID="${OKTA_CLIENT_ID:-}"
+GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"       # ....apps.googleusercontent.com
+GOOGLE_ALLOWED_DOMAINS="${GOOGLE_ALLOWED_DOMAINS:-}"   # optional, e.g. yourhospital.org
+BOOTSTRAP_ADMINS="${BOOTSTRAP_ADMINS:-}"       # your email: becomes an administrator on first sign-in
 
 # Private by default: only principals with roles/run.invoker can reach the app.
 # The demo sign-in is a header anyone can set, so do not make it public with real patient data.

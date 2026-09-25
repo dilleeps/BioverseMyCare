@@ -1,9 +1,15 @@
 """Identity and access control.
 
-DEMO IDENTITY ONLY. The caller names who they are in the `X-Bioverse-User` header,
-which is fine for a local demo and unacceptable anywhere real patient data exists.
-Replace `current_user` with OIDC/SAML verification (docs/04-safety-and-governance.md)
-before any deployment. Every access check below stays the same when you do.
+Two ways to be signed in, chosen by BIOVERSE_AUTH_MODE (bioverse.sso.providers.auth_mode):
+
+- **SSO session** (modes `sso`, `sso+demo`): an opaque `bv_session` cookie set after an OpenID Connect
+  sign-in with Microsoft Entra ID, Okta or Google (bioverse/sso). State-changing requests made with the
+  cookie must also carry `X-Bioverse-Client: web`, which a cross-site page cannot add without CORS
+  permission (CSRF protection on top of SameSite=Lax).
+- **Demo header** (modes `demo`, `sso+demo`): the caller names who they are in `X-Bioverse-User`. Fine for a
+  local demo, unacceptable anywhere real patient data exists.
+
+Every access check below is the same either way.
 """
 
 from __future__ import annotations
@@ -12,10 +18,12 @@ from dataclasses import dataclass
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, Request, status
 from psycopg import Connection
 
 from bioverse.db import DbConn
+from bioverse.sso import sessions as sso_sessions
+from bioverse.sso.providers import demo_allowed, sso_allowed
 
 
 @dataclass(frozen=True)
@@ -29,30 +37,46 @@ class User:
     team: str | None = None
 
 
-def current_user(
-    conn: DbConn,
-    x_bioverse_user: Annotated[str | None, Header()] = None,
-) -> User:
-    if not x_bioverse_user:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Missing X-Bioverse-User header")
-    try:
-        UUID(x_bioverse_user)
-    except ValueError:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unknown user") from None
+UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
-    row = conn.execute(
+
+def _load_user(conn: Connection, user_id: str) -> dict | None:
+    return conn.execute(
         """
         SELECT u.id::text, u.role, u.display_name, u.organization_id::text, u.team,
                p.id::text AS patient_id, pr.id::text AS practitioner_id
         FROM users u
         LEFT JOIN patients p ON p.user_id = u.id
         LEFT JOIN practitioners pr ON pr.user_id = u.id
-        WHERE u.id = %s
+        WHERE u.id = %s AND NOT u.disabled
         """,
-        (x_bioverse_user,),
+        (user_id,),
     ).fetchone()
+
+
+def current_user(
+    request: Request,
+    conn: DbConn,
+    x_bioverse_user: Annotated[str | None, Header()] = None,
+) -> User:
+    row = None
+    auth = None
+    token = request.cookies.get(sso_sessions.SESSION_COOKIE)
+    if token and sso_allowed():
+        session = sso_sessions.resolve(conn, token)
+        if session:
+            if request.method in UNSAFE_METHODS and request.headers.get("x-bioverse-client") != "web":
+                raise HTTPException(status.HTTP_403_FORBIDDEN, "Missing X-Bioverse-Client header")
+            row, auth = _load_user(conn, session["user_id"]), "sso"
+    if row is None and x_bioverse_user and demo_allowed():
+        try:
+            UUID(x_bioverse_user)
+        except ValueError:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unknown user") from None
+        row, auth = _load_user(conn, x_bioverse_user), "demo"
     if row is None:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unknown user")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Sign in required")
+    request.state.auth = auth
     return User(
         id=row["id"],
         role=row["role"],
