@@ -1,0 +1,141 @@
+/* Availability. Scoped av- class names; colors and radii from the tokens in src/styles.css. */
+
+.av-page h2 { margin: 0; }
+.av-page p { margin: 0; }
+.av-page .card + .card { margin-top: 0; }
+.av-head { justify-content: space-between; flex-wrap: wrap; align-items: flex-end; }
+
+/* Form fields: a small label over the control. */
+.av-f { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.av-f input, .av-f select, .av-f textarea {
+  min-height: 40px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--surface);
+  padding: 0 10px; font-size: 14px; color: var(--ink); font-family: inherit; width: 100%;
+}
+.av-f textarea { padding: 10px 12px; min-height: 84px; }
+.av-f input:focus, .av-f select:focus, .av-f textarea:focus { border-color: var(--brand-500); outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-500) 22%, transparent); }
+.av-grow { flex: 1 1 180px; }
+.av-zone { min-width: 220px; }
+.av-pick { min-width: 240px; }
+.av-search { max-width: 420px; }
+.av-link { background: none; border: 0; padding: 0; color: var(--brand-700); font-weight: 600; cursor: pointer; text-align: left; }
+.av-link:hover { color: var(--brand-800); text-decoration: underline; }
+.av-problem { color: var(--alert-strong); font-weight: 700; }
+
+/* Summary strip. */
+.av-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.av-stat {
+  background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--r-md); box-shadow: var(--shadow-sm);
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; border-top: 3px solid var(--brand-500);
+}
+.av-stat .n { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: var(--brand-800); }
+
+.av-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: 18px; align-items: start; }
+.av-main, .av-side { min-width: 0; }
+
+/* Weekly template. */
+.av-settings { align-items: flex-end; gap: 12px; }
+.av-week { display: flex; flex-direction: column; border: 1px solid var(--line-soft); border-radius: var(--r-md); overflow: hidden; }
+.av-day { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; padding: 12px; }
+.av-day + .av-day { border-top: 1px solid var(--line-soft); }
+.av-day.off { background: #f8fafa; }
+.av-day-head { display: flex; flex-direction: column; gap: 2px; padding-top: 6px; }
+.av-day-short { display: none; }
+.av-day-body { gap: 8px; }
+.av-window { background: #f3f6f7; border: 1px solid transparent; border-radius: var(--r-sm); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+.av-window.invalid { border-color: var(--alert-line); background: var(--alert-soft); }
+.av-window-fields { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.av-window-fields .av-f select, .av-window-fields .av-f input { min-height: 36px; font-size: 13px; }
+.av-time { width: 128px; }
+.av-remove { width: 36px; height: 36px; margin-left: auto; }
+.av-remove:hover { color: var(--alert-strong); border-color: var(--alert-line); }
+.av-window-foot { gap: 10px; }
+.av-dates { gap: 8px; align-items: flex-end; }
+.av-dates .av-f input { min-height: 32px; font-size: 13px; }
+
+.av-savebar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 10px 12px; border-radius: var(--r-md); background: #f3f6f7;
+}
+.av-savebar.dirty { background: var(--accent-soft); position: sticky; bottom: 12px; z-index: 5; box-shadow: var(--shadow-md); }
+
+/* Two-week preview. */
+.av-legend { gap: 14px; }
+.av-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.av-legend i.av-slot { width: 14px; min-height: 12px; padding: 0; }
+.av-preview { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.av-pday {
+  border: 1px solid var(--line-soft); border-radius: var(--r-sm); padding: 8px; display: flex; flex-direction: column;
+  gap: 6px; min-width: 0; background: var(--surface);
+}
+.av-pday.today { border-color: var(--brand-300); box-shadow: inset 0 3px 0 var(--brand-500); }
+.av-pday.off { background: repeating-linear-gradient(135deg, #f8fafa, #f8fafa 6px, #eef1f3 6px, #eef1f3 12px); }
+.av-pday-head { display: flex; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: wrap; }
+.av-chip-today { min-height: 20px; padding: 0 6px; font-size: 11px; background: var(--accent-soft); color: var(--brand-800); }
+.av-offtag { font-weight: 700; color: var(--warning); }
+.av-slots { display: flex; flex-wrap: wrap; gap: 4px; }
+.av-slot {
+  display: inline-flex; align-items: center; gap: 3px; min-height: 22px; padding: 0 6px; border-radius: 6px;
+  font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; border: 1px solid transparent;
+}
+.av-slot.free { background: var(--success-soft); color: var(--success); }
+.av-slot.booked { background: var(--brand-800); color: #fff; }
+.av-slot.pending { background: var(--surface); border: 1px dashed var(--brand-500); color: var(--brand-700); }
+.av-slot.manual { box-shadow: inset 0 -2px 0 var(--warning); }
+.av-slot-mode { opacity: 0.8; }
+.av-slot-who { font-weight: 600; opacity: 0.85; max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Time off. */
+.av-off-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.av-off {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 8px 8px 12px;
+  border-radius: var(--r-sm); background: var(--warning-soft); border-left: 4px solid var(--warning);
+}
+.av-off .icon-btn { width: 36px; height: 36px; }
+.av-off-form { gap: 10px; }
+.av-off-form .row { align-items: flex-end; }
+.av-result { align-items: flex-start; }
+.av-booked-list { margin: 0; padding-left: 18px; font-weight: 500; }
+
+/* Consult profile. */
+.av-verify { gap: 8px; padding: 12px; border-radius: var(--r-md); background: #f3f6f7; }
+.av-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; }
+.av-checks li { display: flex; align-items: center; gap: 6px; }
+.av-checks li.ok svg { color: var(--success); }
+.av-checks li.no { color: var(--alert-strong); }
+.av-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.av-fieldset { border: 1px solid var(--line-soft); border-radius: var(--r-md); padding: 10px 12px; margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.av-fieldset legend { padding: 0 4px; }
+.av-check { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; min-height: 32px; }
+.av-check input { width: 18px; height: 18px; accent-color: var(--brand-700); margin: 0; }
+.av-consult-hours { display: flex; flex-direction: column; gap: 4px; }
+.av-ch-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 36px; }
+.av-ch-row .av-check { width: 64px; }
+.av-ch-row input[type="time"] { min-height: 32px; border-radius: 8px; border: 1px solid var(--line); padding: 0 6px; font-size: 13px; }
+
+/* Clinician list (administrators and the front desk). */
+.av-people { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.av-people li + li { border-top: 1px solid var(--line-soft); }
+.av-person {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 8px;
+  color: var(--ink); text-decoration: none; border-radius: var(--r-sm);
+}
+.av-person:hover { background: #f3f6f7; color: var(--ink); }
+.av-person-chips { gap: 6px; justify-content: flex-end; }
+
+@media (max-width: 1180px) {
+  .av-layout { grid-template-columns: minmax(0, 1fr); }
+  .av-preview { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+}
+@media (max-width: 640px) {
+  .av-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .av-day { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .av-day-head { flex-direction: row; align-items: baseline; gap: 8px; padding-top: 0; }
+  .av-time { width: calc(50% - 4px); }
+  .av-window-fields .av-f { flex: 1 1 calc(50% - 4px); }
+  .av-window-fields .av-grow { flex-basis: 100%; }
+  .av-preview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .av-person { flex-direction: column; align-items: flex-start; }
+  .av-person-chips { justify-content: flex-start; }
+  .av-zone, .av-pick { min-width: 0; width: 100%; }
+}
