@@ -103,7 +103,10 @@ A first sign-in links to the Bioverse user with the same email, when the provide
 3. Issuer: `https://<your-okta-domain>/oauth2/default` (or your custom authorization server).
 
 **Google** (Google Cloud console > APIs & Services > Credentials > Create OAuth client ID)
-1. Configure the OAuth consent screen (Internal for a Workspace organization).
+1. Configure the OAuth consent screen (Google Auth Platform > Branding and Audience). **Internal** only admits
+   your Workspace organization. **External** admits any Google account (needed for patients on personal Gmail);
+   while it is in *Testing*, only the test users listed under Audience can sign in, so add them there or
+   *Publish app*. The scopes used (`openid email profile`) need no Google verification.
 2. Application type **Web application**; authorized redirect URI: the URI above.
 3. Set `GOOGLE_ALLOWED_DOMAINS` to your Workspace domain to keep personal Gmail accounts out.
 
