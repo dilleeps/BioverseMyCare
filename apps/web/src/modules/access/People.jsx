@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../../api.js";
 import { useApi } from "../../hooks.js";
 import { fmtDateTime } from "../../format.js";
 import { WorkspaceLayout } from "../../layouts.jsx";
 import { useSession } from "../../session.jsx";
+import ImportPeople from "./ImportPeople.jsx";
+import { downloadFile } from "./download.js";
 
 const ROLE = { admin: "Administrator", staff: "Staff", clinician: "Clinician", patient: "Patient", student: "Medical student" };
 const TEAM = { front_desk: "Front desk", pharmacy: "Pharmacy" };
@@ -139,18 +142,31 @@ export default function People() {
   const { me } = useSession();
   const { data, error, loading, reload } = useApi("/admin/users");
   const [q, setQ] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [exportError, setExportError] = useState(null);
   const users = (data?.users || []).filter((u) =>
     !q.trim() || `${u.display_name} ${u.email} ${u.role}`.toLowerCase().includes(q.trim().toLowerCase()));
 
   return (
     <WorkspaceLayout>
-      <div className="page-head">
+      <div className="page-head people-head">
         <div>
           <div className="eyebrow">Administration</div>
           <h1 className="page-title">People & sign-in</h1>
           <p className="page-sub">Who can use Bioverse One, the email they sign in with, and their linked accounts.</p>
         </div>
+        <div className="row wrap people-actions" style={{ gap: 8, marginLeft: "auto" }}>
+          <button type="button" className="btn sm" aria-expanded={importing} onClick={() => setImporting(!importing)}>
+            Import people
+          </button>
+          <button type="button" className="btn sm"
+                  onClick={() => { setExportError(null); downloadFile("/admin/users/export.csv", "bioverse-people.csv").catch((e) => setExportError(e.message)); }}>
+            Export CSV
+          </button>
+          <Link className="btn sm" to="/admin/people/sign-in-rules">Sign-in rules</Link>
+        </div>
       </div>
+      {exportError && <div className="error-box" role="alert">{exportError}</div>}
       {error && <div className="error-box">{error.message}</div>}
       {loading && !data && <div className="card"><div className="skeleton" /></div>}
       {data && (
@@ -160,6 +176,7 @@ export default function People() {
               ? `Sign-in with: ${data.providers.map((p) => p.label).join(", ")}.`
               : "No identity provider is configured yet."}
           </div>
+          {importing && <ImportPeople onDone={reload} onClose={() => setImporting(false)} />}
           <AddPerson onDone={reload} />
           <section className="card stack" aria-labelledby="people-h">
             <div className="row between wrap">

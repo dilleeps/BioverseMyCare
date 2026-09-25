@@ -1,5 +1,6 @@
 import "./styles.css";
 import People from "./People.jsx";
+import SignInRules from "./SignInRules.jsx";
 
 const PeopleIcon = ({ size = 18 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
@@ -14,7 +15,10 @@ export default {
   title: "People & sign-in",
   group: "Administration",
   order: 90,
-  routes: [{ path: "/admin/people", element: <People />, roles: ["admin"] }],
+  routes: [
+    { path: "/admin/people", element: <People />, roles: ["admin"] },
+    { path: "/admin/people/sign-in-rules", element: <SignInRules />, roles: ["admin"] },
+  ],
   nav: [
     { to: "/admin/people", label: "People & sign-in", description: "Who can sign in, with which account, and their role",
       roles: ["admin"], placement: "workspace", icon: PeopleIcon },
