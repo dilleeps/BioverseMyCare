@@ -29,4 +29,15 @@ Configuration (environment; client secrets from Secret Manager):
     BIOVERSE_{ENTRA|OKTA|GOOGLE}_ALLOWED_DOMAINS   optional email domains allowed to sign in
     BIOVERSE_BOOTSTRAP_ADMINS     emails that become administrators on first sign-in (to set up the rest)
     BIOVERSE_SESSION_IDLE_MINUTES (default 60), BIOVERSE_SESSION_MAX_HOURS (default 12)
+
+Patient invites and email codes (bioverse/routers/invites.py, routers/email_signin.py, sso/plugins/invites.py):
+staff send an invite link ({PUBLIC_URL}/join/{token}); after confirming their date of birth the patient signs
+in with a provider above (`/api/auth/login/google?invite={token}`), which creates their account, or with a
+6-digit code sent by email. Email codes are for patients only; staff and clinicians always use single sign-on.
+
+    BIOVERSE_EMAIL_SIGNIN         on | off. Unset: on whenever single sign-on is allowed. Email sign-in starts
+                                  the same bv_session cookie, which the API honours only in sso or sso+demo mode.
+    BIOVERSE_SELF_REGISTRATION    on lets people register at /register without an invite (default off).
+    Codes and invites are emailed via bioverse.channels (BIOVERSE_SMTP_URL, BIOVERSE_OUTBOUND_ALLOWLIST).
+    While demo sign-in is allowed, a copy lands in the dev outbox (GET /api/auth/dev-outbox?email=...).
 """

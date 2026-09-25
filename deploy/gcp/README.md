@@ -127,6 +127,28 @@ switcher while you test; set `AUTH_MODE=sso` (the default once a provider is set
 Sessions: an opaque HttpOnly, Secure, SameSite=Lax cookie; signed out after 60 minutes idle or 12 hours.
 Sign-out also ends the provider session when the provider supports it (Entra, Okta).
 
+### Patient invites and email sign-in
+
+Administrators, the front desk and clinicians invite patients under **Invite a patient** (name, email, date
+of birth, optional MRN and a short note). The patient gets a single-use link, `https://<service-url>/join/<token>`,
+valid for 14 days by default; it is emailed when email is configured (`BIOVERSE_SMTP_URL`, respecting
+`BIOVERSE_OUTBOUND_ALLOWLIST`) and always shown to staff to copy. On the join page the patient confirms their
+date of birth (five wrong tries lock the invite until staff resend it), accepts the terms, and then signs in
+with Google (or another configured provider) or a 6-digit code sent by email. The account and patient record
+are created on that first sign-in, with whichever verified email they used. Staff can resend (new link) or revoke.
+
+- Google for patients: leave `GOOGLE_ALLOWED_DOMAINS` empty, or personal Gmail accounts are refused.
+  Staff are still safe: Google only links to an existing Bioverse user, or creates a patient from a valid invite.
+- Email codes are for patients only and are on whenever single sign-on is allowed. `EMAIL_SIGNIN=off` turns
+  them off; `EMAIL_SIGNIN=on` forces them on. They need `AUTH_MODE` `sso` or `sso+demo` (the session cookie
+  is ignored in pure demo mode). Without a mail server, codes can't be delivered in `sso` mode; in `sso+demo`
+  a copy of every email lands in a demo outbox that the sign-in page shows.
+- `SELF_REGISTRATION=on` opens `/register` (name, date of birth, email code) to anyone. Off by default.
+
+```bash
+EMAIL_SIGNIN=on SELF_REGISTRATION=on ./deploy/gcp/deploy.sh    # values without commas
+```
+
 ## AI: MedGemma, Google's medical model
 
 The app's AI (triage, explanations, photo reading, summaries, check-ins, fact check, tutor) runs on

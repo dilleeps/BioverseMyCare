@@ -14,6 +14,7 @@ from psycopg import Connection
 
 from bioverse import audit
 from bioverse.db import DbConn
+from bioverse.routers.invites import email_signin_enabled
 from bioverse.sso import hooks, link, oidc, providers, sessions
 from bioverse.sso.providers import SSOError
 
@@ -66,6 +67,7 @@ def config() -> dict:
         "demo": providers.demo_allowed(),
         "providers": [{"key": p.key, "label": p.label} for p in providers.configured().values()]
         if providers.sso_allowed() else [],
+        "email": email_signin_enabled(),   # one-time codes by email (routers/email_signin.py)
         "errors": ERRORS,
     }
 
