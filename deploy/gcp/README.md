@@ -220,6 +220,38 @@ them here. `deploy.sh` wires every secret below that has a version into the serv
 Emails and texts only say that something is waiting, never health details, and link back to the app
 (`BIOVERSE_PUBLIC_URL`, set by `deploy.sh`).
 
+## Mobile app and push notifications
+
+Bioverse One installs on phones and computers straight from the browser (a web app with a manifest and a
+service worker). There is no app store build.
+
+- **iPhone and iPad:** open the site in Safari, tap **Share**, then **Add to Home Screen**, and open Bioverse
+  One from the home screen. Push notifications need iOS 16.4 or later and only work in the installed app.
+- **Android:** open the site in Chrome and tap **Install** in the prompt (or **Install app** in the ⋮ menu).
+  Patients on phones also see a slim "Get the app" banner, which they can dismiss.
+- **Computers:** Chrome and Edge show an install icon in the address bar.
+
+The app must be reachable over HTTPS by the phone (Cloud Run's URL is). Offline, the app shows a "You're
+offline" page; nothing from the API is ever stored on the device.
+
+**Turn on push** (once per project):
+
+```bash
+./deploy/gcp/vapid-keys.sh          # creates the key pair, stores the private key as bioverse-vapid-private-key
+./deploy/gcp/deploy.sh              # wires it into the service and the scheduled jobs
+```
+
+Optionally set `VAPID_SUBJECT` (`mailto:it@yourhospital.org`) in `config.sh`; push services use it to contact
+you about problems. `vapid-keys.sh --rotate` replaces the key, after which every device has to turn push on
+again. Locally, `python -m bioverse.webpush keygen` prints a key for `BIOVERSE_VAPID_PRIVATE_KEY` in `apps/api/.env`.
+
+Each person then opens **Notifications → This device → Turn on push for this device**, and ticks **Phone push**
+for the kinds of notification they want there. **Send a test** checks it end to end.
+
+**Privacy:** a push says the notification's title and "Open Bioverse One to see the details", never clinical
+detail, and is encrypted end to end to the device (RFC 8291). The server only contacts the push services of
+Google, Mozilla, Apple and Microsoft.
+
 ## Before any real patient data
 
 The demo identity switcher trusts a request header, so anyone who can reach the service can act as any user. Keep the service private (the default) and use seeded demo data only until all of these are done:

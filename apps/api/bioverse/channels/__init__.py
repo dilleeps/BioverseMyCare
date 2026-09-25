@@ -5,8 +5,9 @@ returns `skipped` instead of failing, so the app runs the same locally, in tests
 
     email   BIOVERSE_SMTP_URL=smtp://user:password@host:587   BIOVERSE_EMAIL_FROM=care@example.org
     sms     TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER
-    push    browser notifications are shown by the open web app; background Web Push needs VAPID keys
-            and a service worker, which this build does not include yet.
+    push    BIOVERSE_VAPID_PRIVATE_KEY (see bioverse/webpush.py). Web Push to every phone and browser the
+            user turned push on for; the dispatch job calls webpush.deliver, which needs the database to
+            find the user's devices. `send_push` below only stands in for callers without a user id.
 
 Messages sent outside the app never contain clinical detail: only the title and a link back into
 Bioverse One, where the user signs in to read the rest.

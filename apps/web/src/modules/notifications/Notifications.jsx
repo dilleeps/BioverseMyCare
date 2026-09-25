@@ -4,6 +4,8 @@ import { api } from "../../api.js";
 import { useApi } from "../../hooks.js";
 import { fmtDateTime } from "../../format.js";
 import { useSession } from "../../session.jsx";
+import InstallApp from "../../components/InstallApp.jsx";
+import ThisDevice from "./ThisDevice.jsx";
 
 const KIND_LABEL = {
   welcome: "Welcome",
@@ -106,7 +108,7 @@ function BrowserAlerts() {
   return (
     <div className="toggle-row">
       <div>
-        <div className="strong">Alerts on this device</div>
+        <div className="strong">Pop-ups while the app is open</div>
         <div className="small muted">
           {perm === "granted" ? "On. Important items pop up while Bioverse One is open."
             : perm === "denied" ? "Blocked in your browser settings."
@@ -238,7 +240,11 @@ export default function Notifications() {
       </div>
       <div className="notif-grid">
         <Inbox />
-        <Preferences />
+        <div className="stack">
+          <ThisDevice />
+          <InstallApp />
+          <Preferences />
+        </div>
       </div>
     </div>
   );

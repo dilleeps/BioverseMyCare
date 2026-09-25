@@ -43,7 +43,12 @@ OPTIONAL_SECRETS=(
   "BIOVERSE_ENTRA_CLIENT_SECRET=bioverse-entra-client-secret"
   "BIOVERSE_OKTA_CLIENT_SECRET=bioverse-okta-client-secret"
   "BIOVERSE_GOOGLE_CLIENT_SECRET=bioverse-google-client-secret"
+  "BIOVERSE_VAPID_PRIVATE_KEY=bioverse-vapid-private-key"
 )
+
+# Web Push (phone notifications). The key comes from ./deploy/gcp/vapid-keys.sh; this is the contact the
+# push services see. Empty = mailto: + the email sender address.
+VAPID_SUBJECT="${VAPID_SUBJECT:-}"             # e.g. mailto:it@yourhospital.org
 
 # Single sign-on (not secret). A provider turns on when its client id is set here AND its client secret is
 # stored (./deploy/gcp/sso-secret.sh entra|okta|google). See README "Single sign-on".
