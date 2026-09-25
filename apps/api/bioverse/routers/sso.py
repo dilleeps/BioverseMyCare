@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import urllib.parse
@@ -13,7 +14,7 @@ from psycopg import Connection
 
 from bioverse import audit
 from bioverse.db import DbConn
-from bioverse.sso import link, oidc, providers, sessions
+from bioverse.sso import hooks, link, oidc, providers, sessions
 from bioverse.sso.providers import SSOError
 
 log = logging.getLogger(__name__)
@@ -72,6 +73,7 @@ def config() -> dict:
 @router.get("/login/{provider}")
 def login(provider: str, request: Request, conn: DbConn, next: str | None = None,
           login_hint: str | None = None) -> RedirectResponse:
+    context = {k: request.query_params[k][:200] for k in hooks.CONTEXT_PARAMS if request.query_params.get(k)}
     if not providers.sso_allowed():
         raise HTTPException(404, "Single sign-on is off")
     try:
@@ -83,8 +85,11 @@ def login(provider: str, request: Request, conn: DbConn, next: str | None = None
         return _fail(request, conn, provider, exc)
     conn.execute("DELETE FROM oidc_login_requests WHERE created_at < now() - %s", (LOGIN_REQUEST_TTL,))
     conn.execute(
-        "INSERT INTO oidc_login_requests (state, provider, nonce, code_verifier, next_path) VALUES (%s, %s, %s, %s, %s)",
-        (state, provider, nonce, verifier, _safe_next(next)),
+        """
+        INSERT INTO oidc_login_requests (state, provider, nonce, code_verifier, next_path, context)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (state, provider, nonce, verifier, _safe_next(next), json.dumps(context)),
     )
     resp = RedirectResponse(url, status_code=303)
     # Binds the sign-in to this browser: the callback must present the same state.
@@ -105,7 +110,7 @@ def callback(provider: str, request: Request, conn: DbConn, code: str | None = N
         req = conn.execute(
             """
             DELETE FROM oidc_login_requests WHERE state = %s AND provider = %s AND created_at > now() - %s
-            RETURNING nonce, code_verifier, next_path
+            RETURNING nonce, code_verifier, next_path, context
             """,
             (state, provider, LOGIN_REQUEST_TTL),
         ).fetchone()
@@ -115,7 +120,7 @@ def callback(provider: str, request: Request, conn: DbConn, code: str | None = N
         tokens = oidc.exchange_code(p, code=code, redirect_uri=redirect_uri(request, provider),
                                     verifier=req["code_verifier"])
         ident = oidc.validate_id_token(p, tokens["id_token"], nonce=req["nonce"])
-        user_id, how = link.resolve_user(conn, p, ident)
+        user_id, how = link.resolve_user(conn, p, ident, req["context"])
     except SSOError as exc:
         return _fail(request, conn, provider, exc)
 

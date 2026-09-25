@@ -9,6 +9,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
 from bioverse import audit
+from bioverse.patient_registry import register_patient
 from bioverse.auth import Admin
 from bioverse.db import DbConn
 from bioverse.sso import providers, sessions
@@ -92,14 +93,14 @@ def create_user(body: NewUser, conn: DbConn, admin: Admin) -> dict:
         )
     if body.role == "staff":
         _sync_pharmacy_staff(conn, user_id, admin.organization_id, body.team)
+    patient = None
     if body.role == "patient":
-        conn.execute(
-            "INSERT INTO patients (user_id, organization_id, name, birth_date) VALUES (%s, %s, %s, %s)",
-            (user_id, admin.organization_id, body.display_name, body.birth_date),
-        )
+        patient = register_patient(conn, organization_id=admin.organization_id, user_id=user_id,
+                                   name=body.display_name, birth_date=body.birth_date, email=body.email,
+                                   source="admin", actor_id=admin.id)
     audit.record(conn, action="access.user_create", entity_type="user", entity_id=user_id, actor=admin,
-                 detail={"role": body.role, "team": body.team})
-    return {"id": user_id}
+                 detail={"role": body.role, "team": body.team} | ({"patient": patient["how"]} if patient else {}))
+    return {"id": user_id} | ({"patient": patient} if patient else {})
 
 
 class UserPatch(BaseModel):

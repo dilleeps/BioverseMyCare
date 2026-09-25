@@ -3,8 +3,12 @@
 1. A previously linked identity (provider + subject) signs straight in.
 2. Otherwise a *trusted* email (verified by the provider, in an allowed domain) that matches exactly one
    Bioverse user links the identity to that user on first sign-in.
-3. Otherwise, an email listed in BIOVERSE_BOOTSTRAP_ADMINS creates an administrator, so the first person
+3. Otherwise a registered provisioner (bioverse.sso.hooks, e.g. a patient invite or a mapped directory group)
+   may create the account.
+4. Otherwise, an email listed in BIOVERSE_BOOTSTRAP_ADMINS creates an administrator, so the first person
    can set everyone else up. Nobody else is created automatically: clinical roles are granted in Bioverse.
+
+After any successful sign-in the after_sign_in hooks run.
 """
 
 from __future__ import annotations
@@ -13,6 +17,7 @@ import os
 
 from psycopg import Connection
 
+from bioverse.sso import hooks
 from bioverse.sso.oidc import VerifiedIdentity
 from bioverse.sso.providers import Provider, SSOError
 
@@ -21,8 +26,16 @@ def _bootstrap_admins() -> set[str]:
     return {x.strip().lower() for x in os.getenv("BIOVERSE_BOOTSTRAP_ADMINS", "").split(",") if x.strip()}
 
 
-def resolve_user(conn: Connection, p: Provider, ident: VerifiedIdentity) -> tuple[str, str]:
-    """(user_id, how) where how is linked | matched_email | bootstrap_admin. Raises SSOError otherwise."""
+def resolve_user(conn: Connection, p: Provider, ident: VerifiedIdentity, context: dict | None = None) -> tuple[str, str]:
+    """(user_id, how) where how is linked | matched_email | bootstrap_admin | a provisioner's. Raises SSOError."""
+    context = context or {}
+    user_id, how = _resolve(conn, p, ident, context)
+    for hook in hooks.after_sign_in_hooks():
+        hook(conn, user_id, p, ident, context)
+    return user_id, how
+
+
+def _resolve(conn: Connection, p: Provider, ident: VerifiedIdentity, context: dict) -> tuple[str, str]:
     if p.allowed_domains:
         domain = (ident.email or "").rsplit("@", 1)[-1]
         if domain not in p.allowed_domains:
@@ -48,10 +61,17 @@ def resolve_user(conn: Connection, p: Provider, ident: VerifiedIdentity) -> tupl
         raise SSOError("email_unverified", f"{p.key} did not vouch for {ident.email!r}")
 
     users = conn.execute("SELECT id::text, disabled FROM users WHERE lower(email) = %s", (ident.email,)).fetchall()
+    provisioned = None
+    if not users:
+        for fn in hooks.provisioners():
+            if provisioned := fn(conn, p, ident, context):
+                break
     if len(users) == 1:
         if users[0]["disabled"]:
             raise SSOError("account_disabled", users[0]["id"])
         user_id, how = users[0]["id"], "matched_email"
+    elif provisioned:
+        user_id, how = provisioned
     elif not users and ident.email in _bootstrap_admins():
         org = conn.execute("SELECT id FROM organizations ORDER BY created_at LIMIT 1").fetchone()
         user_id = conn.execute(
