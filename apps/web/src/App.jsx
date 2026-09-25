@@ -1,4 +1,4 @@
-import { NavLink, Link, Route, Routes, useNavigate } from "react-router-dom";
+import { NavLink, Link, Route, Routes, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { useSession } from "./session.jsx";
 import { useApi } from "./hooks.js";
 import { Logo } from "./icons.jsx";
@@ -12,6 +12,8 @@ import Clinician from "./pages/Clinician.jsx";
 import AgentConfig from "./pages/AgentConfig.jsx";
 import Hub from "./pages/Hub.jsx";
 import SignIn from "./pages/SignIn.jsx";
+import Join from "./pages/Join.jsx";
+import Register from "./pages/Register.jsx";
 import Bell from "./modules/notifications/Bell.jsx";
 import { homeFor, moduleRoutes, navFor } from "./modules/registry.js";
 import { useSyncDisplayPrefs } from "./modules/accessibility/prefs.js";
@@ -138,8 +140,18 @@ export function RequireRole({ role, roles, children }) {
   );
 }
 
+// Pages anyone can open without signing in: a patient's invite link and open registration.
+const PUBLIC_ROUTES = [
+  { path: "/join/:token", element: <Join /> },
+  { path: "/register", element: <Register /> },
+];
+
 function SessionGate({ children }) {
   const { status, error } = useSession();
+  const { pathname } = useLocation();
+  if (PUBLIC_ROUTES.some((r) => matchPath(r.path, pathname))) {
+    return <Routes>{PUBLIC_ROUTES.map((r) => <Route key={r.path} path={r.path} element={r.element} />)}</Routes>;
+  }
   if (status === "signed_out") return <SignIn />;
   if (status === "error") {
     return (

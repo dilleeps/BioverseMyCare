@@ -55,6 +55,9 @@ OKTA_CLIENT_ID="${OKTA_CLIENT_ID:-}"
 GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"       # ....apps.googleusercontent.com
 GOOGLE_ALLOWED_DOMAINS="${GOOGLE_ALLOWED_DOMAINS:-}"   # optional, e.g. yourhospital.org
 BOOTSTRAP_ADMINS="${BOOTSTRAP_ADMINS:-}"       # your email: becomes an administrator on first sign-in
+# Patients: invite links always work. See README "Patient invites and email sign-in".
+EMAIL_SIGNIN="${EMAIL_SIGNIN:-}"               # on | off ; empty = on whenever single sign-on is allowed
+SELF_REGISTRATION="${SELF_REGISTRATION:-}"     # on lets people register at /register without an invite
 
 # Private by default: only principals with roles/run.invoker can reach the app.
 # The demo sign-in is a header anyone can set, so do not make it public with real patient data.

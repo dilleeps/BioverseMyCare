@@ -1,9 +1,10 @@
 import { useLocation } from "react-router-dom";
 import { useSession } from "../session.jsx";
 import { Logo, Shield } from "../icons.jsx";
+import EmailCode from "../modules/invites/EmailCode.jsx";
 
 // Provider marks for the sign-in buttons, drawn inline (no external images).
-const MARKS = {
+export const MARKS = {
   entra: (
     <svg width="20" height="20" viewBox="0 0 21 21" aria-hidden="true">
       <rect x="1" y="1" width="9" height="9" fill="#F25022" /><rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
@@ -24,7 +25,12 @@ const MARKS = {
     </svg>
   ),
 };
-const BUTTON_LABEL = { entra: "Sign in with Microsoft", okta: "Sign in with Okta", google: "Sign in with Google" };
+export const BUTTON_LABEL = { entra: "Sign in with Microsoft", okta: "Sign in with Okta", google: "Sign in with Google" };
+// Sign-ins started from a patient invite link (bioverse/sso/plugins/invites.py).
+const INVITE_ERRORS = {
+  invite_invalid: "That invite link has expired, was withdrawn or was already used. Ask your clinic for a new one.",
+  invite_unconfirmed: "Please open your invite link again and confirm your date of birth, then sign in within 30 minutes.",
+};
 
 export default function SignIn() {
   const { config, status } = useSession();
@@ -45,7 +51,7 @@ export default function SignIn() {
         <p className="muted">Use your organization's account. Your care team or administrator sets up access.</p>
         {error && (
           <div className="error-box" role="alert">
-            {config?.errors?.[error] || "Sign-in didn't work. Please try again or contact your administrator."}
+            {config?.errors?.[error] || INVITE_ERRORS[error] || "Sign-in didn't work. Please try again or contact your administrator."}
           </div>
         )}
         {status === "loading" && <div className="skeleton" />}
@@ -57,7 +63,14 @@ export default function SignIn() {
             </a>
           ))}
         </div>
-        {config && providers.length === 0 && (
+        {config?.email && (
+          <div className="stack" style={{ gap: 10 }}>
+            {providers.length > 0 && <div className="join-or">or, for patients</div>}
+            <p className="small muted" style={{ margin: 0 }}>Patients can sign in with a one-time code sent by email.</p>
+            <EmailCode next={next} />
+          </div>
+        )}
+        {config && providers.length === 0 && !config.email && (
           <p className="small muted">Single sign-on isn't configured yet. See deploy/gcp/README.md, "Single sign-on".</p>
         )}
         {config?.demo && (

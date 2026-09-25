@@ -148,6 +148,28 @@ Patients are never created from a group. Make the provider send groups first:
 
 Use **Test a sign-in** on that screen with a token's claims (e.g. from https://jwt.ms) to check a rule.
 
+### Patient invites and email sign-in
+
+Administrators, the front desk and clinicians invite patients under **Invite a patient** (name, email, date
+of birth, optional MRN and a short note). The patient gets a single-use link, `https://<service-url>/join/<token>`,
+valid for 14 days by default; it is emailed when email is configured (`BIOVERSE_SMTP_URL`, respecting
+`BIOVERSE_OUTBOUND_ALLOWLIST`) and always shown to staff to copy. On the join page the patient confirms their
+date of birth (five wrong tries lock the invite until staff resend it), accepts the terms, and then signs in
+with Google (or another configured provider) or a 6-digit code sent by email. The account and patient record
+are created on that first sign-in, with whichever verified email they used. Staff can resend (new link) or revoke.
+
+- Google for patients: leave `GOOGLE_ALLOWED_DOMAINS` empty, or personal Gmail accounts are refused.
+  Staff are still safe: Google only links to an existing Bioverse user, or creates a patient from a valid invite.
+- Email codes are for patients only and are on whenever single sign-on is allowed. `EMAIL_SIGNIN=off` turns
+  them off; `EMAIL_SIGNIN=on` forces them on. They need `AUTH_MODE` `sso` or `sso+demo` (the session cookie
+  is ignored in pure demo mode). Without a mail server, codes can't be delivered in `sso` mode; in `sso+demo`
+  a copy of every email lands in a demo outbox that the sign-in page shows.
+- `SELF_REGISTRATION=on` opens `/register` (name, date of birth, email code) to anyone. Off by default.
+
+```bash
+EMAIL_SIGNIN=on SELF_REGISTRATION=on ./deploy/gcp/deploy.sh    # values without commas
+```
+
 ## AI: MedGemma, Google's medical model
 
 The app's AI (triage, explanations, photo reading, summaries, check-ins, fact check, tutor) runs on

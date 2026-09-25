@@ -1,0 +1,64 @@
+/* Patient invites, the join page, email codes and self-registration. Uses the tokens in src/styles.css. */
+
+.inv-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.inv-field > span { font-size: 13px; font-weight: 700; }
+.inv-field input, .inv-field select, .inv-field textarea, .inv-copy input {
+  min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); font: inherit; min-width: 0; width: 100%;
+}
+.inv-field textarea { min-height: 72px; padding: 10px 12px; resize: vertical; line-height: 1.45; }
+.inv-field input:focus-visible, .inv-field select:focus-visible, .inv-field textarea:focus-visible,
+.inv-copy input:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 1px; border-color: var(--brand-500); }
+.inv-hint { font-size: 12px; color: var(--muted); }
+
+.inv-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+.inv-form .wide { grid-column: 1 / -1; }
+
+.inv-copy { display: flex; gap: 8px; align-items: center; }
+.inv-copy input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; background: var(--ground); }
+
+.inv-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.inv-table th, .inv-table td { padding: 10px 8px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
+.inv-table th { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.inv-table tr.done td { opacity: 0.7; }
+.inv-table .inv-link-row td { background: var(--accent-soft); opacity: 1; }
+@media (max-width: 720px) {
+  .inv-table thead { display: none; }
+  .inv-table tr { display: grid; grid-template-columns: 1fr auto; border-bottom: 1px solid var(--line-soft); padding: 6px 0; }
+  .inv-table td { border: 0; padding: 4px 8px; }
+  .inv-table td.inv-actions { grid-column: 1 / -1; }
+}
+
+.inv-status { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.inv-status.pending { background: var(--accent-soft); color: var(--accent-strong); }
+.inv-status.accepted { background: var(--success-soft); color: var(--success); }
+.inv-status.locked { background: var(--warning-soft); color: var(--warning); }
+.inv-status.expired, .inv-status.revoked { background: #eef1f3; color: var(--muted); }
+
+.inv-filter { display: inline-flex; gap: 4px; padding: 3px; border-radius: 12px; background: var(--ground); border: 1px solid var(--line-soft); flex-wrap: wrap; }
+.inv-filter button { border: 0; background: transparent; font: inherit; font-size: 13px; font-weight: 600; color: var(--muted);
+  padding: 6px 10px; border-radius: 9px; cursor: pointer; min-height: 32px; }
+.inv-filter button[aria-pressed="true"] { background: var(--surface); color: var(--brand-800); box-shadow: var(--shadow-sm); }
+
+/* Join and register pages: the sign-in card, a little wider. */
+.join-card { max-width: 460px; }
+.join-steps { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; align-items: center; font-size: 12px; font-weight: 700; color: var(--faint); }
+.join-steps li { display: flex; align-items: center; }
+.join-steps .on { color: var(--brand-700); }
+.join-steps .dot { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center;
+  background: #eef1f3; color: var(--muted); font-size: 12px; margin-right: 6px; }
+.join-steps .on .dot { background: var(--brand-gradient); color: #fff; }
+.join-steps .bar { flex: 1; height: 2px; background: var(--line); border-radius: 2px; }
+.join-note { margin: 0; border-left: 3px solid var(--brand-300); padding: 6px 12px; color: var(--ink); font-size: 14px;
+  background: var(--accent-soft); border-radius: 0 10px 10px 0; }
+.join-check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.45; }
+.join-check input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); flex-shrink: 0; }
+.join-or { display: flex; align-items: center; gap: 10px; color: var(--faint); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.join-or::before, .join-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+.code-input { letter-spacing: 0.4em; font-size: 22px !important; font-weight: 700; text-align: center;
+  font-variant-numeric: tabular-nums; }
+.dev-outbox { border: 1px dashed var(--warning); background: var(--warning-soft); color: var(--warning);
+  border-radius: 10px; padding: 8px 12px; font-size: 13px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.dev-outbox strong { font-variant-numeric: tabular-nums; letter-spacing: 0.1em; color: var(--ink); }
+.banner.inv-ready { text-align: left; align-items: stretch; justify-content: flex-start; }
