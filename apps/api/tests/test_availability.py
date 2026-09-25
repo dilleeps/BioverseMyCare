@@ -374,3 +374,16 @@ def test_candidates_respect_effective_dates_and_time_off(weekday, expected):
     # Nothing before 5 Oct or after 26 Oct.
     assert len({c.starts_at.astimezone(CHICAGO).date() for c in got}) == expected
     assert len(got) == expected * 3
+
+
+def test_a_cancelled_slot_can_be_booked_again(client):
+    doc, pid = new_clinician(client, "rebook.doc@northside.example")
+    client.put("/api/clinician/availability", headers=doc, json={"windows": every_day("09:00", "10:00", 30)})
+    slot = client.get(f"/api/practitioners/{pid}/slots", headers=MAYA).json()[0]["id"]
+    first = client.post("/api/appointments", headers=MAYA, json={"slot_id": slot})
+    assert first.status_code == 201, first.text
+    assert client.post(f"/api/appointments/{first.json()['id']}/cancel", headers=MAYA).status_code == 200
+    again = client.post("/api/appointments", headers=MAYA, json={"slot_id": slot})
+    assert again.status_code == 201, again.text
+    # Still only one active booking per slot.
+    assert client.post("/api/appointments", headers=MAYA, json={"slot_id": slot}).status_code in (404, 409)

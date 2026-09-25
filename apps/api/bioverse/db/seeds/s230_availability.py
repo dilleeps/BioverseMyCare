@@ -6,6 +6,9 @@ slot keeps `source = 'manual'` (the column default from migration 230), so the g
 and it never places a generated slot on top of one. Slots are opened by the `availability_slots` job, or when
 someone saves the hours.
 
+The hours take effect two weeks out (after the seeded calendars), so the navigator's demo story of who has
+the earliest opening stays as seeded.
+
 Idempotent: a clinician whose hours were already set (by this seed or by a person) is skipped.
 """
 
@@ -54,14 +57,14 @@ def run(conn, ctx: SeedContext) -> None:
             for weekday in days:
                 n += 1
                 rows.append((_id(n), practitioner, weekday, start, end, mode,
-                             "Video visit" if mode == "video" else pr[0] if pr else None, minutes))
+                             "Video visit" if mode == "video" else pr[0] if pr else None, minutes, ctx.days(15)))
         if not created:
             continue    # hours already set: never overwrite them
         conn.cursor().executemany(
             """
             INSERT INTO availability_windows (id, practitioner_id, weekday, start_time, end_time, mode, location,
-                                              slot_minutes)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO NOTHING
+                                              slot_minutes, effective_from)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO NOTHING
             """,
             rows,
         )
