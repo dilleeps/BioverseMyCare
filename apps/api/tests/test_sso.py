@@ -261,3 +261,26 @@ def test_admin_manages_people_and_linked_accounts(client, idp, monkeypatch):
     assert client.delete(f"/api/admin/users/{U_MAYA}/identities/{ident}", headers=ADMIN).status_code == 200
     assert next(u for u in client.get("/api/admin/users", headers=ADMIN).json()["users"]
                 if u["id"] == U_MAYA)["active_sessions"] == 0
+
+
+def test_admin_onboards_each_role_with_what_it_needs(client, monkeypatch):
+    monkeypatch.setenv("BIOVERSE_AUTH_MODE", "sso+demo")
+    def add(**body):
+        r = client.post("/api/admin/users", headers=ADMIN, json=body)
+        assert r.status_code == 201, r.text
+        return r.json()["id"]
+    pharm = add(display_name="New Pharmacist", email="rx@hospital.example", role="staff", team="pharmacy")
+    assert client.get("/api/pharmacy-orders/staff/queue", headers={"X-Bioverse-User": pharm}).status_code == 200
+    desk = add(display_name="New Desk", email="desk@hospital.example", role="staff", team="front_desk")
+    assert client.get("/api/pharmacy-orders/staff/queue", headers={"X-Bioverse-User": desk}).status_code == 403
+    student = add(display_name="New Student", email="student@hospital.example", role="student")
+    assert client.get("/api/learning/cases", headers={"X-Bioverse-User": student}).status_code == 200
+    doc = add(display_name="Dr. New", email="newdoc@hospital.example", role="clinician", specialty="Dermatology",
+              consult_fee_dollars=45)
+    with psycopg.connect(DB, row_factory=dict_row) as conn:
+        fee = conn.execute("SELECT cp.fee_cents FROM consult_profiles cp JOIN practitioners p ON p.id = cp.practitioner_id "
+                           "WHERE p.user_id = %s", (doc,)).fetchone()["fee_cents"]
+    assert fee == 4500
+    # Moving the pharmacist to the front desk removes pharmacy access.
+    assert client.patch(f"/api/admin/users/{pharm}", headers=ADMIN, json={"team": "front_desk"}).status_code == 200
+    assert client.get("/api/pharmacy-orders/staff/queue", headers={"X-Bioverse-User": pharm}).status_code == 403

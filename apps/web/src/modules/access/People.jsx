@@ -15,7 +15,7 @@ const MODE = {
 };
 
 function AddPerson({ onDone }) {
-  const blank = { display_name: "", email: "", role: "staff", team: "front_desk", specialty: "", birth_date: "" };
+  const blank = { display_name: "", email: "", role: "staff", team: "front_desk", specialty: "", birth_date: "", fee: "" };
   const [f, setF] = useState(blank);
   const [state, setState] = useState({ busy: false, error: null });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
@@ -28,6 +28,7 @@ function AddPerson({ onDone }) {
         display_name: f.display_name, email: f.email, role: f.role,
         team: f.role === "staff" ? f.team : null,
         specialty: f.role === "clinician" ? f.specialty : null,
+        consult_fee_dollars: f.role === "clinician" && f.fee !== "" ? Number(f.fee) : null,
         birth_date: f.role === "patient" ? f.birth_date || null : null,
       } });
       setF(blank);
@@ -49,7 +50,7 @@ function AddPerson({ onDone }) {
           <input required type="email" value={f.email} onChange={set("email")} /></label>
         <label className="stack" style={{ gap: 4 }}><span className="small strong">Role</span>
           <select value={f.role} onChange={set("role")}>
-            {["staff", "clinician", "admin", "patient"].map((r) => <option key={r} value={r}>{ROLE[r]}</option>)}
+            {["staff", "clinician", "admin", "patient", "student"].map((r) => <option key={r} value={r}>{ROLE[r]}</option>)}
           </select></label>
         {f.role === "staff" && (
           <label className="stack" style={{ gap: 4 }}><span className="small strong">Team</span>
@@ -60,6 +61,10 @@ function AddPerson({ onDone }) {
         {f.role === "clinician" && (
           <label className="stack" style={{ gap: 4 }}><span className="small strong">Specialty</span>
             <input required value={f.specialty} onChange={set("specialty")} placeholder="e.g. Cardiology" /></label>
+        )}
+        {f.role === "clinician" && (
+          <label className="stack" style={{ gap: 4 }}><span className="small strong">Online consult fee ($)</span>
+            <input type="number" min="0" max="2000" value={f.fee} onChange={set("fee")} placeholder="e.g. 49" /></label>
         )}
         {f.role === "patient" && (
           <label className="stack" style={{ gap: 4 }}><span className="small strong">Date of birth</span>

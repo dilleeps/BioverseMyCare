@@ -55,9 +55,10 @@ def list_users(conn: DbConn, admin: Admin) -> dict:
 class NewUser(BaseModel):
     display_name: str = Field(min_length=2, max_length=120)
     email: str
-    role: Literal["admin", "staff", "clinician", "patient"]
+    role: Literal["admin", "staff", "clinician", "patient", "student"]
     team: Literal["front_desk", "pharmacy"] | None = None
     specialty: str | None = Field(default=None, max_length=80)
+    consult_fee_dollars: int | None = Field(default=None, ge=0, le=2000)
     location_name: str | None = Field(default=None, max_length=120)
     birth_date: date | None = None
 
@@ -80,10 +81,17 @@ def create_user(body: NewUser, conn: DbConn, admin: Admin) -> dict:
         (body.role, body.display_name, body.email, admin.organization_id, body.team if body.role == "staff" else None),
     ).fetchone()["id"]
     if body.role == "clinician":
-        conn.execute(
-            "INSERT INTO practitioners (user_id, organization_id, name, specialty, location_name) VALUES (%s, %s, %s, %s, %s)",
+        practitioner_id = conn.execute(
+            "INSERT INTO practitioners (user_id, organization_id, name, specialty, location_name) VALUES (%s, %s, %s, %s, %s) RETURNING id",
             (user_id, admin.organization_id, body.display_name, body.specialty, body.location_name or "Main clinic"),
+        ).fetchone()["id"]
+        # Online consult profile; they appear in the directory once their license is verified.
+        conn.execute(
+            "INSERT INTO consult_profiles (practitioner_id, modes, fee_cents) VALUES (%s, '{message,video}', %s)",
+            (practitioner_id, (body.consult_fee_dollars or 0) * 100),
         )
+    if body.role == "staff":
+        _sync_pharmacy_staff(conn, user_id, admin.organization_id, body.team)
     if body.role == "patient":
         conn.execute(
             "INSERT INTO patients (user_id, organization_id, name, birth_date) VALUES (%s, %s, %s, %s)",
@@ -105,6 +113,22 @@ class UserPatch(BaseModel):
     @classmethod
     def check_email(cls, v: str | None) -> str | None:
         return _email(v)
+
+
+def _sync_pharmacy_staff(conn, user_id: str, org_id: str, team: str | None) -> None:
+    """Pharmacy-team staff are pharmacists: the order verification queue checks pharmacy_staff."""
+    if team == "pharmacy":
+        conn.execute(
+            """
+            INSERT INTO pharmacy_staff (user_id, organization_id, pharmacy_id)
+            VALUES (%s, %s, (SELECT pharmacy_id FROM pharmacy_staff WHERE organization_id = %s
+                             AND pharmacy_id IS NOT NULL LIMIT 1))
+            ON CONFLICT (user_id) DO NOTHING
+            """,
+            (user_id, org_id, org_id),
+        )
+    else:
+        conn.execute("DELETE FROM pharmacy_staff WHERE user_id = %s", (user_id,))
 
 
 def _target(conn, admin, user_id: str) -> dict:
@@ -138,6 +162,10 @@ def update_user(user_id: str, body: UserPatch, conn: DbConn, admin: Admin) -> di
         params.append(None if changes["team"] == "none" else changes["team"])
     if sets:
         conn.execute(f"UPDATE users SET {', '.join(sets)} WHERE id::text = %s", (*params, user_id))
+    if "team" in changes or "role" in changes:
+        row = conn.execute("SELECT role, team, organization_id::text FROM users WHERE id::text = %s", (user_id,)).fetchone()
+        if row["role"] == "staff" or row["team"] is None:
+            _sync_pharmacy_staff(conn, user_id, row["organization_id"], row["team"] if row["role"] == "staff" else None)
     if changes.get("disabled"):
         sessions.revoke_all(conn, user_id)
     audit.record(conn, action="access.user_update", entity_type="user", entity_id=user_id, actor=admin,
